@@ -19,35 +19,72 @@ import ReadingPage from '@/pages/ReadingPage';
 import CardsPage from '@/pages/CardsPage';
 import GamePage from '@/pages/GamePage';
 import BlogPage from '@/pages/BlogPage';
+import ProductDetailPage from '@/pages/ProductDetailPage';
+import NFCScannerOverlay from '@/components/NFCScannerOverlay';
 
 // IDE Refresh trigger
 
-type PageType = 'home' | 'reading' | 'cards' | 'shop' | 'game' | 'blog' | 'cart' | 'checkout' | 'admin' | 'profile' | 'auth';
+type PageType = 'home' | 'reading' | 'cards' | 'shop' | 'product-detail' | 'game' | 'blog' | 'cart' | 'checkout' | 'admin' | 'profile' | 'auth';
 
 export default function App() {
   const [page, setPage] = useState<PageType>(() => {
     const path = window.location.pathname.substring(1);
-    const validPages = ['home', 'reading', 'cards', 'shop', 'game', 'blog', 'cart', 'checkout', 'admin', 'profile', 'auth'];
+    const validPages = ['home', 'reading', 'cards', 'shop', 'product-detail', 'game', 'blog', 'cart', 'checkout', 'admin', 'profile', 'auth'];
     return validPages.includes(path) ? (path as PageType) : 'home';
   });
+  const [selectedProductId, setSelectedProductId] = useState<number | null>(null);
   const [user, setUser] = useState<any>(null);
   const [credits, setCredits] = useState(0);
+  const [showScanner, setShowScanner] = useState(false);
   const [cart, setCart] = useState<any[]>([]);
   const [showPaywall, setShowPaywall] = useState(false);
 
   useEffect(() => {
-    window.history.pushState({}, '', page === 'home' ? '/' : `/${page}`);
-  }, [page]);
+    let path = page === 'home' ? '/' : `/${page}`;
+    if (page === 'product-detail' && selectedProductId) {
+      path = `/product/${selectedProductId}`;
+    }
+    window.history.pushState({}, '', path);
+  }, [page, selectedProductId]);
 
   useEffect(() => {
     const handlePopState = () => {
       const path = window.location.pathname.substring(1);
+      const parts = path.split('/');
+      
+      if (parts[0] === 'product' && parts[1]) {
+        setPage('product-detail');
+        setSelectedProductId(parseInt(parts[1]));
+        return;
+      }
+
       const validPages = ['home', 'reading', 'cards', 'shop', 'game', 'blog', 'cart', 'checkout', 'admin', 'profile', 'auth'];
       setPage(validPages.includes(path) ? (path as PageType) : 'home');
     };
+
+    // Check for tagId in URL for automatic NFC processing
+    const params = new URLSearchParams(window.location.search);
+    const tagId = params.get('tagId');
+    if (tagId) {
+      setShowScanner(true);
+      // Clean up the URL to prevent re-triggering on refresh
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
+
+  const viewProduct = (id: number) => {
+    setSelectedProductId(id);
+    setPage('product-detail');
+    window.scrollTo(0, 0);
+  };
+
+  const handleScanSuccess = (addedCredits: number) => {
+    setCredits(prev => prev + addedCredits);
+    setShowScanner(false);
+  };
 
   const logout = () => { setUser(null); setCredits(0); setPage('home'); };
   const consumeCredit = () => {
@@ -82,13 +119,14 @@ export default function App() {
       {page === 'home' && <HomePage setPage={setPage} user={user} />}
       {page === 'reading' && <ReadingPage user={user} consumeCredit={consumeCredit} setPage={setPage} />}
       {page === 'cards' && <CardsPage />}
-      {page === 'shop' && <ShopPage addToCart={addToCart} />}
+      {page === 'shop' && <ShopPage addToCart={addToCart} viewProduct={viewProduct} />}
+      {page === 'product-detail' && selectedProductId && <ProductDetailPage productId={selectedProductId} setPage={setPage} addToCart={addToCart} />}
       {page === 'cart' && <CartPage cart={cart} updateQty={updateQty} removeFromCart={removeFromCart} total={cartTotal} setPage={setPage} />}
       {page === 'checkout' && <CheckoutPage cart={cart} total={cartTotal} setPage={setPage} />}
       {page === 'game' && <GamePage />}
       {page === 'blog' && <BlogPage />}
       {page === 'admin' && <AdminPage setPage={setPage} />}
-      {page === 'profile' && <ProfilePage user={user} setPage={setPage} />}
+      {page === 'profile' && <ProfilePage user={user} setPage={setPage} onScanClick={() => setShowScanner(true)} />}
       {page === 'auth' && <AuthPage setUser={setUser} setCredits={setCredits} setPage={setPage} />}
 
       <Footer setPage={setPage} />
@@ -109,6 +147,13 @@ export default function App() {
             <button onClick={() => setShowPaywall(false)} className="text-gray-500 hover:text-gray-700 text-sm">Để sau</button>
           </div>
         </div>
+      )}
+
+      {showScanner && (
+        <NFCScannerOverlay 
+          onSuccess={handleScanSuccess} 
+          onClose={() => setShowScanner(false)} 
+        />
       )}
     </div>
   );
