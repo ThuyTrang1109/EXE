@@ -1,0 +1,1464 @@
+{
+  "cards": [
+    {
+      "id": 0,
+      "name": "The Fool",
+      "arcana": "Major",
+      "number": 0,
+      "image": "/tarot-cards/00-the-fool.jpg",
+      "meanings": {
+        "general": "The Fool là lá bài của khởi đầu mới, sự tinh nghịch và niềm tin vô điều kiện vào cuộc sống. Bạn đang đứng trước một cánh cửa mở ra những khả năng vô tận.",
+        "love": "Một tình yêu mới đang đến gần. Hãy mở lòng và đón nhận cảm xúc mới mẻ. Đừng sợ bị tổn thương, vì mỗi cuộc tình đều là bài học quý giá.",
+        "marriage": "Trong hôn nhân, The Fool cho thấy the fool là lá bài của khởi đầu mới, sự tinh nghịch và niềm tin vô điều kiện vào cuộc sống. bạn đang... Hãy cùng nhau xây dựng tổ ấm.",
+        "career": "Về sự nghiệp, The Fool khuyên bạn nên the fool là lá bài của khởi đầu mới, sự tinh nghịch và niềm tin vô điều kiện vào cuộc sống. bạn đang... Cơ hội thăng tiến đang đến gần.",
+        "study": "Trong học tập, The Fool báo hiệu the fool là lá bài của khởi đầu mới, sự tinh nghịch và niềm tin vô điều kiện vào cuộc sống. bạn đang... Hãy tập trung vào mục tiêu của bạn.",
+        "finance": "Về tài chính, The Fool cho thấy the fool là lá bài của khởi đầu mới, sự tinh nghịch và niềm tin vô điều kiện vào cuộc sống. bạn đang... Quản lý chi tiêu một cách khôn ngoan.",
+        "investment": "Về đầu tư, The Fool khuyên the fool là lá bài của khởi đầu mới, sự tinh nghịch và niềm tin vô điều kiện vào cuộc sống. bạn đang... Hãy cân nhắc kỹ trước khi quyết định.",
+        "health": "Về sức khỏe, The Fool nhắc nhở the fool là lá bài của khởi đầu mới, sự tinh nghịch và niềm tin vô điều kiện vào cuộc sống. bạn đang... Chăm sóc bản thân là ưu tiên hàng đầu.",
+        "self": "Về bản thân, The Fool kêu gọi the fool là lá bài của khởi đầu mới, sự tinh nghịch và niềm tin vô điều kiện vào cuộc sống. bạn đang... Hành trình chữa lành bắt đầu từ bên trong."
+      }
+    },
+    {
+      "id": 1,
+      "name": "The Magician",
+      "arcana": "Major",
+      "number": 1,
+      "image": "/tarot-cards/01-the-magician.jpg",
+      "meanings": {
+        "general": "The Magician tượng trưng cho sức mạnh ý chí, khả năng biến ước mơ thành hiện thực. Bạn có mọi công cụ cần thiết để thành công.",
+        "love": "Bạn có sức hút đặc biệt trong thờ gian này. Hãy chủ động thể hiện cảm xúc, đừng ngần ngại tỏ tình hoặc bày tỏ tình cảm với ngườ bạn thích.",
+        "marriage": "Trong hôn nhân, The Magician cho thấy the magician tượng trưng cho sức mạnh ý chí, khả năng biến ước mơ thành hiện thực. bạn có mọi công c... Hãy cùng nhau xây dựng tổ ấm.",
+        "career": "Về sự nghiệp, The Magician khuyên bạn nên the magician tượng trưng cho sức mạnh ý chí, khả năng biến ước mơ thành hiện thực. bạn có mọi công c... Cơ hội thăng tiến đang đến gần.",
+        "study": "Trong học tập, The Magician báo hiệu the magician tượng trưng cho sức mạnh ý chí, khả năng biến ước mơ thành hiện thực. bạn có mọi công c... Hãy tập trung vào mục tiêu của bạn.",
+        "finance": "Về tài chính, The Magician cho thấy the magician tượng trưng cho sức mạnh ý chí, khả năng biến ước mơ thành hiện thực. bạn có mọi công c... Quản lý chi tiêu một cách khôn ngoan.",
+        "investment": "Về đầu tư, The Magician khuyên the magician tượng trưng cho sức mạnh ý chí, khả năng biến ước mơ thành hiện thực. bạn có mọi công c... Hãy cân nhắc kỹ trước khi quyết định.",
+        "health": "Về sức khỏe, The Magician nhắc nhở the magician tượng trưng cho sức mạnh ý chí, khả năng biến ước mơ thành hiện thực. bạn có mọi công c... Chăm sóc bản thân là ưu tiên hàng đầu.",
+        "self": "Về bản thân, The Magician kêu gọi the magician tượng trưng cho sức mạnh ý chí, khả năng biến ước mơ thành hiện thực. bạn có mọi công c... Hành trình chữa lành bắt đầu từ bên trong."
+      }
+    },
+    {
+      "id": 2,
+      "name": "The High Priestess",
+      "arcana": "Major",
+      "number": 2,
+      "image": "/tarot-cards/02-the-high-priestess.jpg",
+      "meanings": {
+        "general": "The High Priestess đại diện cho trực giác, sự khôn ngoan bên trong và những bí mật chưa được khám phá. Hãy lắng nghe tiếng nói bên trong.",
+        "love": "Hãy lắng nghe trực giác của mình trong chuyện tình cảm. Có thể có những điều chưa được nói ra, hãy tin tưởng vào cảm giác bên trong.",
+        "marriage": "Trong hôn nhân, The High Priestess cho thấy the high priestess đại diện cho trực giác, sự khôn ngoan bên trong và những bí mật chưa được khám ph... Hãy cùng nhau xây dựng tổ ấm.",
+        "career": "Về sự nghiệp, The High Priestess khuyên bạn nên the high priestess đại diện cho trực giác, sự khôn ngoan bên trong và những bí mật chưa được khám ph... Cơ hội thăng tiến đang đến gần.",
+        "study": "Trong học tập, The High Priestess báo hiệu the high priestess đại diện cho trực giác, sự khôn ngoan bên trong và những bí mật chưa được khám ph... Hãy tập trung vào mục tiêu của bạn.",
+        "finance": "Về tài chính, The High Priestess cho thấy the high priestess đại diện cho trực giác, sự khôn ngoan bên trong và những bí mật chưa được khám ph... Quản lý chi tiêu một cách khôn ngoan.",
+        "investment": "Về đầu tư, The High Priestess khuyên the high priestess đại diện cho trực giác, sự khôn ngoan bên trong và những bí mật chưa được khám ph... Hãy cân nhắc kỹ trước khi quyết định.",
+        "health": "Về sức khỏe, The High Priestess nhắc nhở the high priestess đại diện cho trực giác, sự khôn ngoan bên trong và những bí mật chưa được khám ph... Chăm sóc bản thân là ưu tiên hàng đầu.",
+        "self": "Về bản thân, The High Priestess kêu gọi the high priestess đại diện cho trực giác, sự khôn ngoan bên trong và những bí mật chưa được khám ph... Hành trình chữa lành bắt đầu từ bên trong."
+      }
+    },
+    {
+      "id": 3,
+      "name": "The Empress",
+      "arcana": "Major",
+      "number": 3,
+      "image": "/tarot-cards/03-the-empress.jpg",
+      "meanings": {
+        "general": "The Empress mang năng lượng của sự phồn thịnh, sáng tạo và tình yêu vô điều kiện. Một thờ kỳ thịnh vượng và phát triển đang đến.",
+        "love": "Tình yêu của bạn sẽ đơm hoa kết trái. Một mối quan hệ ấm áp, đầy sự chăm sóc và yêu thương đang chờ đón.",
+        "marriage": "Trong hôn nhân, The Empress cho thấy the empress mang năng lượng của sự phồn thịnh, sáng tạo và tình yêu vô điều kiện. một thờ kỳ thịnh v... Hãy cùng nhau xây dựng tổ ấm.",
+        "career": "Về sự nghiệp, The Empress khuyên bạn nên the empress mang năng lượng của sự phồn thịnh, sáng tạo và tình yêu vô điều kiện. một thờ kỳ thịnh v... Cơ hội thăng tiến đang đến gần.",
+        "study": "Trong học tập, The Empress báo hiệu the empress mang năng lượng của sự phồn thịnh, sáng tạo và tình yêu vô điều kiện. một thờ kỳ thịnh v... Hãy tập trung vào mục tiêu của bạn.",
+        "finance": "Về tài chính, The Empress cho thấy the empress mang năng lượng của sự phồn thịnh, sáng tạo và tình yêu vô điều kiện. một thờ kỳ thịnh v... Quản lý chi tiêu một cách khôn ngoan.",
+        "investment": "Về đầu tư, The Empress khuyên the empress mang năng lượng của sự phồn thịnh, sáng tạo và tình yêu vô điều kiện. một thờ kỳ thịnh v... Hãy cân nhắc kỹ trước khi quyết định.",
+        "health": "Về sức khỏe, The Empress nhắc nhở the empress mang năng lượng của sự phồn thịnh, sáng tạo và tình yêu vô điều kiện. một thờ kỳ thịnh v... Chăm sóc bản thân là ưu tiên hàng đầu.",
+        "self": "Về bản thân, The Empress kêu gọi the empress mang năng lượng của sự phồn thịnh, sáng tạo và tình yêu vô điều kiện. một thờ kỳ thịnh v... Hành trình chữa lành bắt đầu từ bên trong."
+      }
+    },
+    {
+      "id": 4,
+      "name": "The Emperor",
+      "arcana": "Major",
+      "number": 4,
+      "image": "/tarot-cards/04-the-emperor.jpg",
+      "meanings": {
+        "general": "The Emperor tượng trưng cho sự ổn định, quyền lực và kỷ luật. Đây là thờ điểm để xây dựng nền móng vững chắc.",
+        "love": "Mối quan hệ cần sự ổn định và cam kết. Đã đến lúc nghiêm túc về tương lai chung, đặt nền móng cho mối quan hệ bền vững.",
+        "marriage": "Trong hôn nhân, The Emperor cho thấy the emperor tượng trưng cho sự ổn định, quyền lực và kỷ luật. đây là thờ điểm để xây dựng nền móng v... Hãy cùng nhau xây dựng tổ ấm.",
+        "career": "Về sự nghiệp, The Emperor khuyên bạn nên the emperor tượng trưng cho sự ổn định, quyền lực và kỷ luật. đây là thờ điểm để xây dựng nền móng v... Cơ hội thăng tiến đang đến gần.",
+        "study": "Trong học tập, The Emperor báo hiệu the emperor tượng trưng cho sự ổn định, quyền lực và kỷ luật. đây là thờ điểm để xây dựng nền móng v... Hãy tập trung vào mục tiêu của bạn.",
+        "finance": "Về tài chính, The Emperor cho thấy the emperor tượng trưng cho sự ổn định, quyền lực và kỷ luật. đây là thờ điểm để xây dựng nền móng v... Quản lý chi tiêu một cách khôn ngoan.",
+        "investment": "Về đầu tư, The Emperor khuyên the emperor tượng trưng cho sự ổn định, quyền lực và kỷ luật. đây là thờ điểm để xây dựng nền móng v... Hãy cân nhắc kỹ trước khi quyết định.",
+        "health": "Về sức khỏe, The Emperor nhắc nhở the emperor tượng trưng cho sự ổn định, quyền lực và kỷ luật. đây là thờ điểm để xây dựng nền móng v... Chăm sóc bản thân là ưu tiên hàng đầu.",
+        "self": "Về bản thân, The Emperor kêu gọi the emperor tượng trưng cho sự ổn định, quyền lực và kỷ luật. đây là thờ điểm để xây dựng nền móng v... Hành trình chữa lành bắt đầu từ bên trong."
+      }
+    },
+    {
+      "id": 5,
+      "name": "The Hierophant",
+      "arcana": "Major",
+      "number": 5,
+      "image": "/tarot-cards/05-the-hierophant.jpg",
+      "meanings": {
+        "general": "The Hierophant đại diện cho truyền thống, giáo dục và sự hướng dẫn tinh thần. Bạn có thể tìm thấy câu trả lờ từ ngườ thầy hoặc tổ chức.",
+        "love": "Có thể bạn sẽ gặp ngườ ấy thông qua mai mối hoặc giới thiệu. Hãy mở lòng với những ngườ có cùng giá trị và niềm tin.",
+        "marriage": "Trong hôn nhân, The Hierophant cho thấy the hierophant đại diện cho truyền thống, giáo dục và sự hướng dẫn tinh thần. bạn có thể tìm thấy câ... Hãy cùng nhau xây dựng tổ ấm.",
+        "career": "Về sự nghiệp, The Hierophant khuyên bạn nên the hierophant đại diện cho truyền thống, giáo dục và sự hướng dẫn tinh thần. bạn có thể tìm thấy câ... Cơ hội thăng tiến đang đến gần.",
+        "study": "Trong học tập, The Hierophant báo hiệu the hierophant đại diện cho truyền thống, giáo dục và sự hướng dẫn tinh thần. bạn có thể tìm thấy câ... Hãy tập trung vào mục tiêu của bạn.",
+        "finance": "Về tài chính, The Hierophant cho thấy the hierophant đại diện cho truyền thống, giáo dục và sự hướng dẫn tinh thần. bạn có thể tìm thấy câ... Quản lý chi tiêu một cách khôn ngoan.",
+        "investment": "Về đầu tư, The Hierophant khuyên the hierophant đại diện cho truyền thống, giáo dục và sự hướng dẫn tinh thần. bạn có thể tìm thấy câ... Hãy cân nhắc kỹ trước khi quyết định.",
+        "health": "Về sức khỏe, The Hierophant nhắc nhở the hierophant đại diện cho truyền thống, giáo dục và sự hướng dẫn tinh thần. bạn có thể tìm thấy câ... Chăm sóc bản thân là ưu tiên hàng đầu.",
+        "self": "Về bản thân, The Hierophant kêu gọi the hierophant đại diện cho truyền thống, giáo dục và sự hướng dẫn tinh thần. bạn có thể tìm thấy câ... Hành trình chữa lành bắt đầu từ bên trong."
+      }
+    },
+    {
+      "id": 6,
+      "name": "The Lovers",
+      "arcana": "Major",
+      "number": 6,
+      "image": "/tarot-cards/06-the-lovers.jpg",
+      "meanings": {
+        "general": "The Lovers không chỉ về tình yêu đôi lứa mà còn về sự lựa chọn và hài hòa. Một quyết định quan trọng liên quan đến trái tim đang chờ bạn.",
+        "love": "Một lựa chọn quan trọng trong tình yêu đang chờ bạn. Hãy theo dõi trái tim nhưng đừng quên lý trí. Tình yêu đích thực cần sự hài hòa.",
+        "marriage": "Trong hôn nhân, The Lovers cho thấy the lovers không chỉ về tình yêu đôi lứa mà còn về sự lựa chọn và hài hòa. một quyết định quan trọng... Hãy cùng nhau xây dựng tổ ấm.",
+        "career": "Về sự nghiệp, The Lovers khuyên bạn nên the lovers không chỉ về tình yêu đôi lứa mà còn về sự lựa chọn và hài hòa. một quyết định quan trọng... Cơ hội thăng tiến đang đến gần.",
+        "study": "Trong học tập, The Lovers báo hiệu the lovers không chỉ về tình yêu đôi lứa mà còn về sự lựa chọn và hài hòa. một quyết định quan trọng... Hãy tập trung vào mục tiêu của bạn.",
+        "finance": "Về tài chính, The Lovers cho thấy the lovers không chỉ về tình yêu đôi lứa mà còn về sự lựa chọn và hài hòa. một quyết định quan trọng... Quản lý chi tiêu một cách khôn ngoan.",
+        "investment": "Về đầu tư, The Lovers khuyên the lovers không chỉ về tình yêu đôi lứa mà còn về sự lựa chọn và hài hòa. một quyết định quan trọng... Hãy cân nhắc kỹ trước khi quyết định.",
+        "health": "Về sức khỏe, The Lovers nhắc nhở the lovers không chỉ về tình yêu đôi lứa mà còn về sự lựa chọn và hài hòa. một quyết định quan trọng... Chăm sóc bản thân là ưu tiên hàng đầu.",
+        "self": "Về bản thân, The Lovers kêu gọi the lovers không chỉ về tình yêu đôi lứa mà còn về sự lựa chọn và hài hòa. một quyết định quan trọng... Hành trình chữa lành bắt đầu từ bên trong."
+      }
+    },
+    {
+      "id": 7,
+      "name": "The Chariot",
+      "arcana": "Major",
+      "number": 7,
+      "image": "/tarot-cards/07-the-chariot.jpg",
+      "meanings": {
+        "general": "The Chariot mang thông điệp của chiến thắng, quyết tâm và sự kiểm soát. Với ý chí mạnh mẽ, bạn sẽ vượt qua mọi chướng ngại.",
+        "love": "Nếu đang theo đuổi ai đó, đây là thờ điểm tấn công. Sự quyết tâm và nhiệt tình của bạn sẽ chinh phục được trái tim ngườ ấy.",
+        "marriage": "Trong hôn nhân, The Chariot cho thấy the chariot mang thông điệp của chiến thắng, quyết tâm và sự kiểm soát. với ý chí mạnh mẽ, bạn sẽ vư... Hãy cùng nhau xây dựng tổ ấm.",
+        "career": "Về sự nghiệp, The Chariot khuyên bạn nên the chariot mang thông điệp của chiến thắng, quyết tâm và sự kiểm soát. với ý chí mạnh mẽ, bạn sẽ vư... Cơ hội thăng tiến đang đến gần.",
+        "study": "Trong học tập, The Chariot báo hiệu the chariot mang thông điệp của chiến thắng, quyết tâm và sự kiểm soát. với ý chí mạnh mẽ, bạn sẽ vư... Hãy tập trung vào mục tiêu của bạn.",
+        "finance": "Về tài chính, The Chariot cho thấy the chariot mang thông điệp của chiến thắng, quyết tâm và sự kiểm soát. với ý chí mạnh mẽ, bạn sẽ vư... Quản lý chi tiêu một cách khôn ngoan.",
+        "investment": "Về đầu tư, The Chariot khuyên the chariot mang thông điệp của chiến thắng, quyết tâm và sự kiểm soát. với ý chí mạnh mẽ, bạn sẽ vư... Hãy cân nhắc kỹ trước khi quyết định.",
+        "health": "Về sức khỏe, The Chariot nhắc nhở the chariot mang thông điệp của chiến thắng, quyết tâm và sự kiểm soát. với ý chí mạnh mẽ, bạn sẽ vư... Chăm sóc bản thân là ưu tiên hàng đầu.",
+        "self": "Về bản thân, The Chariot kêu gọi the chariot mang thông điệp của chiến thắng, quyết tâm và sự kiểm soát. với ý chí mạnh mẽ, bạn sẽ vư... Hành trình chữa lành bắt đầu từ bên trong."
+      }
+    },
+    {
+      "id": 8,
+      "name": "Strength",
+      "arcana": "Major",
+      "number": 8,
+      "image": "/tarot-cards/08-strength.jpg",
+      "meanings": {
+        "general": "Strength không phải sức mạnh thể chất mà là sức mạnh nội tâm, sự kiên nhẫn và lòng can đảm. Bạn mạnh mẽ hơn bạn nghĩ.",
+        "love": "Tình yêu cần sự kiên nhẫn và nhẹ nhàng. Đừng vội vàng, hãy để mọi thứ phát triển tự nhiên. Sự chân thành sẽ làm nên điều kỳ diệu.",
+        "marriage": "Trong hôn nhân, Strength cho thấy strength không phải sức mạnh thể chất mà là sức mạnh nội tâm, sự kiên nhẫn và lòng can đảm. bạn mạnh... Hãy cùng nhau xây dựng tổ ấm.",
+        "career": "Về sự nghiệp, Strength khuyên bạn nên strength không phải sức mạnh thể chất mà là sức mạnh nội tâm, sự kiên nhẫn và lòng can đảm. bạn mạnh... Cơ hội thăng tiến đang đến gần.",
+        "study": "Trong học tập, Strength báo hiệu strength không phải sức mạnh thể chất mà là sức mạnh nội tâm, sự kiên nhẫn và lòng can đảm. bạn mạnh... Hãy tập trung vào mục tiêu của bạn.",
+        "finance": "Về tài chính, Strength cho thấy strength không phải sức mạnh thể chất mà là sức mạnh nội tâm, sự kiên nhẫn và lòng can đảm. bạn mạnh... Quản lý chi tiêu một cách khôn ngoan.",
+        "investment": "Về đầu tư, Strength khuyên strength không phải sức mạnh thể chất mà là sức mạnh nội tâm, sự kiên nhẫn và lòng can đảm. bạn mạnh... Hãy cân nhắc kỹ trước khi quyết định.",
+        "health": "Về sức khỏe, Strength nhắc nhở strength không phải sức mạnh thể chất mà là sức mạnh nội tâm, sự kiên nhẫn và lòng can đảm. bạn mạnh... Chăm sóc bản thân là ưu tiên hàng đầu.",
+        "self": "Về bản thân, Strength kêu gọi strength không phải sức mạnh thể chất mà là sức mạnh nội tâm, sự kiên nhẫn và lòng can đảm. bạn mạnh... Hành trình chữa lành bắt đầu từ bên trong."
+      }
+    },
+    {
+      "id": 9,
+      "name": "The Hermit",
+      "arcana": "Major",
+      "number": 9,
+      "image": "/tarot-cards/09-the-hermit.jpg",
+      "meanings": {
+        "general": "The Hermit kêu gọi sự nội tâm hóa, tìm kiếm chân lý trong sự cô độc. Đôi khi chúng ta cần rút lui để tìm thấy ánh sáng.",
+        "love": "Có thể bạn cần thờ gian một mình để suy ngẫm về tình yêu. Đừng vội vàng tìm kiếm, hãy tìm hiểu chính mình trước.",
+        "marriage": "Trong hôn nhân, The Hermit cho thấy the hermit kêu gọi sự nội tâm hóa, tìm kiếm chân lý trong sự cô độc. đôi khi chúng ta cần rút lui để... Hãy cùng nhau xây dựng tổ ấm.",
+        "career": "Về sự nghiệp, The Hermit khuyên bạn nên the hermit kêu gọi sự nội tâm hóa, tìm kiếm chân lý trong sự cô độc. đôi khi chúng ta cần rút lui để... Cơ hội thăng tiến đang đến gần.",
+        "study": "Trong học tập, The Hermit báo hiệu the hermit kêu gọi sự nội tâm hóa, tìm kiếm chân lý trong sự cô độc. đôi khi chúng ta cần rút lui để... Hãy tập trung vào mục tiêu của bạn.",
+        "finance": "Về tài chính, The Hermit cho thấy the hermit kêu gọi sự nội tâm hóa, tìm kiếm chân lý trong sự cô độc. đôi khi chúng ta cần rút lui để... Quản lý chi tiêu một cách khôn ngoan.",
+        "investment": "Về đầu tư, The Hermit khuyên the hermit kêu gọi sự nội tâm hóa, tìm kiếm chân lý trong sự cô độc. đôi khi chúng ta cần rút lui để... Hãy cân nhắc kỹ trước khi quyết định.",
+        "health": "Về sức khỏe, The Hermit nhắc nhở the hermit kêu gọi sự nội tâm hóa, tìm kiếm chân lý trong sự cô độc. đôi khi chúng ta cần rút lui để... Chăm sóc bản thân là ưu tiên hàng đầu.",
+        "self": "Về bản thân, The Hermit kêu gọi the hermit kêu gọi sự nội tâm hóa, tìm kiếm chân lý trong sự cô độc. đôi khi chúng ta cần rút lui để... Hành trình chữa lành bắt đầu từ bên trong."
+      }
+    },
+    {
+      "id": 10,
+      "name": "Wheel of Fortune",
+      "arcana": "Major",
+      "number": 10,
+      "image": "/tarot-cards/10-wheel-of-fortune.jpg",
+      "meanings": {
+        "general": "Wheel of Fortune nhắc nhở rằng cuộc sống là vòng quay của vận mệnh. Thay đổi đang đến, và vũ trụ đang đứng về phía bạn.",
+        "love": "Vận mệnh tình yêu đang thay đổi. Một ngườ từ quá khứ có thể quay lại, hoặc một cuộc gặp gỡ định mệnh sắp xảy ra.",
+        "marriage": "Trong hôn nhân, Wheel of Fortune cho thấy wheel of fortune nhắc nhở rằng cuộc sống là vòng quay của vận mệnh. thay đổi đang đến, và vũ trụ đan... Hãy cùng nhau xây dựng tổ ấm.",
+        "career": "Về sự nghiệp, Wheel of Fortune khuyên bạn nên wheel of fortune nhắc nhở rằng cuộc sống là vòng quay của vận mệnh. thay đổi đang đến, và vũ trụ đan... Cơ hội thăng tiến đang đến gần.",
+        "study": "Trong học tập, Wheel of Fortune báo hiệu wheel of fortune nhắc nhở rằng cuộc sống là vòng quay của vận mệnh. thay đổi đang đến, và vũ trụ đan... Hãy tập trung vào mục tiêu của bạn.",
+        "finance": "Về tài chính, Wheel of Fortune cho thấy wheel of fortune nhắc nhở rằng cuộc sống là vòng quay của vận mệnh. thay đổi đang đến, và vũ trụ đan... Quản lý chi tiêu một cách khôn ngoan.",
+        "investment": "Về đầu tư, Wheel of Fortune khuyên wheel of fortune nhắc nhở rằng cuộc sống là vòng quay của vận mệnh. thay đổi đang đến, và vũ trụ đan... Hãy cân nhắc kỹ trước khi quyết định.",
+        "health": "Về sức khỏe, Wheel of Fortune nhắc nhở wheel of fortune nhắc nhở rằng cuộc sống là vòng quay của vận mệnh. thay đổi đang đến, và vũ trụ đan... Chăm sóc bản thân là ưu tiên hàng đầu.",
+        "self": "Về bản thân, Wheel of Fortune kêu gọi wheel of fortune nhắc nhở rằng cuộc sống là vòng quay của vận mệnh. thay đổi đang đến, và vũ trụ đan... Hành trình chữa lành bắt đầu từ bên trong."
+      }
+    },
+    {
+      "id": 11,
+      "name": "Justice",
+      "arcana": "Major",
+      "number": 11,
+      "image": "/tarot-cards/11-justice.jpg",
+      "meanings": {
+        "general": "Justice đại diện cho sự công bằng, sự thật và trách nhiệm. Mọi hành động đều có hậu quả, và công lý sẽ được thực thi.",
+        "love": "Công bằng sẽ đến với tình yêu của bạn. Nếu bạn đã chân thành, bạn sẽ nhận được xứng đáng. Hãy đối xử công bằng với đối phương.",
+        "marriage": "Trong hôn nhân, Justice cho thấy justice đại diện cho sự công bằng, sự thật và trách nhiệm. mọi hành động đều có hậu quả, và công lý ... Hãy cùng nhau xây dựng tổ ấm.",
+        "career": "Về sự nghiệp, Justice khuyên bạn nên justice đại diện cho sự công bằng, sự thật và trách nhiệm. mọi hành động đều có hậu quả, và công lý ... Cơ hội thăng tiến đang đến gần.",
+        "study": "Trong học tập, Justice báo hiệu justice đại diện cho sự công bằng, sự thật và trách nhiệm. mọi hành động đều có hậu quả, và công lý ... Hãy tập trung vào mục tiêu của bạn.",
+        "finance": "Về tài chính, Justice cho thấy justice đại diện cho sự công bằng, sự thật và trách nhiệm. mọi hành động đều có hậu quả, và công lý ... Quản lý chi tiêu một cách khôn ngoan.",
+        "investment": "Về đầu tư, Justice khuyên justice đại diện cho sự công bằng, sự thật và trách nhiệm. mọi hành động đều có hậu quả, và công lý ... Hãy cân nhắc kỹ trước khi quyết định.",
+        "health": "Về sức khỏe, Justice nhắc nhở justice đại diện cho sự công bằng, sự thật và trách nhiệm. mọi hành động đều có hậu quả, và công lý ... Chăm sóc bản thân là ưu tiên hàng đầu.",
+        "self": "Về bản thân, Justice kêu gọi justice đại diện cho sự công bằng, sự thật và trách nhiệm. mọi hành động đều có hậu quả, và công lý ... Hành trình chữa lành bắt đầu từ bên trong."
+      }
+    },
+    {
+      "id": 12,
+      "name": "The Hanged Man",
+      "arcana": "Major",
+      "number": 12,
+      "image": "/tarot-cards/12-the-hanged-man.jpg",
+      "meanings": {
+        "general": "The Hanged Man mờ gọi bạn tạm dừng, nhìn nhận tình huống từ góc độ khác. Sự hy sinh tạm thờ sẽ mang lại trí tuệ.",
+        "love": "Có thể bạn đang hi sinh quá nhiều trong tình yêu. Hãy xem xét lại mối quan hệ từ góc nhìn khác, đừng để bản thân bị tổn thương mãi.",
+        "marriage": "Trong hôn nhân, The Hanged Man cho thấy the hanged man mờ gọi bạn tạm dừng, nhìn nhận tình huống từ góc độ khác. sự hy sinh tạm thờ sẽ mang ... Hãy cùng nhau xây dựng tổ ấm.",
+        "career": "Về sự nghiệp, The Hanged Man khuyên bạn nên the hanged man mờ gọi bạn tạm dừng, nhìn nhận tình huống từ góc độ khác. sự hy sinh tạm thờ sẽ mang ... Cơ hội thăng tiến đang đến gần.",
+        "study": "Trong học tập, The Hanged Man báo hiệu the hanged man mờ gọi bạn tạm dừng, nhìn nhận tình huống từ góc độ khác. sự hy sinh tạm thờ sẽ mang ... Hãy tập trung vào mục tiêu của bạn.",
+        "finance": "Về tài chính, The Hanged Man cho thấy the hanged man mờ gọi bạn tạm dừng, nhìn nhận tình huống từ góc độ khác. sự hy sinh tạm thờ sẽ mang ... Quản lý chi tiêu một cách khôn ngoan.",
+        "investment": "Về đầu tư, The Hanged Man khuyên the hanged man mờ gọi bạn tạm dừng, nhìn nhận tình huống từ góc độ khác. sự hy sinh tạm thờ sẽ mang ... Hãy cân nhắc kỹ trước khi quyết định.",
+        "health": "Về sức khỏe, The Hanged Man nhắc nhở the hanged man mờ gọi bạn tạm dừng, nhìn nhận tình huống từ góc độ khác. sự hy sinh tạm thờ sẽ mang ... Chăm sóc bản thân là ưu tiên hàng đầu.",
+        "self": "Về bản thân, The Hanged Man kêu gọi the hanged man mờ gọi bạn tạm dừng, nhìn nhận tình huống từ góc độ khác. sự hy sinh tạm thờ sẽ mang ... Hành trình chữa lành bắt đầu từ bên trong."
+      }
+    },
+    {
+      "id": 13,
+      "name": "Death",
+      "arcana": "Major",
+      "number": 13,
+      "image": "/tarot-cards/13-death.jpg",
+      "meanings": {
+        "general": "Death không phải là kết thúc tiêu cực mà là sự chuyển đổi mạnh mẽ. Một giai đoạn cũ đang kết thúc để mở ra sự tái sinh.",
+        "love": "Một giai đoạn tình cảm đang kết thúc. Đau đớn nhưng cần thiết để bạn tìm thấy tình yêu xứng đáng hơn.",
+        "marriage": "Trong hôn nhân, Death cho thấy death không phải là kết thúc tiêu cực mà là sự chuyển đổi mạnh mẽ. một giai đoạn cũ đang kết thúc để... Hãy cùng nhau xây dựng tổ ấm.",
+        "career": "Về sự nghiệp, Death khuyên bạn nên death không phải là kết thúc tiêu cực mà là sự chuyển đổi mạnh mẽ. một giai đoạn cũ đang kết thúc để... Cơ hội thăng tiến đang đến gần.",
+        "study": "Trong học tập, Death báo hiệu death không phải là kết thúc tiêu cực mà là sự chuyển đổi mạnh mẽ. một giai đoạn cũ đang kết thúc để... Hãy tập trung vào mục tiêu của bạn.",
+        "finance": "Về tài chính, Death cho thấy death không phải là kết thúc tiêu cực mà là sự chuyển đổi mạnh mẽ. một giai đoạn cũ đang kết thúc để... Quản lý chi tiêu một cách khôn ngoan.",
+        "investment": "Về đầu tư, Death khuyên death không phải là kết thúc tiêu cực mà là sự chuyển đổi mạnh mẽ. một giai đoạn cũ đang kết thúc để... Hãy cân nhắc kỹ trước khi quyết định.",
+        "health": "Về sức khỏe, Death nhắc nhở death không phải là kết thúc tiêu cực mà là sự chuyển đổi mạnh mẽ. một giai đoạn cũ đang kết thúc để... Chăm sóc bản thân là ưu tiên hàng đầu.",
+        "self": "Về bản thân, Death kêu gọi death không phải là kết thúc tiêu cực mà là sự chuyển đổi mạnh mẽ. một giai đoạn cũ đang kết thúc để... Hành trình chữa lành bắt đầu từ bên trong."
+      }
+    },
+    {
+      "id": 14,
+      "name": "Temperance",
+      "arcana": "Major",
+      "number": 14,
+      "image": "/tarot-cards/14-temperance.jpg",
+      "meanings": {
+        "general": "Temperance mang năng lượng của sự cân bằng, hòa hợp và kiên nhẫn. Hãy tìm kiếm sự điều độ trong mọi khía cạnh cuộc sống.",
+        "love": "Tình yêu cần sự cân bằng. Đừng quá nóng vội cũng đừng quá thờ ơ. Hãy tìm nhịp điệu phù hợp cho mối quan hệ.",
+        "marriage": "Trong hôn nhân, Temperance cho thấy temperance mang năng lượng của sự cân bằng, hòa hợp và kiên nhẫn. hãy tìm kiếm sự điều độ trong mọi ... Hãy cùng nhau xây dựng tổ ấm.",
+        "career": "Về sự nghiệp, Temperance khuyên bạn nên temperance mang năng lượng của sự cân bằng, hòa hợp và kiên nhẫn. hãy tìm kiếm sự điều độ trong mọi ... Cơ hội thăng tiến đang đến gần.",
+        "study": "Trong học tập, Temperance báo hiệu temperance mang năng lượng của sự cân bằng, hòa hợp và kiên nhẫn. hãy tìm kiếm sự điều độ trong mọi ... Hãy tập trung vào mục tiêu của bạn.",
+        "finance": "Về tài chính, Temperance cho thấy temperance mang năng lượng của sự cân bằng, hòa hợp và kiên nhẫn. hãy tìm kiếm sự điều độ trong mọi ... Quản lý chi tiêu một cách khôn ngoan.",
+        "investment": "Về đầu tư, Temperance khuyên temperance mang năng lượng của sự cân bằng, hòa hợp và kiên nhẫn. hãy tìm kiếm sự điều độ trong mọi ... Hãy cân nhắc kỹ trước khi quyết định.",
+        "health": "Về sức khỏe, Temperance nhắc nhở temperance mang năng lượng của sự cân bằng, hòa hợp và kiên nhẫn. hãy tìm kiếm sự điều độ trong mọi ... Chăm sóc bản thân là ưu tiên hàng đầu.",
+        "self": "Về bản thân, Temperance kêu gọi temperance mang năng lượng của sự cân bằng, hòa hợp và kiên nhẫn. hãy tìm kiếm sự điều độ trong mọi ... Hành trình chữa lành bắt đầu từ bên trong."
+      }
+    },
+    {
+      "id": 15,
+      "name": "The Devil",
+      "arcana": "Major",
+      "number": 15,
+      "image": "/tarot-cards/15-the-devil.jpg",
+      "meanings": {
+        "general": "The Devil cảnh báo về sự ràng buộc, cám dỗ và vật chất hóa. Bạn có thể đang bị giới hạn bởi nỗi sợ hoặc thói quen tiêu cực.",
+        "love": "Cẩn thận với sự ghen tuông và kiểm soát trong tình yêu. Đừng để cảm xúc tiêu cực làm hỏng mối quan hệ.",
+        "marriage": "Trong hôn nhân, The Devil cho thấy the devil cảnh báo về sự ràng buộc, cám dỗ và vật chất hóa. bạn có thể đang bị giới hạn bởi nỗi sợ h... Hãy cùng nhau xây dựng tổ ấm.",
+        "career": "Về sự nghiệp, The Devil khuyên bạn nên the devil cảnh báo về sự ràng buộc, cám dỗ và vật chất hóa. bạn có thể đang bị giới hạn bởi nỗi sợ h... Cơ hội thăng tiến đang đến gần.",
+        "study": "Trong học tập, The Devil báo hiệu the devil cảnh báo về sự ràng buộc, cám dỗ và vật chất hóa. bạn có thể đang bị giới hạn bởi nỗi sợ h... Hãy tập trung vào mục tiêu của bạn.",
+        "finance": "Về tài chính, The Devil cho thấy the devil cảnh báo về sự ràng buộc, cám dỗ và vật chất hóa. bạn có thể đang bị giới hạn bởi nỗi sợ h... Quản lý chi tiêu một cách khôn ngoan.",
+        "investment": "Về đầu tư, The Devil khuyên the devil cảnh báo về sự ràng buộc, cám dỗ và vật chất hóa. bạn có thể đang bị giới hạn bởi nỗi sợ h... Hãy cân nhắc kỹ trước khi quyết định.",
+        "health": "Về sức khỏe, The Devil nhắc nhở the devil cảnh báo về sự ràng buộc, cám dỗ và vật chất hóa. bạn có thể đang bị giới hạn bởi nỗi sợ h... Chăm sóc bản thân là ưu tiên hàng đầu.",
+        "self": "Về bản thân, The Devil kêu gọi the devil cảnh báo về sự ràng buộc, cám dỗ và vật chất hóa. bạn có thể đang bị giới hạn bởi nỗi sợ h... Hành trình chữa lành bắt đầu từ bên trong."
+      }
+    },
+    {
+      "id": 16,
+      "name": "The Tower",
+      "arcana": "Major",
+      "number": 16,
+      "image": "/tarot-cards/16-the-tower.jpg",
+      "meanings": {
+        "general": "The Tower đại diện cho sự phá vỡ đột ngột, giải phóng khỏi cấu trúc cũ. Mặc dù đau đớn, nhưng đây là cần thiết cho sự phát triển.",
+        "love": "Có thể có sự thay đổi đột ngột trong tình yêu. Đừng sợ hãi, mọi thứ xảy ra đều có lý do và dẫn đến điều tốt đẹp hơn.",
+        "marriage": "Trong hôn nhân, The Tower cho thấy the tower đại diện cho sự phá vỡ đột ngột, giải phóng khỏi cấu trúc cũ. mặc dù đau đớn, nhưng đây là... Hãy cùng nhau xây dựng tổ ấm.",
+        "career": "Về sự nghiệp, The Tower khuyên bạn nên the tower đại diện cho sự phá vỡ đột ngột, giải phóng khỏi cấu trúc cũ. mặc dù đau đớn, nhưng đây là... Cơ hội thăng tiến đang đến gần.",
+        "study": "Trong học tập, The Tower báo hiệu the tower đại diện cho sự phá vỡ đột ngột, giải phóng khỏi cấu trúc cũ. mặc dù đau đớn, nhưng đây là... Hãy tập trung vào mục tiêu của bạn.",
+        "finance": "Về tài chính, The Tower cho thấy the tower đại diện cho sự phá vỡ đột ngột, giải phóng khỏi cấu trúc cũ. mặc dù đau đớn, nhưng đây là... Quản lý chi tiêu một cách khôn ngoan.",
+        "investment": "Về đầu tư, The Tower khuyên the tower đại diện cho sự phá vỡ đột ngột, giải phóng khỏi cấu trúc cũ. mặc dù đau đớn, nhưng đây là... Hãy cân nhắc kỹ trước khi quyết định.",
+        "health": "Về sức khỏe, The Tower nhắc nhở the tower đại diện cho sự phá vỡ đột ngột, giải phóng khỏi cấu trúc cũ. mặc dù đau đớn, nhưng đây là... Chăm sóc bản thân là ưu tiên hàng đầu.",
+        "self": "Về bản thân, The Tower kêu gọi the tower đại diện cho sự phá vỡ đột ngột, giải phóng khỏi cấu trúc cũ. mặc dù đau đớn, nhưng đây là... Hành trình chữa lành bắt đầu từ bên trong."
+      }
+    },
+    {
+      "id": 17,
+      "name": "The Star",
+      "arcana": "Major",
+      "number": 17,
+      "image": "/tarot-cards/17-the-star.jpg",
+      "meanings": {
+        "general": "The Star mang thông điệp của hy vọng, cảm hứng và sự chữa lành. Sau cơn mưa, trờ sẽ quang đãng và ánh sao sẽ dẫn đường.",
+        "love": "Hy vọng trong tình yêu đang trở lại. Dù đã tổn thương, hãy tin rằng tình yêu đẹp vẫn đang chờ bạn phía trước.",
+        "marriage": "Trong hôn nhân, The Star cho thấy the star mang thông điệp của hy vọng, cảm hứng và sự chữa lành. sau cơn mưa, trờ sẽ quang đãng và án... Hãy cùng nhau xây dựng tổ ấm.",
+        "career": "Về sự nghiệp, The Star khuyên bạn nên the star mang thông điệp của hy vọng, cảm hứng và sự chữa lành. sau cơn mưa, trờ sẽ quang đãng và án... Cơ hội thăng tiến đang đến gần.",
+        "study": "Trong học tập, The Star báo hiệu the star mang thông điệp của hy vọng, cảm hứng và sự chữa lành. sau cơn mưa, trờ sẽ quang đãng và án... Hãy tập trung vào mục tiêu của bạn.",
+        "finance": "Về tài chính, The Star cho thấy the star mang thông điệp của hy vọng, cảm hứng và sự chữa lành. sau cơn mưa, trờ sẽ quang đãng và án... Quản lý chi tiêu một cách khôn ngoan.",
+        "investment": "Về đầu tư, The Star khuyên the star mang thông điệp của hy vọng, cảm hứng và sự chữa lành. sau cơn mưa, trờ sẽ quang đãng và án... Hãy cân nhắc kỹ trước khi quyết định.",
+        "health": "Về sức khỏe, The Star nhắc nhở the star mang thông điệp của hy vọng, cảm hứng và sự chữa lành. sau cơn mưa, trờ sẽ quang đãng và án... Chăm sóc bản thân là ưu tiên hàng đầu.",
+        "self": "Về bản thân, The Star kêu gọi the star mang thông điệp của hy vọng, cảm hứng và sự chữa lành. sau cơn mưa, trờ sẽ quang đãng và án... Hành trình chữa lành bắt đầu từ bên trong."
+      }
+    },
+    {
+      "id": 18,
+      "name": "The Moon",
+      "arcana": "Major",
+      "number": 18,
+      "image": "/tarot-cards/18-the-moon.jpg",
+      "meanings": {
+        "general": "The Moon đại diện cho ảo tưởng, sợ hãi và trực giác. Hãy cẩn trọng với những điều không rõ ràng và tin tưởng vào cảm giác của bạn.",
+        "love": "Có thể bạn đang mơ hồ về tình cảm của ai đó. Hãy tin tưởng vào trực giác, đừng để nỗi sợ che mờ phán đoán.",
+        "marriage": "Trong hôn nhân, The Moon cho thấy the moon đại diện cho ảo tưởng, sợ hãi và trực giác. hãy cẩn trọng với những điều không rõ ràng và t... Hãy cùng nhau xây dựng tổ ấm.",
+        "career": "Về sự nghiệp, The Moon khuyên bạn nên the moon đại diện cho ảo tưởng, sợ hãi và trực giác. hãy cẩn trọng với những điều không rõ ràng và t... Cơ hội thăng tiến đang đến gần.",
+        "study": "Trong học tập, The Moon báo hiệu the moon đại diện cho ảo tưởng, sợ hãi và trực giác. hãy cẩn trọng với những điều không rõ ràng và t... Hãy tập trung vào mục tiêu của bạn.",
+        "finance": "Về tài chính, The Moon cho thấy the moon đại diện cho ảo tưởng, sợ hãi và trực giác. hãy cẩn trọng với những điều không rõ ràng và t... Quản lý chi tiêu một cách khôn ngoan.",
+        "investment": "Về đầu tư, The Moon khuyên the moon đại diện cho ảo tưởng, sợ hãi và trực giác. hãy cẩn trọng với những điều không rõ ràng và t... Hãy cân nhắc kỹ trước khi quyết định.",
+        "health": "Về sức khỏe, The Moon nhắc nhở the moon đại diện cho ảo tưởng, sợ hãi và trực giác. hãy cẩn trọng với những điều không rõ ràng và t... Chăm sóc bản thân là ưu tiên hàng đầu.",
+        "self": "Về bản thân, The Moon kêu gọi the moon đại diện cho ảo tưởng, sợ hãi và trực giác. hãy cẩn trọng với những điều không rõ ràng và t... Hành trình chữa lành bắt đầu từ bên trong."
+      }
+    },
+    {
+      "id": 19,
+      "name": "The Sun",
+      "arcana": "Major",
+      "number": 19,
+      "image": "/tarot-cards/19-the-sun.jpg",
+      "meanings": {
+        "general": "The Sun là lá bài tích cực nhất - vui vẻ, thành công và sức sống tràn đầy. Mọi thứ đang tỏa sáng theo cách tuyệt vờ nhất.",
+        "love": "Tình yêu rực rỡ đang chiếu sáng cuộc sống bạn. Hãy tận hưởng những khoảnh khắc hạnh phúc này.",
+        "marriage": "Trong hôn nhân, The Sun cho thấy the sun là lá bài tích cực nhất - vui vẻ, thành công và sức sống tràn đầy. mọi thứ đang tỏa sáng the... Hãy cùng nhau xây dựng tổ ấm.",
+        "career": "Về sự nghiệp, The Sun khuyên bạn nên the sun là lá bài tích cực nhất - vui vẻ, thành công và sức sống tràn đầy. mọi thứ đang tỏa sáng the... Cơ hội thăng tiến đang đến gần.",
+        "study": "Trong học tập, The Sun báo hiệu the sun là lá bài tích cực nhất - vui vẻ, thành công và sức sống tràn đầy. mọi thứ đang tỏa sáng the... Hãy tập trung vào mục tiêu của bạn.",
+        "finance": "Về tài chính, The Sun cho thấy the sun là lá bài tích cực nhất - vui vẻ, thành công và sức sống tràn đầy. mọi thứ đang tỏa sáng the... Quản lý chi tiêu một cách khôn ngoan.",
+        "investment": "Về đầu tư, The Sun khuyên the sun là lá bài tích cực nhất - vui vẻ, thành công và sức sống tràn đầy. mọi thứ đang tỏa sáng the... Hãy cân nhắc kỹ trước khi quyết định.",
+        "health": "Về sức khỏe, The Sun nhắc nhở the sun là lá bài tích cực nhất - vui vẻ, thành công và sức sống tràn đầy. mọi thứ đang tỏa sáng the... Chăm sóc bản thân là ưu tiên hàng đầu.",
+        "self": "Về bản thân, The Sun kêu gọi the sun là lá bài tích cực nhất - vui vẻ, thành công và sức sống tràn đầy. mọi thứ đang tỏa sáng the... Hành trình chữa lành bắt đầu từ bên trong."
+      }
+    },
+    {
+      "id": 20,
+      "name": "Judgement",
+      "arcana": "Major",
+      "number": 20,
+      "image": "/tarot-cards/20-judgement.jpg",
+      "meanings": {
+        "general": "Judgement kêu gọi sự thức tỉnh, đánh giá lại cuộc sống và đón nhận sự tái sinh. Đây là thờ điểm để trả lờ tiếng gọi của linh hồn.",
+        "love": "Một sự thức tỉnh trong tình yêu. Bạn sẽ nhận ra điều thực sự mình cần trong mối quan hệ.",
+        "marriage": "Trong hôn nhân, Judgement cho thấy judgement kêu gọi sự thức tỉnh, đánh giá lại cuộc sống và đón nhận sự tái sinh. đây là thờ điểm để t... Hãy cùng nhau xây dựng tổ ấm.",
+        "career": "Về sự nghiệp, Judgement khuyên bạn nên judgement kêu gọi sự thức tỉnh, đánh giá lại cuộc sống và đón nhận sự tái sinh. đây là thờ điểm để t... Cơ hội thăng tiến đang đến gần.",
+        "study": "Trong học tập, Judgement báo hiệu judgement kêu gọi sự thức tỉnh, đánh giá lại cuộc sống và đón nhận sự tái sinh. đây là thờ điểm để t... Hãy tập trung vào mục tiêu của bạn.",
+        "finance": "Về tài chính, Judgement cho thấy judgement kêu gọi sự thức tỉnh, đánh giá lại cuộc sống và đón nhận sự tái sinh. đây là thờ điểm để t... Quản lý chi tiêu một cách khôn ngoan.",
+        "investment": "Về đầu tư, Judgement khuyên judgement kêu gọi sự thức tỉnh, đánh giá lại cuộc sống và đón nhận sự tái sinh. đây là thờ điểm để t... Hãy cân nhắc kỹ trước khi quyết định.",
+        "health": "Về sức khỏe, Judgement nhắc nhở judgement kêu gọi sự thức tỉnh, đánh giá lại cuộc sống và đón nhận sự tái sinh. đây là thờ điểm để t... Chăm sóc bản thân là ưu tiên hàng đầu.",
+        "self": "Về bản thân, Judgement kêu gọi judgement kêu gọi sự thức tỉnh, đánh giá lại cuộc sống và đón nhận sự tái sinh. đây là thờ điểm để t... Hành trình chữa lành bắt đầu từ bên trong."
+      }
+    },
+    {
+      "id": 21,
+      "name": "The World",
+      "arcana": "Major",
+      "number": 21,
+      "image": "/tarot-cards/21-the-world.jpg",
+      "meanings": {
+        "general": "The World tượng trưng cho sự hoàn thành, hội nhập và thành tựu. Bạn đã đạt được một chặng đường quan trọng và sẵn sàng cho tầm cao mới.",
+        "love": "Tình yêu của bạn đang đi đến giai đoạn viên mãn. Một kết thúc có hậu hoặc sự hoàn thiện trong mối quan hệ.",
+        "marriage": "Trong hôn nhân, The World cho thấy the world tượng trưng cho sự hoàn thành, hội nhập và thành tựu. bạn đã đạt được một chặng đường quan... Hãy cùng nhau xây dựng tổ ấm.",
+        "career": "Về sự nghiệp, The World khuyên bạn nên the world tượng trưng cho sự hoàn thành, hội nhập và thành tựu. bạn đã đạt được một chặng đường quan... Cơ hội thăng tiến đang đến gần.",
+        "study": "Trong học tập, The World báo hiệu the world tượng trưng cho sự hoàn thành, hội nhập và thành tựu. bạn đã đạt được một chặng đường quan... Hãy tập trung vào mục tiêu của bạn.",
+        "finance": "Về tài chính, The World cho thấy the world tượng trưng cho sự hoàn thành, hội nhập và thành tựu. bạn đã đạt được một chặng đường quan... Quản lý chi tiêu một cách khôn ngoan.",
+        "investment": "Về đầu tư, The World khuyên the world tượng trưng cho sự hoàn thành, hội nhập và thành tựu. bạn đã đạt được một chặng đường quan... Hãy cân nhắc kỹ trước khi quyết định.",
+        "health": "Về sức khỏe, The World nhắc nhở the world tượng trưng cho sự hoàn thành, hội nhập và thành tựu. bạn đã đạt được một chặng đường quan... Chăm sóc bản thân là ưu tiên hàng đầu.",
+        "self": "Về bản thân, The World kêu gọi the world tượng trưng cho sự hoàn thành, hội nhập và thành tựu. bạn đã đạt được một chặng đường quan... Hành trình chữa lành bắt đầu từ bên trong."
+      }
+    },
+    {
+      "id": 22,
+      "name": "Ace of Cups",
+      "arcana": "Minor",
+      "suit": "Cups",
+      "rank": "Ace",
+      "image": "/tarot-cards/cups-ace.jpg",
+      "meanings": {
+        "general": "Ace of Cups mang năng lượng của Cups trong trạng thái Ace. Đây là thông điệp quan trọng từ vũ trụ dành cho bạn.",
+        "love": "Trong tình yêu, Ace of Cups cho thấy những cảm xúc sâu sắc và kết nối tâm hồn. Hãy lắng nghe trái tim mình.",
+        "marriage": "Trong hôn nhân, Ace of Cups khuyên bạn nên xây dựng sự thấu hiểu và cảm thông với đối phương.",
+        "career": "Về sự nghiệp, Ace of Cups báo hiệu cơ hội phát triển. Hãy nắm bắt thờ cơ để tiến xa hơn.",
+        "study": "Trong học tập, Ace of Cups cho thấy sự tiến bộ. Kiến thức bạn đang tích lũy sẽ mang lại giá trị lớn.",
+        "finance": "Về tài chính, Ace of Cups nhắc nhở bạn cân bằng thu chi. Sự khôn ngoan trong quản lý tiền bạc sẽ được đền đáp.",
+        "investment": "Về đầu tư, Ace of Cups khuyên bạn nên thận trọng nhưng không nên bỏ lỡ cơ hội tốt.",
+        "health": "Về sức khỏe, Ace of Cups nhắc nhở bạn chú ý đến cả thể chất lẫn tinh thần. Nghỉ ngơi là cần thiết.",
+        "self": "Về bản thân, Ace of Cups kêu gọi bạn chăm sóc tâm hồn. Hành trình chữa lành cần sự kiên nhẫn."
+      }
+    },
+    {
+      "id": 23,
+      "name": "Two of Cups",
+      "arcana": "Minor",
+      "suit": "Cups",
+      "rank": "Two",
+      "image": "/tarot-cards/cups-02.jpg",
+      "meanings": {
+        "general": "Two of Cups mang năng lượng của Cups trong trạng thái Two. Đây là thông điệp quan trọng từ vũ trụ dành cho bạn.",
+        "love": "Trong tình yêu, Two of Cups cho thấy những cảm xúc sâu sắc và kết nối tâm hồn. Hãy lắng nghe trái tim mình.",
+        "marriage": "Trong hôn nhân, Two of Cups khuyên bạn nên xây dựng sự thấu hiểu và cảm thông với đối phương.",
+        "career": "Về sự nghiệp, Two of Cups báo hiệu cơ hội phát triển. Hãy nắm bắt thờ cơ để tiến xa hơn.",
+        "study": "Trong học tập, Two of Cups cho thấy sự tiến bộ. Kiến thức bạn đang tích lũy sẽ mang lại giá trị lớn.",
+        "finance": "Về tài chính, Two of Cups nhắc nhở bạn cân bằng thu chi. Sự khôn ngoan trong quản lý tiền bạc sẽ được đền đáp.",
+        "investment": "Về đầu tư, Two of Cups khuyên bạn nên thận trọng nhưng không nên bỏ lỡ cơ hội tốt.",
+        "health": "Về sức khỏe, Two of Cups nhắc nhở bạn chú ý đến cả thể chất lẫn tinh thần. Nghỉ ngơi là cần thiết.",
+        "self": "Về bản thân, Two of Cups kêu gọi bạn chăm sóc tâm hồn. Hành trình chữa lành cần sự kiên nhẫn."
+      }
+    },
+    {
+      "id": 24,
+      "name": "Three of Cups",
+      "arcana": "Minor",
+      "suit": "Cups",
+      "rank": "Three",
+      "image": "/tarot-cards/cups-03.jpg",
+      "meanings": {
+        "general": "Three of Cups mang năng lượng của Cups trong trạng thái Three. Đây là thông điệp quan trọng từ vũ trụ dành cho bạn.",
+        "love": "Trong tình yêu, Three of Cups cho thấy những cảm xúc sâu sắc và kết nối tâm hồn. Hãy lắng nghe trái tim mình.",
+        "marriage": "Trong hôn nhân, Three of Cups khuyên bạn nên xây dựng sự thấu hiểu và cảm thông với đối phương.",
+        "career": "Về sự nghiệp, Three of Cups báo hiệu cơ hội phát triển. Hãy nắm bắt thờ cơ để tiến xa hơn.",
+        "study": "Trong học tập, Three of Cups cho thấy sự tiến bộ. Kiến thức bạn đang tích lũy sẽ mang lại giá trị lớn.",
+        "finance": "Về tài chính, Three of Cups nhắc nhở bạn cân bằng thu chi. Sự khôn ngoan trong quản lý tiền bạc sẽ được đền đáp.",
+        "investment": "Về đầu tư, Three of Cups khuyên bạn nên thận trọng nhưng không nên bỏ lỡ cơ hội tốt.",
+        "health": "Về sức khỏe, Three of Cups nhắc nhở bạn chú ý đến cả thể chất lẫn tinh thần. Nghỉ ngơi là cần thiết.",
+        "self": "Về bản thân, Three of Cups kêu gọi bạn chăm sóc tâm hồn. Hành trình chữa lành cần sự kiên nhẫn."
+      }
+    },
+    {
+      "id": 25,
+      "name": "Four of Cups",
+      "arcana": "Minor",
+      "suit": "Cups",
+      "rank": "Four",
+      "image": "/tarot-cards/cups-04.jpg",
+      "meanings": {
+        "general": "Four of Cups mang năng lượng của Cups trong trạng thái Four. Đây là thông điệp quan trọng từ vũ trụ dành cho bạn.",
+        "love": "Trong tình yêu, Four of Cups cho thấy những cảm xúc sâu sắc và kết nối tâm hồn. Hãy lắng nghe trái tim mình.",
+        "marriage": "Trong hôn nhân, Four of Cups khuyên bạn nên xây dựng sự thấu hiểu và cảm thông với đối phương.",
+        "career": "Về sự nghiệp, Four of Cups báo hiệu cơ hội phát triển. Hãy nắm bắt thờ cơ để tiến xa hơn.",
+        "study": "Trong học tập, Four of Cups cho thấy sự tiến bộ. Kiến thức bạn đang tích lũy sẽ mang lại giá trị lớn.",
+        "finance": "Về tài chính, Four of Cups nhắc nhở bạn cân bằng thu chi. Sự khôn ngoan trong quản lý tiền bạc sẽ được đền đáp.",
+        "investment": "Về đầu tư, Four of Cups khuyên bạn nên thận trọng nhưng không nên bỏ lỡ cơ hội tốt.",
+        "health": "Về sức khỏe, Four of Cups nhắc nhở bạn chú ý đến cả thể chất lẫn tinh thần. Nghỉ ngơi là cần thiết.",
+        "self": "Về bản thân, Four of Cups kêu gọi bạn chăm sóc tâm hồn. Hành trình chữa lành cần sự kiên nhẫn."
+      }
+    },
+    {
+      "id": 26,
+      "name": "Five of Cups",
+      "arcana": "Minor",
+      "suit": "Cups",
+      "rank": "Five",
+      "image": "/tarot-cards/cups-05.jpg",
+      "meanings": {
+        "general": "Five of Cups mang năng lượng của Cups trong trạng thái Five. Đây là thông điệp quan trọng từ vũ trụ dành cho bạn.",
+        "love": "Trong tình yêu, Five of Cups cho thấy những cảm xúc sâu sắc và kết nối tâm hồn. Hãy lắng nghe trái tim mình.",
+        "marriage": "Trong hôn nhân, Five of Cups khuyên bạn nên xây dựng sự thấu hiểu và cảm thông với đối phương.",
+        "career": "Về sự nghiệp, Five of Cups báo hiệu cơ hội phát triển. Hãy nắm bắt thờ cơ để tiến xa hơn.",
+        "study": "Trong học tập, Five of Cups cho thấy sự tiến bộ. Kiến thức bạn đang tích lũy sẽ mang lại giá trị lớn.",
+        "finance": "Về tài chính, Five of Cups nhắc nhở bạn cân bằng thu chi. Sự khôn ngoan trong quản lý tiền bạc sẽ được đền đáp.",
+        "investment": "Về đầu tư, Five of Cups khuyên bạn nên thận trọng nhưng không nên bỏ lỡ cơ hội tốt.",
+        "health": "Về sức khỏe, Five of Cups nhắc nhở bạn chú ý đến cả thể chất lẫn tinh thần. Nghỉ ngơi là cần thiết.",
+        "self": "Về bản thân, Five of Cups kêu gọi bạn chăm sóc tâm hồn. Hành trình chữa lành cần sự kiên nhẫn."
+      }
+    },
+    {
+      "id": 27,
+      "name": "Six of Cups",
+      "arcana": "Minor",
+      "suit": "Cups",
+      "rank": "Six",
+      "image": "/tarot-cards/cups-06.jpg",
+      "meanings": {
+        "general": "Six of Cups mang năng lượng của Cups trong trạng thái Six. Đây là thông điệp quan trọng từ vũ trụ dành cho bạn.",
+        "love": "Trong tình yêu, Six of Cups cho thấy những cảm xúc sâu sắc và kết nối tâm hồn. Hãy lắng nghe trái tim mình.",
+        "marriage": "Trong hôn nhân, Six of Cups khuyên bạn nên xây dựng sự thấu hiểu và cảm thông với đối phương.",
+        "career": "Về sự nghiệp, Six of Cups báo hiệu cơ hội phát triển. Hãy nắm bắt thờ cơ để tiến xa hơn.",
+        "study": "Trong học tập, Six of Cups cho thấy sự tiến bộ. Kiến thức bạn đang tích lũy sẽ mang lại giá trị lớn.",
+        "finance": "Về tài chính, Six of Cups nhắc nhở bạn cân bằng thu chi. Sự khôn ngoan trong quản lý tiền bạc sẽ được đền đáp.",
+        "investment": "Về đầu tư, Six of Cups khuyên bạn nên thận trọng nhưng không nên bỏ lỡ cơ hội tốt.",
+        "health": "Về sức khỏe, Six of Cups nhắc nhở bạn chú ý đến cả thể chất lẫn tinh thần. Nghỉ ngơi là cần thiết.",
+        "self": "Về bản thân, Six of Cups kêu gọi bạn chăm sóc tâm hồn. Hành trình chữa lành cần sự kiên nhẫn."
+      }
+    },
+    {
+      "id": 28,
+      "name": "Seven of Cups",
+      "arcana": "Minor",
+      "suit": "Cups",
+      "rank": "Seven",
+      "image": "/tarot-cards/cups-07.jpg",
+      "meanings": {
+        "general": "Seven of Cups mang năng lượng của Cups trong trạng thái Seven. Đây là thông điệp quan trọng từ vũ trụ dành cho bạn.",
+        "love": "Trong tình yêu, Seven of Cups cho thấy những cảm xúc sâu sắc và kết nối tâm hồn. Hãy lắng nghe trái tim mình.",
+        "marriage": "Trong hôn nhân, Seven of Cups khuyên bạn nên xây dựng sự thấu hiểu và cảm thông với đối phương.",
+        "career": "Về sự nghiệp, Seven of Cups báo hiệu cơ hội phát triển. Hãy nắm bắt thờ cơ để tiến xa hơn.",
+        "study": "Trong học tập, Seven of Cups cho thấy sự tiến bộ. Kiến thức bạn đang tích lũy sẽ mang lại giá trị lớn.",
+        "finance": "Về tài chính, Seven of Cups nhắc nhở bạn cân bằng thu chi. Sự khôn ngoan trong quản lý tiền bạc sẽ được đền đáp.",
+        "investment": "Về đầu tư, Seven of Cups khuyên bạn nên thận trọng nhưng không nên bỏ lỡ cơ hội tốt.",
+        "health": "Về sức khỏe, Seven of Cups nhắc nhở bạn chú ý đến cả thể chất lẫn tinh thần. Nghỉ ngơi là cần thiết.",
+        "self": "Về bản thân, Seven of Cups kêu gọi bạn chăm sóc tâm hồn. Hành trình chữa lành cần sự kiên nhẫn."
+      }
+    },
+    {
+      "id": 29,
+      "name": "Eight of Cups",
+      "arcana": "Minor",
+      "suit": "Cups",
+      "rank": "Eight",
+      "image": "/tarot-cards/cups-08.jpg",
+      "meanings": {
+        "general": "Eight of Cups mang năng lượng của Cups trong trạng thái Eight. Đây là thông điệp quan trọng từ vũ trụ dành cho bạn.",
+        "love": "Trong tình yêu, Eight of Cups cho thấy những cảm xúc sâu sắc và kết nối tâm hồn. Hãy lắng nghe trái tim mình.",
+        "marriage": "Trong hôn nhân, Eight of Cups khuyên bạn nên xây dựng sự thấu hiểu và cảm thông với đối phương.",
+        "career": "Về sự nghiệp, Eight of Cups báo hiệu cơ hội phát triển. Hãy nắm bắt thờ cơ để tiến xa hơn.",
+        "study": "Trong học tập, Eight of Cups cho thấy sự tiến bộ. Kiến thức bạn đang tích lũy sẽ mang lại giá trị lớn.",
+        "finance": "Về tài chính, Eight of Cups nhắc nhở bạn cân bằng thu chi. Sự khôn ngoan trong quản lý tiền bạc sẽ được đền đáp.",
+        "investment": "Về đầu tư, Eight of Cups khuyên bạn nên thận trọng nhưng không nên bỏ lỡ cơ hội tốt.",
+        "health": "Về sức khỏe, Eight of Cups nhắc nhở bạn chú ý đến cả thể chất lẫn tinh thần. Nghỉ ngơi là cần thiết.",
+        "self": "Về bản thân, Eight of Cups kêu gọi bạn chăm sóc tâm hồn. Hành trình chữa lành cần sự kiên nhẫn."
+      }
+    },
+    {
+      "id": 30,
+      "name": "Nine of Cups",
+      "arcana": "Minor",
+      "suit": "Cups",
+      "rank": "Nine",
+      "image": "/tarot-cards/cups-09.jpg",
+      "meanings": {
+        "general": "Nine of Cups mang năng lượng của Cups trong trạng thái Nine. Đây là thông điệp quan trọng từ vũ trụ dành cho bạn.",
+        "love": "Trong tình yêu, Nine of Cups cho thấy những cảm xúc sâu sắc và kết nối tâm hồn. Hãy lắng nghe trái tim mình.",
+        "marriage": "Trong hôn nhân, Nine of Cups khuyên bạn nên xây dựng sự thấu hiểu và cảm thông với đối phương.",
+        "career": "Về sự nghiệp, Nine of Cups báo hiệu cơ hội phát triển. Hãy nắm bắt thờ cơ để tiến xa hơn.",
+        "study": "Trong học tập, Nine of Cups cho thấy sự tiến bộ. Kiến thức bạn đang tích lũy sẽ mang lại giá trị lớn.",
+        "finance": "Về tài chính, Nine of Cups nhắc nhở bạn cân bằng thu chi. Sự khôn ngoan trong quản lý tiền bạc sẽ được đền đáp.",
+        "investment": "Về đầu tư, Nine of Cups khuyên bạn nên thận trọng nhưng không nên bỏ lỡ cơ hội tốt.",
+        "health": "Về sức khỏe, Nine of Cups nhắc nhở bạn chú ý đến cả thể chất lẫn tinh thần. Nghỉ ngơi là cần thiết.",
+        "self": "Về bản thân, Nine of Cups kêu gọi bạn chăm sóc tâm hồn. Hành trình chữa lành cần sự kiên nhẫn."
+      }
+    },
+    {
+      "id": 31,
+      "name": "Ten of Cups",
+      "arcana": "Minor",
+      "suit": "Cups",
+      "rank": "Ten",
+      "image": "/tarot-cards/cups-10.jpg",
+      "meanings": {
+        "general": "Ten of Cups mang năng lượng của Cups trong trạng thái Ten. Đây là thông điệp quan trọng từ vũ trụ dành cho bạn.",
+        "love": "Trong tình yêu, Ten of Cups cho thấy những cảm xúc sâu sắc và kết nối tâm hồn. Hãy lắng nghe trái tim mình.",
+        "marriage": "Trong hôn nhân, Ten of Cups khuyên bạn nên xây dựng sự thấu hiểu và cảm thông với đối phương.",
+        "career": "Về sự nghiệp, Ten of Cups báo hiệu cơ hội phát triển. Hãy nắm bắt thờ cơ để tiến xa hơn.",
+        "study": "Trong học tập, Ten of Cups cho thấy sự tiến bộ. Kiến thức bạn đang tích lũy sẽ mang lại giá trị lớn.",
+        "finance": "Về tài chính, Ten of Cups nhắc nhở bạn cân bằng thu chi. Sự khôn ngoan trong quản lý tiền bạc sẽ được đền đáp.",
+        "investment": "Về đầu tư, Ten of Cups khuyên bạn nên thận trọng nhưng không nên bỏ lỡ cơ hội tốt.",
+        "health": "Về sức khỏe, Ten of Cups nhắc nhở bạn chú ý đến cả thể chất lẫn tinh thần. Nghỉ ngơi là cần thiết.",
+        "self": "Về bản thân, Ten of Cups kêu gọi bạn chăm sóc tâm hồn. Hành trình chữa lành cần sự kiên nhẫn."
+      }
+    },
+    {
+      "id": 32,
+      "name": "Page of Cups",
+      "arcana": "Minor",
+      "suit": "Cups",
+      "rank": "Page",
+      "image": "/tarot-cards/cups-page.jpg",
+      "meanings": {
+        "general": "Page of Cups mang năng lượng của Cups trong trạng thái Page. Đây là thông điệp quan trọng từ vũ trụ dành cho bạn.",
+        "love": "Trong tình yêu, Page of Cups cho thấy những cảm xúc sâu sắc và kết nối tâm hồn. Hãy lắng nghe trái tim mình.",
+        "marriage": "Trong hôn nhân, Page of Cups khuyên bạn nên xây dựng sự thấu hiểu và cảm thông với đối phương.",
+        "career": "Về sự nghiệp, Page of Cups báo hiệu cơ hội phát triển. Hãy nắm bắt thờ cơ để tiến xa hơn.",
+        "study": "Trong học tập, Page of Cups cho thấy sự tiến bộ. Kiến thức bạn đang tích lũy sẽ mang lại giá trị lớn.",
+        "finance": "Về tài chính, Page of Cups nhắc nhở bạn cân bằng thu chi. Sự khôn ngoan trong quản lý tiền bạc sẽ được đền đáp.",
+        "investment": "Về đầu tư, Page of Cups khuyên bạn nên thận trọng nhưng không nên bỏ lỡ cơ hội tốt.",
+        "health": "Về sức khỏe, Page of Cups nhắc nhở bạn chú ý đến cả thể chất lẫn tinh thần. Nghỉ ngơi là cần thiết.",
+        "self": "Về bản thân, Page of Cups kêu gọi bạn chăm sóc tâm hồn. Hành trình chữa lành cần sự kiên nhẫn."
+      }
+    },
+    {
+      "id": 33,
+      "name": "Knight of Cups",
+      "arcana": "Minor",
+      "suit": "Cups",
+      "rank": "Knight",
+      "image": "/tarot-cards/cups-knight.jpg",
+      "meanings": {
+        "general": "Knight of Cups mang năng lượng của Cups trong trạng thái Knight. Đây là thông điệp quan trọng từ vũ trụ dành cho bạn.",
+        "love": "Trong tình yêu, Knight of Cups cho thấy những cảm xúc sâu sắc và kết nối tâm hồn. Hãy lắng nghe trái tim mình.",
+        "marriage": "Trong hôn nhân, Knight of Cups khuyên bạn nên xây dựng sự thấu hiểu và cảm thông với đối phương.",
+        "career": "Về sự nghiệp, Knight of Cups báo hiệu cơ hội phát triển. Hãy nắm bắt thờ cơ để tiến xa hơn.",
+        "study": "Trong học tập, Knight of Cups cho thấy sự tiến bộ. Kiến thức bạn đang tích lũy sẽ mang lại giá trị lớn.",
+        "finance": "Về tài chính, Knight of Cups nhắc nhở bạn cân bằng thu chi. Sự khôn ngoan trong quản lý tiền bạc sẽ được đền đáp.",
+        "investment": "Về đầu tư, Knight of Cups khuyên bạn nên thận trọng nhưng không nên bỏ lỡ cơ hội tốt.",
+        "health": "Về sức khỏe, Knight of Cups nhắc nhở bạn chú ý đến cả thể chất lẫn tinh thần. Nghỉ ngơi là cần thiết.",
+        "self": "Về bản thân, Knight of Cups kêu gọi bạn chăm sóc tâm hồn. Hành trình chữa lành cần sự kiên nhẫn."
+      }
+    },
+    {
+      "id": 34,
+      "name": "Queen of Cups",
+      "arcana": "Minor",
+      "suit": "Cups",
+      "rank": "Queen",
+      "image": "/tarot-cards/cups-queen.jpg",
+      "meanings": {
+        "general": "Queen of Cups mang năng lượng của Cups trong trạng thái Queen. Đây là thông điệp quan trọng từ vũ trụ dành cho bạn.",
+        "love": "Trong tình yêu, Queen of Cups cho thấy những cảm xúc sâu sắc và kết nối tâm hồn. Hãy lắng nghe trái tim mình.",
+        "marriage": "Trong hôn nhân, Queen of Cups khuyên bạn nên xây dựng sự thấu hiểu và cảm thông với đối phương.",
+        "career": "Về sự nghiệp, Queen of Cups báo hiệu cơ hội phát triển. Hãy nắm bắt thờ cơ để tiến xa hơn.",
+        "study": "Trong học tập, Queen of Cups cho thấy sự tiến bộ. Kiến thức bạn đang tích lũy sẽ mang lại giá trị lớn.",
+        "finance": "Về tài chính, Queen of Cups nhắc nhở bạn cân bằng thu chi. Sự khôn ngoan trong quản lý tiền bạc sẽ được đền đáp.",
+        "investment": "Về đầu tư, Queen of Cups khuyên bạn nên thận trọng nhưng không nên bỏ lỡ cơ hội tốt.",
+        "health": "Về sức khỏe, Queen of Cups nhắc nhở bạn chú ý đến cả thể chất lẫn tinh thần. Nghỉ ngơi là cần thiết.",
+        "self": "Về bản thân, Queen of Cups kêu gọi bạn chăm sóc tâm hồn. Hành trình chữa lành cần sự kiên nhẫn."
+      }
+    },
+    {
+      "id": 35,
+      "name": "King of Cups",
+      "arcana": "Minor",
+      "suit": "Cups",
+      "rank": "King",
+      "image": "/tarot-cards/cups-king.jpg",
+      "meanings": {
+        "general": "King of Cups mang năng lượng của Cups trong trạng thái King. Đây là thông điệp quan trọng từ vũ trụ dành cho bạn.",
+        "love": "Trong tình yêu, King of Cups cho thấy những cảm xúc sâu sắc và kết nối tâm hồn. Hãy lắng nghe trái tim mình.",
+        "marriage": "Trong hôn nhân, King of Cups khuyên bạn nên xây dựng sự thấu hiểu và cảm thông với đối phương.",
+        "career": "Về sự nghiệp, King of Cups báo hiệu cơ hội phát triển. Hãy nắm bắt thờ cơ để tiến xa hơn.",
+        "study": "Trong học tập, King of Cups cho thấy sự tiến bộ. Kiến thức bạn đang tích lũy sẽ mang lại giá trị lớn.",
+        "finance": "Về tài chính, King of Cups nhắc nhở bạn cân bằng thu chi. Sự khôn ngoan trong quản lý tiền bạc sẽ được đền đáp.",
+        "investment": "Về đầu tư, King of Cups khuyên bạn nên thận trọng nhưng không nên bỏ lỡ cơ hội tốt.",
+        "health": "Về sức khỏe, King of Cups nhắc nhở bạn chú ý đến cả thể chất lẫn tinh thần. Nghỉ ngơi là cần thiết.",
+        "self": "Về bản thân, King of Cups kêu gọi bạn chăm sóc tâm hồn. Hành trình chữa lành cần sự kiên nhẫn."
+      }
+    },
+    {
+      "id": 36,
+      "name": "Ace of Swords",
+      "arcana": "Minor",
+      "suit": "Swords",
+      "rank": "Ace",
+      "image": "/tarot-cards/swords-ace.jpg",
+      "meanings": {
+        "general": "Ace of Swords mang năng lượng của Swords trong trạng thái Ace. Đây là thông điệp quan trọng từ vũ trụ dành cho bạn.",
+        "love": "Trong tình yêu, Ace of Swords cho thấy những cảm xúc sâu sắc và kết nối tâm hồn. Hãy lắng nghe trái tim mình.",
+        "marriage": "Trong hôn nhân, Ace of Swords khuyên bạn nên xây dựng sự thấu hiểu và cảm thông với đối phương.",
+        "career": "Về sự nghiệp, Ace of Swords báo hiệu cơ hội phát triển. Hãy nắm bắt thờ cơ để tiến xa hơn.",
+        "study": "Trong học tập, Ace of Swords cho thấy sự tiến bộ. Kiến thức bạn đang tích lũy sẽ mang lại giá trị lớn.",
+        "finance": "Về tài chính, Ace of Swords nhắc nhở bạn cân bằng thu chi. Sự khôn ngoan trong quản lý tiền bạc sẽ được đền đáp.",
+        "investment": "Về đầu tư, Ace of Swords khuyên bạn nên thận trọng nhưng không nên bỏ lỡ cơ hội tốt.",
+        "health": "Về sức khỏe, Ace of Swords nhắc nhở bạn chú ý đến cả thể chất lẫn tinh thần. Nghỉ ngơi là cần thiết.",
+        "self": "Về bản thân, Ace of Swords kêu gọi bạn chăm sóc tâm hồn. Hành trình chữa lành cần sự kiên nhẫn."
+      }
+    },
+    {
+      "id": 37,
+      "name": "Two of Swords",
+      "arcana": "Minor",
+      "suit": "Swords",
+      "rank": "Two",
+      "image": "/tarot-cards/swords-02.jpg",
+      "meanings": {
+        "general": "Two of Swords mang năng lượng của Swords trong trạng thái Two. Đây là thông điệp quan trọng từ vũ trụ dành cho bạn.",
+        "love": "Trong tình yêu, Two of Swords cho thấy những cảm xúc sâu sắc và kết nối tâm hồn. Hãy lắng nghe trái tim mình.",
+        "marriage": "Trong hôn nhân, Two of Swords khuyên bạn nên xây dựng sự thấu hiểu và cảm thông với đối phương.",
+        "career": "Về sự nghiệp, Two of Swords báo hiệu cơ hội phát triển. Hãy nắm bắt thờ cơ để tiến xa hơn.",
+        "study": "Trong học tập, Two of Swords cho thấy sự tiến bộ. Kiến thức bạn đang tích lũy sẽ mang lại giá trị lớn.",
+        "finance": "Về tài chính, Two of Swords nhắc nhở bạn cân bằng thu chi. Sự khôn ngoan trong quản lý tiền bạc sẽ được đền đáp.",
+        "investment": "Về đầu tư, Two of Swords khuyên bạn nên thận trọng nhưng không nên bỏ lỡ cơ hội tốt.",
+        "health": "Về sức khỏe, Two of Swords nhắc nhở bạn chú ý đến cả thể chất lẫn tinh thần. Nghỉ ngơi là cần thiết.",
+        "self": "Về bản thân, Two of Swords kêu gọi bạn chăm sóc tâm hồn. Hành trình chữa lành cần sự kiên nhẫn."
+      }
+    },
+    {
+      "id": 38,
+      "name": "Three of Swords",
+      "arcana": "Minor",
+      "suit": "Swords",
+      "rank": "Three",
+      "image": "/tarot-cards/swords-03.jpg",
+      "meanings": {
+        "general": "Three of Swords mang năng lượng của Swords trong trạng thái Three. Đây là thông điệp quan trọng từ vũ trụ dành cho bạn.",
+        "love": "Trong tình yêu, Three of Swords cho thấy những cảm xúc sâu sắc và kết nối tâm hồn. Hãy lắng nghe trái tim mình.",
+        "marriage": "Trong hôn nhân, Three of Swords khuyên bạn nên xây dựng sự thấu hiểu và cảm thông với đối phương.",
+        "career": "Về sự nghiệp, Three of Swords báo hiệu cơ hội phát triển. Hãy nắm bắt thờ cơ để tiến xa hơn.",
+        "study": "Trong học tập, Three of Swords cho thấy sự tiến bộ. Kiến thức bạn đang tích lũy sẽ mang lại giá trị lớn.",
+        "finance": "Về tài chính, Three of Swords nhắc nhở bạn cân bằng thu chi. Sự khôn ngoan trong quản lý tiền bạc sẽ được đền đáp.",
+        "investment": "Về đầu tư, Three of Swords khuyên bạn nên thận trọng nhưng không nên bỏ lỡ cơ hội tốt.",
+        "health": "Về sức khỏe, Three of Swords nhắc nhở bạn chú ý đến cả thể chất lẫn tinh thần. Nghỉ ngơi là cần thiết.",
+        "self": "Về bản thân, Three of Swords kêu gọi bạn chăm sóc tâm hồn. Hành trình chữa lành cần sự kiên nhẫn."
+      }
+    },
+    {
+      "id": 39,
+      "name": "Four of Swords",
+      "arcana": "Minor",
+      "suit": "Swords",
+      "rank": "Four",
+      "image": "/tarot-cards/swords-04.jpg",
+      "meanings": {
+        "general": "Four of Swords mang năng lượng của Swords trong trạng thái Four. Đây là thông điệp quan trọng từ vũ trụ dành cho bạn.",
+        "love": "Trong tình yêu, Four of Swords cho thấy những cảm xúc sâu sắc và kết nối tâm hồn. Hãy lắng nghe trái tim mình.",
+        "marriage": "Trong hôn nhân, Four of Swords khuyên bạn nên xây dựng sự thấu hiểu và cảm thông với đối phương.",
+        "career": "Về sự nghiệp, Four of Swords báo hiệu cơ hội phát triển. Hãy nắm bắt thờ cơ để tiến xa hơn.",
+        "study": "Trong học tập, Four of Swords cho thấy sự tiến bộ. Kiến thức bạn đang tích lũy sẽ mang lại giá trị lớn.",
+        "finance": "Về tài chính, Four of Swords nhắc nhở bạn cân bằng thu chi. Sự khôn ngoan trong quản lý tiền bạc sẽ được đền đáp.",
+        "investment": "Về đầu tư, Four of Swords khuyên bạn nên thận trọng nhưng không nên bỏ lỡ cơ hội tốt.",
+        "health": "Về sức khỏe, Four of Swords nhắc nhở bạn chú ý đến cả thể chất lẫn tinh thần. Nghỉ ngơi là cần thiết.",
+        "self": "Về bản thân, Four of Swords kêu gọi bạn chăm sóc tâm hồn. Hành trình chữa lành cần sự kiên nhẫn."
+      }
+    },
+    {
+      "id": 40,
+      "name": "Five of Swords",
+      "arcana": "Minor",
+      "suit": "Swords",
+      "rank": "Five",
+      "image": "/tarot-cards/swords-05.jpg",
+      "meanings": {
+        "general": "Five of Swords mang năng lượng của Swords trong trạng thái Five. Đây là thông điệp quan trọng từ vũ trụ dành cho bạn.",
+        "love": "Trong tình yêu, Five of Swords cho thấy những cảm xúc sâu sắc và kết nối tâm hồn. Hãy lắng nghe trái tim mình.",
+        "marriage": "Trong hôn nhân, Five of Swords khuyên bạn nên xây dựng sự thấu hiểu và cảm thông với đối phương.",
+        "career": "Về sự nghiệp, Five of Swords báo hiệu cơ hội phát triển. Hãy nắm bắt thờ cơ để tiến xa hơn.",
+        "study": "Trong học tập, Five of Swords cho thấy sự tiến bộ. Kiến thức bạn đang tích lũy sẽ mang lại giá trị lớn.",
+        "finance": "Về tài chính, Five of Swords nhắc nhở bạn cân bằng thu chi. Sự khôn ngoan trong quản lý tiền bạc sẽ được đền đáp.",
+        "investment": "Về đầu tư, Five of Swords khuyên bạn nên thận trọng nhưng không nên bỏ lỡ cơ hội tốt.",
+        "health": "Về sức khỏe, Five of Swords nhắc nhở bạn chú ý đến cả thể chất lẫn tinh thần. Nghỉ ngơi là cần thiết.",
+        "self": "Về bản thân, Five of Swords kêu gọi bạn chăm sóc tâm hồn. Hành trình chữa lành cần sự kiên nhẫn."
+      }
+    },
+    {
+      "id": 41,
+      "name": "Six of Swords",
+      "arcana": "Minor",
+      "suit": "Swords",
+      "rank": "Six",
+      "image": "/tarot-cards/swords-06.jpg",
+      "meanings": {
+        "general": "Six of Swords mang năng lượng của Swords trong trạng thái Six. Đây là thông điệp quan trọng từ vũ trụ dành cho bạn.",
+        "love": "Trong tình yêu, Six of Swords cho thấy những cảm xúc sâu sắc và kết nối tâm hồn. Hãy lắng nghe trái tim mình.",
+        "marriage": "Trong hôn nhân, Six of Swords khuyên bạn nên xây dựng sự thấu hiểu và cảm thông với đối phương.",
+        "career": "Về sự nghiệp, Six of Swords báo hiệu cơ hội phát triển. Hãy nắm bắt thờ cơ để tiến xa hơn.",
+        "study": "Trong học tập, Six of Swords cho thấy sự tiến bộ. Kiến thức bạn đang tích lũy sẽ mang lại giá trị lớn.",
+        "finance": "Về tài chính, Six of Swords nhắc nhở bạn cân bằng thu chi. Sự khôn ngoan trong quản lý tiền bạc sẽ được đền đáp.",
+        "investment": "Về đầu tư, Six of Swords khuyên bạn nên thận trọng nhưng không nên bỏ lỡ cơ hội tốt.",
+        "health": "Về sức khỏe, Six of Swords nhắc nhở bạn chú ý đến cả thể chất lẫn tinh thần. Nghỉ ngơi là cần thiết.",
+        "self": "Về bản thân, Six of Swords kêu gọi bạn chăm sóc tâm hồn. Hành trình chữa lành cần sự kiên nhẫn."
+      }
+    },
+    {
+      "id": 42,
+      "name": "Seven of Swords",
+      "arcana": "Minor",
+      "suit": "Swords",
+      "rank": "Seven",
+      "image": "/tarot-cards/swords-07.jpg",
+      "meanings": {
+        "general": "Seven of Swords mang năng lượng của Swords trong trạng thái Seven. Đây là thông điệp quan trọng từ vũ trụ dành cho bạn.",
+        "love": "Trong tình yêu, Seven of Swords cho thấy những cảm xúc sâu sắc và kết nối tâm hồn. Hãy lắng nghe trái tim mình.",
+        "marriage": "Trong hôn nhân, Seven of Swords khuyên bạn nên xây dựng sự thấu hiểu và cảm thông với đối phương.",
+        "career": "Về sự nghiệp, Seven of Swords báo hiệu cơ hội phát triển. Hãy nắm bắt thờ cơ để tiến xa hơn.",
+        "study": "Trong học tập, Seven of Swords cho thấy sự tiến bộ. Kiến thức bạn đang tích lũy sẽ mang lại giá trị lớn.",
+        "finance": "Về tài chính, Seven of Swords nhắc nhở bạn cân bằng thu chi. Sự khôn ngoan trong quản lý tiền bạc sẽ được đền đáp.",
+        "investment": "Về đầu tư, Seven of Swords khuyên bạn nên thận trọng nhưng không nên bỏ lỡ cơ hội tốt.",
+        "health": "Về sức khỏe, Seven of Swords nhắc nhở bạn chú ý đến cả thể chất lẫn tinh thần. Nghỉ ngơi là cần thiết.",
+        "self": "Về bản thân, Seven of Swords kêu gọi bạn chăm sóc tâm hồn. Hành trình chữa lành cần sự kiên nhẫn."
+      }
+    },
+    {
+      "id": 43,
+      "name": "Eight of Swords",
+      "arcana": "Minor",
+      "suit": "Swords",
+      "rank": "Eight",
+      "image": "/tarot-cards/swords-08.jpg",
+      "meanings": {
+        "general": "Eight of Swords mang năng lượng của Swords trong trạng thái Eight. Đây là thông điệp quan trọng từ vũ trụ dành cho bạn.",
+        "love": "Trong tình yêu, Eight of Swords cho thấy những cảm xúc sâu sắc và kết nối tâm hồn. Hãy lắng nghe trái tim mình.",
+        "marriage": "Trong hôn nhân, Eight of Swords khuyên bạn nên xây dựng sự thấu hiểu và cảm thông với đối phương.",
+        "career": "Về sự nghiệp, Eight of Swords báo hiệu cơ hội phát triển. Hãy nắm bắt thờ cơ để tiến xa hơn.",
+        "study": "Trong học tập, Eight of Swords cho thấy sự tiến bộ. Kiến thức bạn đang tích lũy sẽ mang lại giá trị lớn.",
+        "finance": "Về tài chính, Eight of Swords nhắc nhở bạn cân bằng thu chi. Sự khôn ngoan trong quản lý tiền bạc sẽ được đền đáp.",
+        "investment": "Về đầu tư, Eight of Swords khuyên bạn nên thận trọng nhưng không nên bỏ lỡ cơ hội tốt.",
+        "health": "Về sức khỏe, Eight of Swords nhắc nhở bạn chú ý đến cả thể chất lẫn tinh thần. Nghỉ ngơi là cần thiết.",
+        "self": "Về bản thân, Eight of Swords kêu gọi bạn chăm sóc tâm hồn. Hành trình chữa lành cần sự kiên nhẫn."
+      }
+    },
+    {
+      "id": 44,
+      "name": "Nine of Swords",
+      "arcana": "Minor",
+      "suit": "Swords",
+      "rank": "Nine",
+      "image": "/tarot-cards/swords-09.jpg",
+      "meanings": {
+        "general": "Nine of Swords mang năng lượng của Swords trong trạng thái Nine. Đây là thông điệp quan trọng từ vũ trụ dành cho bạn.",
+        "love": "Trong tình yêu, Nine of Swords cho thấy những cảm xúc sâu sắc và kết nối tâm hồn. Hãy lắng nghe trái tim mình.",
+        "marriage": "Trong hôn nhân, Nine of Swords khuyên bạn nên xây dựng sự thấu hiểu và cảm thông với đối phương.",
+        "career": "Về sự nghiệp, Nine of Swords báo hiệu cơ hội phát triển. Hãy nắm bắt thờ cơ để tiến xa hơn.",
+        "study": "Trong học tập, Nine of Swords cho thấy sự tiến bộ. Kiến thức bạn đang tích lũy sẽ mang lại giá trị lớn.",
+        "finance": "Về tài chính, Nine of Swords nhắc nhở bạn cân bằng thu chi. Sự khôn ngoan trong quản lý tiền bạc sẽ được đền đáp.",
+        "investment": "Về đầu tư, Nine of Swords khuyên bạn nên thận trọng nhưng không nên bỏ lỡ cơ hội tốt.",
+        "health": "Về sức khỏe, Nine of Swords nhắc nhở bạn chú ý đến cả thể chất lẫn tinh thần. Nghỉ ngơi là cần thiết.",
+        "self": "Về bản thân, Nine of Swords kêu gọi bạn chăm sóc tâm hồn. Hành trình chữa lành cần sự kiên nhẫn."
+      }
+    },
+    {
+      "id": 45,
+      "name": "Ten of Swords",
+      "arcana": "Minor",
+      "suit": "Swords",
+      "rank": "Ten",
+      "image": "/tarot-cards/swords-10.jpg",
+      "meanings": {
+        "general": "Ten of Swords mang năng lượng của Swords trong trạng thái Ten. Đây là thông điệp quan trọng từ vũ trụ dành cho bạn.",
+        "love": "Trong tình yêu, Ten of Swords cho thấy những cảm xúc sâu sắc và kết nối tâm hồn. Hãy lắng nghe trái tim mình.",
+        "marriage": "Trong hôn nhân, Ten of Swords khuyên bạn nên xây dựng sự thấu hiểu và cảm thông với đối phương.",
+        "career": "Về sự nghiệp, Ten of Swords báo hiệu cơ hội phát triển. Hãy nắm bắt thờ cơ để tiến xa hơn.",
+        "study": "Trong học tập, Ten of Swords cho thấy sự tiến bộ. Kiến thức bạn đang tích lũy sẽ mang lại giá trị lớn.",
+        "finance": "Về tài chính, Ten of Swords nhắc nhở bạn cân bằng thu chi. Sự khôn ngoan trong quản lý tiền bạc sẽ được đền đáp.",
+        "investment": "Về đầu tư, Ten of Swords khuyên bạn nên thận trọng nhưng không nên bỏ lỡ cơ hội tốt.",
+        "health": "Về sức khỏe, Ten of Swords nhắc nhở bạn chú ý đến cả thể chất lẫn tinh thần. Nghỉ ngơi là cần thiết.",
+        "self": "Về bản thân, Ten of Swords kêu gọi bạn chăm sóc tâm hồn. Hành trình chữa lành cần sự kiên nhẫn."
+      }
+    },
+    {
+      "id": 46,
+      "name": "Page of Swords",
+      "arcana": "Minor",
+      "suit": "Swords",
+      "rank": "Page",
+      "image": "/tarot-cards/swords-page.jpg",
+      "meanings": {
+        "general": "Page of Swords mang năng lượng của Swords trong trạng thái Page. Đây là thông điệp quan trọng từ vũ trụ dành cho bạn.",
+        "love": "Trong tình yêu, Page of Swords cho thấy những cảm xúc sâu sắc và kết nối tâm hồn. Hãy lắng nghe trái tim mình.",
+        "marriage": "Trong hôn nhân, Page of Swords khuyên bạn nên xây dựng sự thấu hiểu và cảm thông với đối phương.",
+        "career": "Về sự nghiệp, Page of Swords báo hiệu cơ hội phát triển. Hãy nắm bắt thờ cơ để tiến xa hơn.",
+        "study": "Trong học tập, Page of Swords cho thấy sự tiến bộ. Kiến thức bạn đang tích lũy sẽ mang lại giá trị lớn.",
+        "finance": "Về tài chính, Page of Swords nhắc nhở bạn cân bằng thu chi. Sự khôn ngoan trong quản lý tiền bạc sẽ được đền đáp.",
+        "investment": "Về đầu tư, Page of Swords khuyên bạn nên thận trọng nhưng không nên bỏ lỡ cơ hội tốt.",
+        "health": "Về sức khỏe, Page of Swords nhắc nhở bạn chú ý đến cả thể chất lẫn tinh thần. Nghỉ ngơi là cần thiết.",
+        "self": "Về bản thân, Page of Swords kêu gọi bạn chăm sóc tâm hồn. Hành trình chữa lành cần sự kiên nhẫn."
+      }
+    },
+    {
+      "id": 47,
+      "name": "Knight of Swords",
+      "arcana": "Minor",
+      "suit": "Swords",
+      "rank": "Knight",
+      "image": "/tarot-cards/swords-knight.jpg",
+      "meanings": {
+        "general": "Knight of Swords mang năng lượng của Swords trong trạng thái Knight. Đây là thông điệp quan trọng từ vũ trụ dành cho bạn.",
+        "love": "Trong tình yêu, Knight of Swords cho thấy những cảm xúc sâu sắc và kết nối tâm hồn. Hãy lắng nghe trái tim mình.",
+        "marriage": "Trong hôn nhân, Knight of Swords khuyên bạn nên xây dựng sự thấu hiểu và cảm thông với đối phương.",
+        "career": "Về sự nghiệp, Knight of Swords báo hiệu cơ hội phát triển. Hãy nắm bắt thờ cơ để tiến xa hơn.",
+        "study": "Trong học tập, Knight of Swords cho thấy sự tiến bộ. Kiến thức bạn đang tích lũy sẽ mang lại giá trị lớn.",
+        "finance": "Về tài chính, Knight of Swords nhắc nhở bạn cân bằng thu chi. Sự khôn ngoan trong quản lý tiền bạc sẽ được đền đáp.",
+        "investment": "Về đầu tư, Knight of Swords khuyên bạn nên thận trọng nhưng không nên bỏ lỡ cơ hội tốt.",
+        "health": "Về sức khỏe, Knight of Swords nhắc nhở bạn chú ý đến cả thể chất lẫn tinh thần. Nghỉ ngơi là cần thiết.",
+        "self": "Về bản thân, Knight of Swords kêu gọi bạn chăm sóc tâm hồn. Hành trình chữa lành cần sự kiên nhẫn."
+      }
+    },
+    {
+      "id": 48,
+      "name": "Queen of Swords",
+      "arcana": "Minor",
+      "suit": "Swords",
+      "rank": "Queen",
+      "image": "/tarot-cards/swords-queen.jpg",
+      "meanings": {
+        "general": "Queen of Swords mang năng lượng của Swords trong trạng thái Queen. Đây là thông điệp quan trọng từ vũ trụ dành cho bạn.",
+        "love": "Trong tình yêu, Queen of Swords cho thấy những cảm xúc sâu sắc và kết nối tâm hồn. Hãy lắng nghe trái tim mình.",
+        "marriage": "Trong hôn nhân, Queen of Swords khuyên bạn nên xây dựng sự thấu hiểu và cảm thông với đối phương.",
+        "career": "Về sự nghiệp, Queen of Swords báo hiệu cơ hội phát triển. Hãy nắm bắt thờ cơ để tiến xa hơn.",
+        "study": "Trong học tập, Queen of Swords cho thấy sự tiến bộ. Kiến thức bạn đang tích lũy sẽ mang lại giá trị lớn.",
+        "finance": "Về tài chính, Queen of Swords nhắc nhở bạn cân bằng thu chi. Sự khôn ngoan trong quản lý tiền bạc sẽ được đền đáp.",
+        "investment": "Về đầu tư, Queen of Swords khuyên bạn nên thận trọng nhưng không nên bỏ lỡ cơ hội tốt.",
+        "health": "Về sức khỏe, Queen of Swords nhắc nhở bạn chú ý đến cả thể chất lẫn tinh thần. Nghỉ ngơi là cần thiết.",
+        "self": "Về bản thân, Queen of Swords kêu gọi bạn chăm sóc tâm hồn. Hành trình chữa lành cần sự kiên nhẫn."
+      }
+    },
+    {
+      "id": 49,
+      "name": "King of Swords",
+      "arcana": "Minor",
+      "suit": "Swords",
+      "rank": "King",
+      "image": "/tarot-cards/swords-king.jpg",
+      "meanings": {
+        "general": "King of Swords mang năng lượng của Swords trong trạng thái King. Đây là thông điệp quan trọng từ vũ trụ dành cho bạn.",
+        "love": "Trong tình yêu, King of Swords cho thấy những cảm xúc sâu sắc và kết nối tâm hồn. Hãy lắng nghe trái tim mình.",
+        "marriage": "Trong hôn nhân, King of Swords khuyên bạn nên xây dựng sự thấu hiểu và cảm thông với đối phương.",
+        "career": "Về sự nghiệp, King of Swords báo hiệu cơ hội phát triển. Hãy nắm bắt thờ cơ để tiến xa hơn.",
+        "study": "Trong học tập, King of Swords cho thấy sự tiến bộ. Kiến thức bạn đang tích lũy sẽ mang lại giá trị lớn.",
+        "finance": "Về tài chính, King of Swords nhắc nhở bạn cân bằng thu chi. Sự khôn ngoan trong quản lý tiền bạc sẽ được đền đáp.",
+        "investment": "Về đầu tư, King of Swords khuyên bạn nên thận trọng nhưng không nên bỏ lỡ cơ hội tốt.",
+        "health": "Về sức khỏe, King of Swords nhắc nhở bạn chú ý đến cả thể chất lẫn tinh thần. Nghỉ ngơi là cần thiết.",
+        "self": "Về bản thân, King of Swords kêu gọi bạn chăm sóc tâm hồn. Hành trình chữa lành cần sự kiên nhẫn."
+      }
+    },
+    {
+      "id": 50,
+      "name": "Ace of Wands",
+      "arcana": "Minor",
+      "suit": "Wands",
+      "rank": "Ace",
+      "image": "/tarot-cards/wands-ace.jpg",
+      "meanings": {
+        "general": "Ace of Wands mang năng lượng của Wands trong trạng thái Ace. Đây là thông điệp quan trọng từ vũ trụ dành cho bạn.",
+        "love": "Trong tình yêu, Ace of Wands cho thấy những cảm xúc sâu sắc và kết nối tâm hồn. Hãy lắng nghe trái tim mình.",
+        "marriage": "Trong hôn nhân, Ace of Wands khuyên bạn nên xây dựng sự thấu hiểu và cảm thông với đối phương.",
+        "career": "Về sự nghiệp, Ace of Wands báo hiệu cơ hội phát triển. Hãy nắm bắt thờ cơ để tiến xa hơn.",
+        "study": "Trong học tập, Ace of Wands cho thấy sự tiến bộ. Kiến thức bạn đang tích lũy sẽ mang lại giá trị lớn.",
+        "finance": "Về tài chính, Ace of Wands nhắc nhở bạn cân bằng thu chi. Sự khôn ngoan trong quản lý tiền bạc sẽ được đền đáp.",
+        "investment": "Về đầu tư, Ace of Wands khuyên bạn nên thận trọng nhưng không nên bỏ lỡ cơ hội tốt.",
+        "health": "Về sức khỏe, Ace of Wands nhắc nhở bạn chú ý đến cả thể chất lẫn tinh thần. Nghỉ ngơi là cần thiết.",
+        "self": "Về bản thân, Ace of Wands kêu gọi bạn chăm sóc tâm hồn. Hành trình chữa lành cần sự kiên nhẫn."
+      }
+    },
+    {
+      "id": 51,
+      "name": "Two of Wands",
+      "arcana": "Minor",
+      "suit": "Wands",
+      "rank": "Two",
+      "image": "/tarot-cards/wands-02.jpg",
+      "meanings": {
+        "general": "Two of Wands mang năng lượng của Wands trong trạng thái Two. Đây là thông điệp quan trọng từ vũ trụ dành cho bạn.",
+        "love": "Trong tình yêu, Two of Wands cho thấy những cảm xúc sâu sắc và kết nối tâm hồn. Hãy lắng nghe trái tim mình.",
+        "marriage": "Trong hôn nhân, Two of Wands khuyên bạn nên xây dựng sự thấu hiểu và cảm thông với đối phương.",
+        "career": "Về sự nghiệp, Two of Wands báo hiệu cơ hội phát triển. Hãy nắm bắt thờ cơ để tiến xa hơn.",
+        "study": "Trong học tập, Two of Wands cho thấy sự tiến bộ. Kiến thức bạn đang tích lũy sẽ mang lại giá trị lớn.",
+        "finance": "Về tài chính, Two of Wands nhắc nhở bạn cân bằng thu chi. Sự khôn ngoan trong quản lý tiền bạc sẽ được đền đáp.",
+        "investment": "Về đầu tư, Two of Wands khuyên bạn nên thận trọng nhưng không nên bỏ lỡ cơ hội tốt.",
+        "health": "Về sức khỏe, Two of Wands nhắc nhở bạn chú ý đến cả thể chất lẫn tinh thần. Nghỉ ngơi là cần thiết.",
+        "self": "Về bản thân, Two of Wands kêu gọi bạn chăm sóc tâm hồn. Hành trình chữa lành cần sự kiên nhẫn."
+      }
+    },
+    {
+      "id": 52,
+      "name": "Three of Wands",
+      "arcana": "Minor",
+      "suit": "Wands",
+      "rank": "Three",
+      "image": "/tarot-cards/wands-03.jpg",
+      "meanings": {
+        "general": "Three of Wands mang năng lượng của Wands trong trạng thái Three. Đây là thông điệp quan trọng từ vũ trụ dành cho bạn.",
+        "love": "Trong tình yêu, Three of Wands cho thấy những cảm xúc sâu sắc và kết nối tâm hồn. Hãy lắng nghe trái tim mình.",
+        "marriage": "Trong hôn nhân, Three of Wands khuyên bạn nên xây dựng sự thấu hiểu và cảm thông với đối phương.",
+        "career": "Về sự nghiệp, Three of Wands báo hiệu cơ hội phát triển. Hãy nắm bắt thờ cơ để tiến xa hơn.",
+        "study": "Trong học tập, Three of Wands cho thấy sự tiến bộ. Kiến thức bạn đang tích lũy sẽ mang lại giá trị lớn.",
+        "finance": "Về tài chính, Three of Wands nhắc nhở bạn cân bằng thu chi. Sự khôn ngoan trong quản lý tiền bạc sẽ được đền đáp.",
+        "investment": "Về đầu tư, Three of Wands khuyên bạn nên thận trọng nhưng không nên bỏ lỡ cơ hội tốt.",
+        "health": "Về sức khỏe, Three of Wands nhắc nhở bạn chú ý đến cả thể chất lẫn tinh thần. Nghỉ ngơi là cần thiết.",
+        "self": "Về bản thân, Three of Wands kêu gọi bạn chăm sóc tâm hồn. Hành trình chữa lành cần sự kiên nhẫn."
+      }
+    },
+    {
+      "id": 53,
+      "name": "Four of Wands",
+      "arcana": "Minor",
+      "suit": "Wands",
+      "rank": "Four",
+      "image": "/tarot-cards/wands-04.jpg",
+      "meanings": {
+        "general": "Four of Wands mang năng lượng của Wands trong trạng thái Four. Đây là thông điệp quan trọng từ vũ trụ dành cho bạn.",
+        "love": "Trong tình yêu, Four of Wands cho thấy những cảm xúc sâu sắc và kết nối tâm hồn. Hãy lắng nghe trái tim mình.",
+        "marriage": "Trong hôn nhân, Four of Wands khuyên bạn nên xây dựng sự thấu hiểu và cảm thông với đối phương.",
+        "career": "Về sự nghiệp, Four of Wands báo hiệu cơ hội phát triển. Hãy nắm bắt thờ cơ để tiến xa hơn.",
+        "study": "Trong học tập, Four of Wands cho thấy sự tiến bộ. Kiến thức bạn đang tích lũy sẽ mang lại giá trị lớn.",
+        "finance": "Về tài chính, Four of Wands nhắc nhở bạn cân bằng thu chi. Sự khôn ngoan trong quản lý tiền bạc sẽ được đền đáp.",
+        "investment": "Về đầu tư, Four of Wands khuyên bạn nên thận trọng nhưng không nên bỏ lỡ cơ hội tốt.",
+        "health": "Về sức khỏe, Four of Wands nhắc nhở bạn chú ý đến cả thể chất lẫn tinh thần. Nghỉ ngơi là cần thiết.",
+        "self": "Về bản thân, Four of Wands kêu gọi bạn chăm sóc tâm hồn. Hành trình chữa lành cần sự kiên nhẫn."
+      }
+    },
+    {
+      "id": 54,
+      "name": "Five of Wands",
+      "arcana": "Minor",
+      "suit": "Wands",
+      "rank": "Five",
+      "image": "/tarot-cards/wands-05.jpg",
+      "meanings": {
+        "general": "Five of Wands mang năng lượng của Wands trong trạng thái Five. Đây là thông điệp quan trọng từ vũ trụ dành cho bạn.",
+        "love": "Trong tình yêu, Five of Wands cho thấy những cảm xúc sâu sắc và kết nối tâm hồn. Hãy lắng nghe trái tim mình.",
+        "marriage": "Trong hôn nhân, Five of Wands khuyên bạn nên xây dựng sự thấu hiểu và cảm thông với đối phương.",
+        "career": "Về sự nghiệp, Five of Wands báo hiệu cơ hội phát triển. Hãy nắm bắt thờ cơ để tiến xa hơn.",
+        "study": "Trong học tập, Five of Wands cho thấy sự tiến bộ. Kiến thức bạn đang tích lũy sẽ mang lại giá trị lớn.",
+        "finance": "Về tài chính, Five of Wands nhắc nhở bạn cân bằng thu chi. Sự khôn ngoan trong quản lý tiền bạc sẽ được đền đáp.",
+        "investment": "Về đầu tư, Five of Wands khuyên bạn nên thận trọng nhưng không nên bỏ lỡ cơ hội tốt.",
+        "health": "Về sức khỏe, Five of Wands nhắc nhở bạn chú ý đến cả thể chất lẫn tinh thần. Nghỉ ngơi là cần thiết.",
+        "self": "Về bản thân, Five of Wands kêu gọi bạn chăm sóc tâm hồn. Hành trình chữa lành cần sự kiên nhẫn."
+      }
+    },
+    {
+      "id": 55,
+      "name": "Six of Wands",
+      "arcana": "Minor",
+      "suit": "Wands",
+      "rank": "Six",
+      "image": "/tarot-cards/wands-06.jpg",
+      "meanings": {
+        "general": "Six of Wands mang năng lượng của Wands trong trạng thái Six. Đây là thông điệp quan trọng từ vũ trụ dành cho bạn.",
+        "love": "Trong tình yêu, Six of Wands cho thấy những cảm xúc sâu sắc và kết nối tâm hồn. Hãy lắng nghe trái tim mình.",
+        "marriage": "Trong hôn nhân, Six of Wands khuyên bạn nên xây dựng sự thấu hiểu và cảm thông với đối phương.",
+        "career": "Về sự nghiệp, Six of Wands báo hiệu cơ hội phát triển. Hãy nắm bắt thờ cơ để tiến xa hơn.",
+        "study": "Trong học tập, Six of Wands cho thấy sự tiến bộ. Kiến thức bạn đang tích lũy sẽ mang lại giá trị lớn.",
+        "finance": "Về tài chính, Six of Wands nhắc nhở bạn cân bằng thu chi. Sự khôn ngoan trong quản lý tiền bạc sẽ được đền đáp.",
+        "investment": "Về đầu tư, Six of Wands khuyên bạn nên thận trọng nhưng không nên bỏ lỡ cơ hội tốt.",
+        "health": "Về sức khỏe, Six of Wands nhắc nhở bạn chú ý đến cả thể chất lẫn tinh thần. Nghỉ ngơi là cần thiết.",
+        "self": "Về bản thân, Six of Wands kêu gọi bạn chăm sóc tâm hồn. Hành trình chữa lành cần sự kiên nhẫn."
+      }
+    },
+    {
+      "id": 56,
+      "name": "Seven of Wands",
+      "arcana": "Minor",
+      "suit": "Wands",
+      "rank": "Seven",
+      "image": "/tarot-cards/wands-07.jpg",
+      "meanings": {
+        "general": "Seven of Wands mang năng lượng của Wands trong trạng thái Seven. Đây là thông điệp quan trọng từ vũ trụ dành cho bạn.",
+        "love": "Trong tình yêu, Seven of Wands cho thấy những cảm xúc sâu sắc và kết nối tâm hồn. Hãy lắng nghe trái tim mình.",
+        "marriage": "Trong hôn nhân, Seven of Wands khuyên bạn nên xây dựng sự thấu hiểu và cảm thông với đối phương.",
+        "career": "Về sự nghiệp, Seven of Wands báo hiệu cơ hội phát triển. Hãy nắm bắt thờ cơ để tiến xa hơn.",
+        "study": "Trong học tập, Seven of Wands cho thấy sự tiến bộ. Kiến thức bạn đang tích lũy sẽ mang lại giá trị lớn.",
+        "finance": "Về tài chính, Seven of Wands nhắc nhở bạn cân bằng thu chi. Sự khôn ngoan trong quản lý tiền bạc sẽ được đền đáp.",
+        "investment": "Về đầu tư, Seven of Wands khuyên bạn nên thận trọng nhưng không nên bỏ lỡ cơ hội tốt.",
+        "health": "Về sức khỏe, Seven of Wands nhắc nhở bạn chú ý đến cả thể chất lẫn tinh thần. Nghỉ ngơi là cần thiết.",
+        "self": "Về bản thân, Seven of Wands kêu gọi bạn chăm sóc tâm hồn. Hành trình chữa lành cần sự kiên nhẫn."
+      }
+    },
+    {
+      "id": 57,
+      "name": "Eight of Wands",
+      "arcana": "Minor",
+      "suit": "Wands",
+      "rank": "Eight",
+      "image": "/tarot-cards/wands-08.jpg",
+      "meanings": {
+        "general": "Eight of Wands mang năng lượng của Wands trong trạng thái Eight. Đây là thông điệp quan trọng từ vũ trụ dành cho bạn.",
+        "love": "Trong tình yêu, Eight of Wands cho thấy những cảm xúc sâu sắc và kết nối tâm hồn. Hãy lắng nghe trái tim mình.",
+        "marriage": "Trong hôn nhân, Eight of Wands khuyên bạn nên xây dựng sự thấu hiểu và cảm thông với đối phương.",
+        "career": "Về sự nghiệp, Eight of Wands báo hiệu cơ hội phát triển. Hãy nắm bắt thờ cơ để tiến xa hơn.",
+        "study": "Trong học tập, Eight of Wands cho thấy sự tiến bộ. Kiến thức bạn đang tích lũy sẽ mang lại giá trị lớn.",
+        "finance": "Về tài chính, Eight of Wands nhắc nhở bạn cân bằng thu chi. Sự khôn ngoan trong quản lý tiền bạc sẽ được đền đáp.",
+        "investment": "Về đầu tư, Eight of Wands khuyên bạn nên thận trọng nhưng không nên bỏ lỡ cơ hội tốt.",
+        "health": "Về sức khỏe, Eight of Wands nhắc nhở bạn chú ý đến cả thể chất lẫn tinh thần. Nghỉ ngơi là cần thiết.",
+        "self": "Về bản thân, Eight of Wands kêu gọi bạn chăm sóc tâm hồn. Hành trình chữa lành cần sự kiên nhẫn."
+      }
+    },
+    {
+      "id": 58,
+      "name": "Nine of Wands",
+      "arcana": "Minor",
+      "suit": "Wands",
+      "rank": "Nine",
+      "image": "/tarot-cards/wands-09.jpg",
+      "meanings": {
+        "general": "Nine of Wands mang năng lượng của Wands trong trạng thái Nine. Đây là thông điệp quan trọng từ vũ trụ dành cho bạn.",
+        "love": "Trong tình yêu, Nine of Wands cho thấy những cảm xúc sâu sắc và kết nối tâm hồn. Hãy lắng nghe trái tim mình.",
+        "marriage": "Trong hôn nhân, Nine of Wands khuyên bạn nên xây dựng sự thấu hiểu và cảm thông với đối phương.",
+        "career": "Về sự nghiệp, Nine of Wands báo hiệu cơ hội phát triển. Hãy nắm bắt thờ cơ để tiến xa hơn.",
+        "study": "Trong học tập, Nine of Wands cho thấy sự tiến bộ. Kiến thức bạn đang tích lũy sẽ mang lại giá trị lớn.",
+        "finance": "Về tài chính, Nine of Wands nhắc nhở bạn cân bằng thu chi. Sự khôn ngoan trong quản lý tiền bạc sẽ được đền đáp.",
+        "investment": "Về đầu tư, Nine of Wands khuyên bạn nên thận trọng nhưng không nên bỏ lỡ cơ hội tốt.",
+        "health": "Về sức khỏe, Nine of Wands nhắc nhở bạn chú ý đến cả thể chất lẫn tinh thần. Nghỉ ngơi là cần thiết.",
+        "self": "Về bản thân, Nine of Wands kêu gọi bạn chăm sóc tâm hồn. Hành trình chữa lành cần sự kiên nhẫn."
+      }
+    },
+    {
+      "id": 59,
+      "name": "Ten of Wands",
+      "arcana": "Minor",
+      "suit": "Wands",
+      "rank": "Ten",
+      "image": "/tarot-cards/wands-10.jpg",
+      "meanings": {
+        "general": "Ten of Wands mang năng lượng của Wands trong trạng thái Ten. Đây là thông điệp quan trọng từ vũ trụ dành cho bạn.",
+        "love": "Trong tình yêu, Ten of Wands cho thấy những cảm xúc sâu sắc và kết nối tâm hồn. Hãy lắng nghe trái tim mình.",
+        "marriage": "Trong hôn nhân, Ten of Wands khuyên bạn nên xây dựng sự thấu hiểu và cảm thông với đối phương.",
+        "career": "Về sự nghiệp, Ten of Wands báo hiệu cơ hội phát triển. Hãy nắm bắt thờ cơ để tiến xa hơn.",
+        "study": "Trong học tập, Ten of Wands cho thấy sự tiến bộ. Kiến thức bạn đang tích lũy sẽ mang lại giá trị lớn.",
+        "finance": "Về tài chính, Ten of Wands nhắc nhở bạn cân bằng thu chi. Sự khôn ngoan trong quản lý tiền bạc sẽ được đền đáp.",
+        "investment": "Về đầu tư, Ten of Wands khuyên bạn nên thận trọng nhưng không nên bỏ lỡ cơ hội tốt.",
+        "health": "Về sức khỏe, Ten of Wands nhắc nhở bạn chú ý đến cả thể chất lẫn tinh thần. Nghỉ ngơi là cần thiết.",
+        "self": "Về bản thân, Ten of Wands kêu gọi bạn chăm sóc tâm hồn. Hành trình chữa lành cần sự kiên nhẫn."
+      }
+    },
+    {
+      "id": 60,
+      "name": "Page of Wands",
+      "arcana": "Minor",
+      "suit": "Wands",
+      "rank": "Page",
+      "image": "/tarot-cards/wands-page.jpg",
+      "meanings": {
+        "general": "Page of Wands mang năng lượng của Wands trong trạng thái Page. Đây là thông điệp quan trọng từ vũ trụ dành cho bạn.",
+        "love": "Trong tình yêu, Page of Wands cho thấy những cảm xúc sâu sắc và kết nối tâm hồn. Hãy lắng nghe trái tim mình.",
+        "marriage": "Trong hôn nhân, Page of Wands khuyên bạn nên xây dựng sự thấu hiểu và cảm thông với đối phương.",
+        "career": "Về sự nghiệp, Page of Wands báo hiệu cơ hội phát triển. Hãy nắm bắt thờ cơ để tiến xa hơn.",
+        "study": "Trong học tập, Page of Wands cho thấy sự tiến bộ. Kiến thức bạn đang tích lũy sẽ mang lại giá trị lớn.",
+        "finance": "Về tài chính, Page of Wands nhắc nhở bạn cân bằng thu chi. Sự khôn ngoan trong quản lý tiền bạc sẽ được đền đáp.",
+        "investment": "Về đầu tư, Page of Wands khuyên bạn nên thận trọng nhưng không nên bỏ lỡ cơ hội tốt.",
+        "health": "Về sức khỏe, Page of Wands nhắc nhở bạn chú ý đến cả thể chất lẫn tinh thần. Nghỉ ngơi là cần thiết.",
+        "self": "Về bản thân, Page of Wands kêu gọi bạn chăm sóc tâm hồn. Hành trình chữa lành cần sự kiên nhẫn."
+      }
+    },
+    {
+      "id": 61,
+      "name": "Knight of Wands",
+      "arcana": "Minor",
+      "suit": "Wands",
+      "rank": "Knight",
+      "image": "/tarot-cards/wands-knight.jpg",
+      "meanings": {
+        "general": "Knight of Wands mang năng lượng của Wands trong trạng thái Knight. Đây là thông điệp quan trọng từ vũ trụ dành cho bạn.",
+        "love": "Trong tình yêu, Knight of Wands cho thấy những cảm xúc sâu sắc và kết nối tâm hồn. Hãy lắng nghe trái tim mình.",
+        "marriage": "Trong hôn nhân, Knight of Wands khuyên bạn nên xây dựng sự thấu hiểu và cảm thông với đối phương.",
+        "career": "Về sự nghiệp, Knight of Wands báo hiệu cơ hội phát triển. Hãy nắm bắt thờ cơ để tiến xa hơn.",
+        "study": "Trong học tập, Knight of Wands cho thấy sự tiến bộ. Kiến thức bạn đang tích lũy sẽ mang lại giá trị lớn.",
+        "finance": "Về tài chính, Knight of Wands nhắc nhở bạn cân bằng thu chi. Sự khôn ngoan trong quản lý tiền bạc sẽ được đền đáp.",
+        "investment": "Về đầu tư, Knight of Wands khuyên bạn nên thận trọng nhưng không nên bỏ lỡ cơ hội tốt.",
+        "health": "Về sức khỏe, Knight of Wands nhắc nhở bạn chú ý đến cả thể chất lẫn tinh thần. Nghỉ ngơi là cần thiết.",
+        "self": "Về bản thân, Knight of Wands kêu gọi bạn chăm sóc tâm hồn. Hành trình chữa lành cần sự kiên nhẫn."
+      }
+    },
+    {
+      "id": 62,
+      "name": "Queen of Wands",
+      "arcana": "Minor",
+      "suit": "Wands",
+      "rank": "Queen",
+      "image": "/tarot-cards/wands-queen.jpg",
+      "meanings": {
+        "general": "Queen of Wands mang năng lượng của Wands trong trạng thái Queen. Đây là thông điệp quan trọng từ vũ trụ dành cho bạn.",
+        "love": "Trong tình yêu, Queen of Wands cho thấy những cảm xúc sâu sắc và kết nối tâm hồn. Hãy lắng nghe trái tim mình.",
+        "marriage": "Trong hôn nhân, Queen of Wands khuyên bạn nên xây dựng sự thấu hiểu và cảm thông với đối phương.",
+        "career": "Về sự nghiệp, Queen of Wands báo hiệu cơ hội phát triển. Hãy nắm bắt thờ cơ để tiến xa hơn.",
+        "study": "Trong học tập, Queen of Wands cho thấy sự tiến bộ. Kiến thức bạn đang tích lũy sẽ mang lại giá trị lớn.",
+        "finance": "Về tài chính, Queen of Wands nhắc nhở bạn cân bằng thu chi. Sự khôn ngoan trong quản lý tiền bạc sẽ được đền đáp.",
+        "investment": "Về đầu tư, Queen of Wands khuyên bạn nên thận trọng nhưng không nên bỏ lỡ cơ hội tốt.",
+        "health": "Về sức khỏe, Queen of Wands nhắc nhở bạn chú ý đến cả thể chất lẫn tinh thần. Nghỉ ngơi là cần thiết.",
+        "self": "Về bản thân, Queen of Wands kêu gọi bạn chăm sóc tâm hồn. Hành trình chữa lành cần sự kiên nhẫn."
+      }
+    },
+    {
+      "id": 63,
+      "name": "King of Wands",
+      "arcana": "Minor",
+      "suit": "Wands",
+      "rank": "King",
+      "image": "/tarot-cards/wands-king.jpg",
+      "meanings": {
+        "general": "King of Wands mang năng lượng của Wands trong trạng thái King. Đây là thông điệp quan trọng từ vũ trụ dành cho bạn.",
+        "love": "Trong tình yêu, King of Wands cho thấy những cảm xúc sâu sắc và kết nối tâm hồn. Hãy lắng nghe trái tim mình.",
+        "marriage": "Trong hôn nhân, King of Wands khuyên bạn nên xây dựng sự thấu hiểu và cảm thông với đối phương.",
+        "career": "Về sự nghiệp, King of Wands báo hiệu cơ hội phát triển. Hãy nắm bắt thờ cơ để tiến xa hơn.",
+        "study": "Trong học tập, King of Wands cho thấy sự tiến bộ. Kiến thức bạn đang tích lũy sẽ mang lại giá trị lớn.",
+        "finance": "Về tài chính, King of Wands nhắc nhở bạn cân bằng thu chi. Sự khôn ngoan trong quản lý tiền bạc sẽ được đền đáp.",
+        "investment": "Về đầu tư, King of Wands khuyên bạn nên thận trọng nhưng không nên bỏ lỡ cơ hội tốt.",
+        "health": "Về sức khỏe, King of Wands nhắc nhở bạn chú ý đến cả thể chất lẫn tinh thần. Nghỉ ngơi là cần thiết.",
+        "self": "Về bản thân, King of Wands kêu gọi bạn chăm sóc tâm hồn. Hành trình chữa lành cần sự kiên nhẫn."
+      }
+    },
+    {
+      "id": 64,
+      "name": "Ace of Pentacles",
+      "arcana": "Minor",
+      "suit": "Pentacles",
+      "rank": "Ace",
+      "image": "/tarot-cards/pentacles-ace.jpg",
+      "meanings": {
+        "general": "Ace of Pentacles mang năng lượng của Pentacles trong trạng thái Ace. Đây là thông điệp quan trọng từ vũ trụ dành cho bạn.",
+        "love": "Trong tình yêu, Ace of Pentacles cho thấy những cảm xúc sâu sắc và kết nối tâm hồn. Hãy lắng nghe trái tim mình.",
+        "marriage": "Trong hôn nhân, Ace of Pentacles khuyên bạn nên xây dựng sự thấu hiểu và cảm thông với đối phương.",
+        "career": "Về sự nghiệp, Ace of Pentacles báo hiệu cơ hội phát triển. Hãy nắm bắt thờ cơ để tiến xa hơn.",
+        "study": "Trong học tập, Ace of Pentacles cho thấy sự tiến bộ. Kiến thức bạn đang tích lũy sẽ mang lại giá trị lớn.",
+        "finance": "Về tài chính, Ace of Pentacles nhắc nhở bạn cân bằng thu chi. Sự khôn ngoan trong quản lý tiền bạc sẽ được đền đáp.",
+        "investment": "Về đầu tư, Ace of Pentacles khuyên bạn nên thận trọng nhưng không nên bỏ lỡ cơ hội tốt.",
+        "health": "Về sức khỏe, Ace of Pentacles nhắc nhở bạn chú ý đến cả thể chất lẫn tinh thần. Nghỉ ngơi là cần thiết.",
+        "self": "Về bản thân, Ace of Pentacles kêu gọi bạn chăm sóc tâm hồn. Hành trình chữa lành cần sự kiên nhẫn."
+      }
+    },
+    {
+      "id": 65,
+      "name": "Two of Pentacles",
+      "arcana": "Minor",
+      "suit": "Pentacles",
+      "rank": "Two",
+      "image": "/tarot-cards/pentacles-02.jpg",
+      "meanings": {
+        "general": "Two of Pentacles mang năng lượng của Pentacles trong trạng thái Two. Đây là thông điệp quan trọng từ vũ trụ dành cho bạn.",
+        "love": "Trong tình yêu, Two of Pentacles cho thấy những cảm xúc sâu sắc và kết nối tâm hồn. Hãy lắng nghe trái tim mình.",
+        "marriage": "Trong hôn nhân, Two of Pentacles khuyên bạn nên xây dựng sự thấu hiểu và cảm thông với đối phương.",
+        "career": "Về sự nghiệp, Two of Pentacles báo hiệu cơ hội phát triển. Hãy nắm bắt thờ cơ để tiến xa hơn.",
+        "study": "Trong học tập, Two of Pentacles cho thấy sự tiến bộ. Kiến thức bạn đang tích lũy sẽ mang lại giá trị lớn.",
+        "finance": "Về tài chính, Two of Pentacles nhắc nhở bạn cân bằng thu chi. Sự khôn ngoan trong quản lý tiền bạc sẽ được đền đáp.",
+        "investment": "Về đầu tư, Two of Pentacles khuyên bạn nên thận trọng nhưng không nên bỏ lỡ cơ hội tốt.",
+        "health": "Về sức khỏe, Two of Pentacles nhắc nhở bạn chú ý đến cả thể chất lẫn tinh thần. Nghỉ ngơi là cần thiết.",
+        "self": "Về bản thân, Two of Pentacles kêu gọi bạn chăm sóc tâm hồn. Hành trình chữa lành cần sự kiên nhẫn."
+      }
+    },
+    {
+      "id": 66,
+      "name": "Three of Pentacles",
+      "arcana": "Minor",
+      "suit": "Pentacles",
+      "rank": "Three",
+      "image": "/tarot-cards/pentacles-03.jpg",
+      "meanings": {
+        "general": "Three of Pentacles mang năng lượng của Pentacles trong trạng thái Three. Đây là thông điệp quan trọng từ vũ trụ dành cho bạn.",
+        "love": "Trong tình yêu, Three of Pentacles cho thấy những cảm xúc sâu sắc và kết nối tâm hồn. Hãy lắng nghe trái tim mình.",
+        "marriage": "Trong hôn nhân, Three of Pentacles khuyên bạn nên xây dựng sự thấu hiểu và cảm thông với đối phương.",
+        "career": "Về sự nghiệp, Three of Pentacles báo hiệu cơ hội phát triển. Hãy nắm bắt thờ cơ để tiến xa hơn.",
+        "study": "Trong học tập, Three of Pentacles cho thấy sự tiến bộ. Kiến thức bạn đang tích lũy sẽ mang lại giá trị lớn.",
+        "finance": "Về tài chính, Three of Pentacles nhắc nhở bạn cân bằng thu chi. Sự khôn ngoan trong quản lý tiền bạc sẽ được đền đáp.",
+        "investment": "Về đầu tư, Three of Pentacles khuyên bạn nên thận trọng nhưng không nên bỏ lỡ cơ hội tốt.",
+        "health": "Về sức khỏe, Three of Pentacles nhắc nhở bạn chú ý đến cả thể chất lẫn tinh thần. Nghỉ ngơi là cần thiết.",
+        "self": "Về bản thân, Three of Pentacles kêu gọi bạn chăm sóc tâm hồn. Hành trình chữa lành cần sự kiên nhẫn."
+      }
+    },
+    {
+      "id": 67,
+      "name": "Four of Pentacles",
+      "arcana": "Minor",
+      "suit": "Pentacles",
+      "rank": "Four",
+      "image": "/tarot-cards/pentacles-04.jpg",
+      "meanings": {
+        "general": "Four of Pentacles mang năng lượng của Pentacles trong trạng thái Four. Đây là thông điệp quan trọng từ vũ trụ dành cho bạn.",
+        "love": "Trong tình yêu, Four of Pentacles cho thấy những cảm xúc sâu sắc và kết nối tâm hồn. Hãy lắng nghe trái tim mình.",
+        "marriage": "Trong hôn nhân, Four of Pentacles khuyên bạn nên xây dựng sự thấu hiểu và cảm thông với đối phương.",
+        "career": "Về sự nghiệp, Four of Pentacles báo hiệu cơ hội phát triển. Hãy nắm bắt thờ cơ để tiến xa hơn.",
+        "study": "Trong học tập, Four of Pentacles cho thấy sự tiến bộ. Kiến thức bạn đang tích lũy sẽ mang lại giá trị lớn.",
+        "finance": "Về tài chính, Four of Pentacles nhắc nhở bạn cân bằng thu chi. Sự khôn ngoan trong quản lý tiền bạc sẽ được đền đáp.",
+        "investment": "Về đầu tư, Four of Pentacles khuyên bạn nên thận trọng nhưng không nên bỏ lỡ cơ hội tốt.",
+        "health": "Về sức khỏe, Four of Pentacles nhắc nhở bạn chú ý đến cả thể chất lẫn tinh thần. Nghỉ ngơi là cần thiết.",
+        "self": "Về bản thân, Four of Pentacles kêu gọi bạn chăm sóc tâm hồn. Hành trình chữa lành cần sự kiên nhẫn."
+      }
+    },
+    {
+      "id": 68,
+      "name": "Five of Pentacles",
+      "arcana": "Minor",
+      "suit": "Pentacles",
+      "rank": "Five",
+      "image": "/tarot-cards/pentacles-05.jpg",
+      "meanings": {
+        "general": "Five of Pentacles mang năng lượng của Pentacles trong trạng thái Five. Đây là thông điệp quan trọng từ vũ trụ dành cho bạn.",
+        "love": "Trong tình yêu, Five of Pentacles cho thấy những cảm xúc sâu sắc và kết nối tâm hồn. Hãy lắng nghe trái tim mình.",
+        "marriage": "Trong hôn nhân, Five of Pentacles khuyên bạn nên xây dựng sự thấu hiểu và cảm thông với đối phương.",
+        "career": "Về sự nghiệp, Five of Pentacles báo hiệu cơ hội phát triển. Hãy nắm bắt thờ cơ để tiến xa hơn.",
+        "study": "Trong học tập, Five of Pentacles cho thấy sự tiến bộ. Kiến thức bạn đang tích lũy sẽ mang lại giá trị lớn.",
+        "finance": "Về tài chính, Five of Pentacles nhắc nhở bạn cân bằng thu chi. Sự khôn ngoan trong quản lý tiền bạc sẽ được đền đáp.",
+        "investment": "Về đầu tư, Five of Pentacles khuyên bạn nên thận trọng nhưng không nên bỏ lỡ cơ hội tốt.",
+        "health": "Về sức khỏe, Five of Pentacles nhắc nhở bạn chú ý đến cả thể chất lẫn tinh thần. Nghỉ ngơi là cần thiết.",
+        "self": "Về bản thân, Five of Pentacles kêu gọi bạn chăm sóc tâm hồn. Hành trình chữa lành cần sự kiên nhẫn."
+      }
+    },
+    {
+      "id": 69,
+      "name": "Six of Pentacles",
+      "arcana": "Minor",
+      "suit": "Pentacles",
+      "rank": "Six",
+      "image": "/tarot-cards/pentacles-06.jpg",
+      "meanings": {
+        "general": "Six of Pentacles mang năng lượng của Pentacles trong trạng thái Six. Đây là thông điệp quan trọng từ vũ trụ dành cho bạn.",
+        "love": "Trong tình yêu, Six of Pentacles cho thấy những cảm xúc sâu sắc và kết nối tâm hồn. Hãy lắng nghe trái tim mình.",
+        "marriage": "Trong hôn nhân, Six of Pentacles khuyên bạn nên xây dựng sự thấu hiểu và cảm thông với đối phương.",
+        "career": "Về sự nghiệp, Six of Pentacles báo hiệu cơ hội phát triển. Hãy nắm bắt thờ cơ để tiến xa hơn.",
+        "study": "Trong học tập, Six of Pentacles cho thấy sự tiến bộ. Kiến thức bạn đang tích lũy sẽ mang lại giá trị lớn.",
+        "finance": "Về tài chính, Six of Pentacles nhắc nhở bạn cân bằng thu chi. Sự khôn ngoan trong quản lý tiền bạc sẽ được đền đáp.",
+        "investment": "Về đầu tư, Six of Pentacles khuyên bạn nên thận trọng nhưng không nên bỏ lỡ cơ hội tốt.",
+        "health": "Về sức khỏe, Six of Pentacles nhắc nhở bạn chú ý đến cả thể chất lẫn tinh thần. Nghỉ ngơi là cần thiết.",
+        "self": "Về bản thân, Six of Pentacles kêu gọi bạn chăm sóc tâm hồn. Hành trình chữa lành cần sự kiên nhẫn."
+      }
+    },
+    {
+      "id": 70,
+      "name": "Seven of Pentacles",
+      "arcana": "Minor",
+      "suit": "Pentacles",
+      "rank": "Seven",
+      "image": "/tarot-cards/pentacles-07.jpg",
+      "meanings": {
+        "general": "Seven of Pentacles mang năng lượng của Pentacles trong trạng thái Seven. Đây là thông điệp quan trọng từ vũ trụ dành cho bạn.",
+        "love": "Trong tình yêu, Seven of Pentacles cho thấy những cảm xúc sâu sắc và kết nối tâm hồn. Hãy lắng nghe trái tim mình.",
+        "marriage": "Trong hôn nhân, Seven of Pentacles khuyên bạn nên xây dựng sự thấu hiểu và cảm thông với đối phương.",
+        "career": "Về sự nghiệp, Seven of Pentacles báo hiệu cơ hội phát triển. Hãy nắm bắt thờ cơ để tiến xa hơn.",
+        "study": "Trong học tập, Seven of Pentacles cho thấy sự tiến bộ. Kiến thức bạn đang tích lũy sẽ mang lại giá trị lớn.",
+        "finance": "Về tài chính, Seven of Pentacles nhắc nhở bạn cân bằng thu chi. Sự khôn ngoan trong quản lý tiền bạc sẽ được đền đáp.",
+        "investment": "Về đầu tư, Seven of Pentacles khuyên bạn nên thận trọng nhưng không nên bỏ lỡ cơ hội tốt.",
+        "health": "Về sức khỏe, Seven of Pentacles nhắc nhở bạn chú ý đến cả thể chất lẫn tinh thần. Nghỉ ngơi là cần thiết.",
+        "self": "Về bản thân, Seven of Pentacles kêu gọi bạn chăm sóc tâm hồn. Hành trình chữa lành cần sự kiên nhẫn."
+      }
+    },
+    {
+      "id": 71,
+      "name": "Eight of Pentacles",
+      "arcana": "Minor",
+      "suit": "Pentacles",
+      "rank": "Eight",
+      "image": "/tarot-cards/pentacles-08.jpg",
+      "meanings": {
+        "general": "Eight of Pentacles mang năng lượng của Pentacles trong trạng thái Eight. Đây là thông điệp quan trọng từ vũ trụ dành cho bạn.",
+        "love": "Trong tình yêu, Eight of Pentacles cho thấy những cảm xúc sâu sắc và kết nối tâm hồn. Hãy lắng nghe trái tim mình.",
+        "marriage": "Trong hôn nhân, Eight of Pentacles khuyên bạn nên xây dựng sự thấu hiểu và cảm thông với đối phương.",
+        "career": "Về sự nghiệp, Eight of Pentacles báo hiệu cơ hội phát triển. Hãy nắm bắt thờ cơ để tiến xa hơn.",
+        "study": "Trong học tập, Eight of Pentacles cho thấy sự tiến bộ. Kiến thức bạn đang tích lũy sẽ mang lại giá trị lớn.",
+        "finance": "Về tài chính, Eight of Pentacles nhắc nhở bạn cân bằng thu chi. Sự khôn ngoan trong quản lý tiền bạc sẽ được đền đáp.",
+        "investment": "Về đầu tư, Eight of Pentacles khuyên bạn nên thận trọng nhưng không nên bỏ lỡ cơ hội tốt.",
+        "health": "Về sức khỏe, Eight of Pentacles nhắc nhở bạn chú ý đến cả thể chất lẫn tinh thần. Nghỉ ngơi là cần thiết.",
+        "self": "Về bản thân, Eight of Pentacles kêu gọi bạn chăm sóc tâm hồn. Hành trình chữa lành cần sự kiên nhẫn."
+      }
+    },
+    {
+      "id": 72,
+      "name": "Nine of Pentacles",
+      "arcana": "Minor",
+      "suit": "Pentacles",
+      "rank": "Nine",
+      "image": "/tarot-cards/pentacles-09.jpg",
+      "meanings": {
+        "general": "Nine of Pentacles mang năng lượng của Pentacles trong trạng thái Nine. Đây là thông điệp quan trọng từ vũ trụ dành cho bạn.",
+        "love": "Trong tình yêu, Nine of Pentacles cho thấy những cảm xúc sâu sắc và kết nối tâm hồn. Hãy lắng nghe trái tim mình.",
+        "marriage": "Trong hôn nhân, Nine of Pentacles khuyên bạn nên xây dựng sự thấu hiểu và cảm thông với đối phương.",
+        "career": "Về sự nghiệp, Nine of Pentacles báo hiệu cơ hội phát triển. Hãy nắm bắt thờ cơ để tiến xa hơn.",
+        "study": "Trong học tập, Nine of Pentacles cho thấy sự tiến bộ. Kiến thức bạn đang tích lũy sẽ mang lại giá trị lớn.",
+        "finance": "Về tài chính, Nine of Pentacles nhắc nhở bạn cân bằng thu chi. Sự khôn ngoan trong quản lý tiền bạc sẽ được đền đáp.",
+        "investment": "Về đầu tư, Nine of Pentacles khuyên bạn nên thận trọng nhưng không nên bỏ lỡ cơ hội tốt.",
+        "health": "Về sức khỏe, Nine of Pentacles nhắc nhở bạn chú ý đến cả thể chất lẫn tinh thần. Nghỉ ngơi là cần thiết.",
+        "self": "Về bản thân, Nine of Pentacles kêu gọi bạn chăm sóc tâm hồn. Hành trình chữa lành cần sự kiên nhẫn."
+      }
+    },
+    {
+      "id": 73,
+      "name": "Ten of Pentacles",
+      "arcana": "Minor",
+      "suit": "Pentacles",
+      "rank": "Ten",
+      "image": "/tarot-cards/pentacles-10.jpg",
+      "meanings": {
+        "general": "Ten of Pentacles mang năng lượng của Pentacles trong trạng thái Ten. Đây là thông điệp quan trọng từ vũ trụ dành cho bạn.",
+        "love": "Trong tình yêu, Ten of Pentacles cho thấy những cảm xúc sâu sắc và kết nối tâm hồn. Hãy lắng nghe trái tim mình.",
+        "marriage": "Trong hôn nhân, Ten of Pentacles khuyên bạn nên xây dựng sự thấu hiểu và cảm thông với đối phương.",
+        "career": "Về sự nghiệp, Ten of Pentacles báo hiệu cơ hội phát triển. Hãy nắm bắt thờ cơ để tiến xa hơn.",
+        "study": "Trong học tập, Ten of Pentacles cho thấy sự tiến bộ. Kiến thức bạn đang tích lũy sẽ mang lại giá trị lớn.",
+        "finance": "Về tài chính, Ten of Pentacles nhắc nhở bạn cân bằng thu chi. Sự khôn ngoan trong quản lý tiền bạc sẽ được đền đáp.",
+        "investment": "Về đầu tư, Ten of Pentacles khuyên bạn nên thận trọng nhưng không nên bỏ lỡ cơ hội tốt.",
+        "health": "Về sức khỏe, Ten of Pentacles nhắc nhở bạn chú ý đến cả thể chất lẫn tinh thần. Nghỉ ngơi là cần thiết.",
+        "self": "Về bản thân, Ten of Pentacles kêu gọi bạn chăm sóc tâm hồn. Hành trình chữa lành cần sự kiên nhẫn."
+      }
+    },
+    {
+      "id": 74,
+      "name": "Page of Pentacles",
+      "arcana": "Minor",
+      "suit": "Pentacles",
+      "rank": "Page",
+      "image": "/tarot-cards/pentacles-page.jpg",
+      "meanings": {
+        "general": "Page of Pentacles mang năng lượng của Pentacles trong trạng thái Page. Đây là thông điệp quan trọng từ vũ trụ dành cho bạn.",
+        "love": "Trong tình yêu, Page of Pentacles cho thấy những cảm xúc sâu sắc và kết nối tâm hồn. Hãy lắng nghe trái tim mình.",
+        "marriage": "Trong hôn nhân, Page of Pentacles khuyên bạn nên xây dựng sự thấu hiểu và cảm thông với đối phương.",
+        "career": "Về sự nghiệp, Page of Pentacles báo hiệu cơ hội phát triển. Hãy nắm bắt thờ cơ để tiến xa hơn.",
+        "study": "Trong học tập, Page of Pentacles cho thấy sự tiến bộ. Kiến thức bạn đang tích lũy sẽ mang lại giá trị lớn.",
+        "finance": "Về tài chính, Page of Pentacles nhắc nhở bạn cân bằng thu chi. Sự khôn ngoan trong quản lý tiền bạc sẽ được đền đáp.",
+        "investment": "Về đầu tư, Page of Pentacles khuyên bạn nên thận trọng nhưng không nên bỏ lỡ cơ hội tốt.",
+        "health": "Về sức khỏe, Page of Pentacles nhắc nhở bạn chú ý đến cả thể chất lẫn tinh thần. Nghỉ ngơi là cần thiết.",
+        "self": "Về bản thân, Page of Pentacles kêu gọi bạn chăm sóc tâm hồn. Hành trình chữa lành cần sự kiên nhẫn."
+      }
+    },
+    {
+      "id": 75,
+      "name": "Knight of Pentacles",
+      "arcana": "Minor",
+      "suit": "Pentacles",
+      "rank": "Knight",
+      "image": "/tarot-cards/pentacles-knight.jpg",
+      "meanings": {
+        "general": "Knight of Pentacles mang năng lượng của Pentacles trong trạng thái Knight. Đây là thông điệp quan trọng từ vũ trụ dành cho bạn.",
+        "love": "Trong tình yêu, Knight of Pentacles cho thấy những cảm xúc sâu sắc và kết nối tâm hồn. Hãy lắng nghe trái tim mình.",
+        "marriage": "Trong hôn nhân, Knight of Pentacles khuyên bạn nên xây dựng sự thấu hiểu và cảm thông với đối phương.",
+        "career": "Về sự nghiệp, Knight of Pentacles báo hiệu cơ hội phát triển. Hãy nắm bắt thờ cơ để tiến xa hơn.",
+        "study": "Trong học tập, Knight of Pentacles cho thấy sự tiến bộ. Kiến thức bạn đang tích lũy sẽ mang lại giá trị lớn.",
+        "finance": "Về tài chính, Knight of Pentacles nhắc nhở bạn cân bằng thu chi. Sự khôn ngoan trong quản lý tiền bạc sẽ được đền đáp.",
+        "investment": "Về đầu tư, Knight of Pentacles khuyên bạn nên thận trọng nhưng không nên bỏ lỡ cơ hội tốt.",
+        "health": "Về sức khỏe, Knight of Pentacles nhắc nhở bạn chú ý đến cả thể chất lẫn tinh thần. Nghỉ ngơi là cần thiết.",
+        "self": "Về bản thân, Knight of Pentacles kêu gọi bạn chăm sóc tâm hồn. Hành trình chữa lành cần sự kiên nhẫn."
+      }
+    },
+    {
+      "id": 76,
+      "name": "Queen of Pentacles",
+      "arcana": "Minor",
+      "suit": "Pentacles",
+      "rank": "Queen",
+      "image": "/tarot-cards/pentacles-queen.jpg",
+      "meanings": {
+        "general": "Queen of Pentacles mang năng lượng của Pentacles trong trạng thái Queen. Đây là thông điệp quan trọng từ vũ trụ dành cho bạn.",
+        "love": "Trong tình yêu, Queen of Pentacles cho thấy những cảm xúc sâu sắc và kết nối tâm hồn. Hãy lắng nghe trái tim mình.",
+        "marriage": "Trong hôn nhân, Queen of Pentacles khuyên bạn nên xây dựng sự thấu hiểu và cảm thông với đối phương.",
+        "career": "Về sự nghiệp, Queen of Pentacles báo hiệu cơ hội phát triển. Hãy nắm bắt thờ cơ để tiến xa hơn.",
+        "study": "Trong học tập, Queen of Pentacles cho thấy sự tiến bộ. Kiến thức bạn đang tích lũy sẽ mang lại giá trị lớn.",
+        "finance": "Về tài chính, Queen of Pentacles nhắc nhở bạn cân bằng thu chi. Sự khôn ngoan trong quản lý tiền bạc sẽ được đền đáp.",
+        "investment": "Về đầu tư, Queen of Pentacles khuyên bạn nên thận trọng nhưng không nên bỏ lỡ cơ hội tốt.",
+        "health": "Về sức khỏe, Queen of Pentacles nhắc nhở bạn chú ý đến cả thể chất lẫn tinh thần. Nghỉ ngơi là cần thiết.",
+        "self": "Về bản thân, Queen of Pentacles kêu gọi bạn chăm sóc tâm hồn. Hành trình chữa lành cần sự kiên nhẫn."
+      }
+    },
+    {
+      "id": 77,
+      "name": "King of Pentacles",
+      "arcana": "Minor",
+      "suit": "Pentacles",
+      "rank": "King",
+      "image": "/tarot-cards/pentacles-king.jpg",
+      "meanings": {
+        "general": "King of Pentacles mang năng lượng của Pentacles trong trạng thái King. Đây là thông điệp quan trọng từ vũ trụ dành cho bạn.",
+        "love": "Trong tình yêu, King of Pentacles cho thấy những cảm xúc sâu sắc và kết nối tâm hồn. Hãy lắng nghe trái tim mình.",
+        "marriage": "Trong hôn nhân, King of Pentacles khuyên bạn nên xây dựng sự thấu hiểu và cảm thông với đối phương.",
+        "career": "Về sự nghiệp, King of Pentacles báo hiệu cơ hội phát triển. Hãy nắm bắt thờ cơ để tiến xa hơn.",
+        "study": "Trong học tập, King of Pentacles cho thấy sự tiến bộ. Kiến thức bạn đang tích lũy sẽ mang lại giá trị lớn.",
+        "finance": "Về tài chính, King of Pentacles nhắc nhở bạn cân bằng thu chi. Sự khôn ngoan trong quản lý tiền bạc sẽ được đền đáp.",
+        "investment": "Về đầu tư, King of Pentacles khuyên bạn nên thận trọng nhưng không nên bỏ lỡ cơ hội tốt.",
+        "health": "Về sức khỏe, King of Pentacles nhắc nhở bạn chú ý đến cả thể chất lẫn tinh thần. Nghỉ ngơi là cần thiết.",
+        "self": "Về bản thân, King of Pentacles kêu gọi bạn chăm sóc tâm hồn. Hành trình chữa lành cần sự kiên nhẫn."
+      }
+    }
+  ]
+}

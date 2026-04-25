@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CHIPSTAROT - Khám phá bí ẩn vũ trụ qua 78 lá bài Tarot</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            yellow: {
+              50: '#fefce8',
+              100: '#fef9c3',
+              200: '#fef08a',
+              300: '#fde047',
+              400: '#facc15',
+              500: '#eab308',
+              600: '#ca8a04',
+            },
+            purple: {
+              50: '#faf5ff',
+              100: '#f3e8ff',
+              200: '#e9d5ff',
+              300: '#d8b4fe',
+              400: '#c084fc',
+              500: '#a855f7',
+              600: '#9333ea',
+              700: '#7e22ce',
+              800: '#6b21a8',
+              900: '#581c87',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    * { font-family: 'Inter', sans-serif; }
+    .animate-float { animation: float 3s ease-in-out infinite; }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    .animate-sparkle { animation: sparkle 2s ease-in-out infinite; }
+    @keyframes sparkle {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.2); }
+    }
+    .btn-3d-yellow {
+      display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+      padding: 1rem 2rem; font-size: 1.125rem; font-weight: 600; color: white;
+      background: linear-gradient(180deg, #fbbf24 0%, #f59e0b 100%);
+      border: none; border-radius: 9999px;
+      box-shadow: 0 4px 0 #d97706, 0 8px 16px rgba(245, 158, 11, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+      cursor: pointer; transition: all 0.15s ease; position: relative; top: 0;
+      text-decoration: none;
+    }
+    .btn-3d-yellow:hover {
+      background: linear-gradient(180deg, #f59e0b 0%, #d97706 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 0 #b45309, 0 12px 20px rgba(245, 158, 11, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    }
+    .btn-3d-white {
+      display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+      padding: 1rem 2rem; font-size: 1.125rem; font-weight: 600; color: white;
+      background: rgba(255, 255, 255, 0.2); border: 2px solid rgba(255, 255, 255, 0.5);
+      border-radius: 9999px; backdrop-filter: blur(10px);
+      box-shadow: 0 4px 0 rgba(255, 255, 255, 0.1), 0 8px 16px rgba(0, 0, 0, 0.2);
+      cursor: pointer; transition: all 0.15s ease; position: relative; top: 0;
+      text-decoration: none;
+    }
+    .btn-3d-white:hover {
+      background: rgba(255, 255, 255, 0.3); transform: translateY(-2px);
+      box-shadow: 0 6px 0 rgba(255, 255, 255, 0.15), 0 12px 20px rgba(0, 0, 0, 0.3);
+    }
+    .feature-card {
+      background: white; border-radius: 1.5rem; padding: 1.5rem;
+      border: 1px solid #e5e7eb;
+      box-shadow: 0 4px 0 #e5e7eb, 0 8px 16px rgba(0, 0, 0, 0.08);
+      transition: all 0.2s ease; cursor: pointer; height: 100%;
+    }
+    .feature-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 0 #fbbf24, 0 16px 32px rgba(251, 191, 36, 0.25);
+      border-color: #fbbf24;
+    }
+    .card-flip-container { perspective: 1000px; width: 288px; height: 432px; margin: 0 auto; }
+    .card-flip { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    .card-flip.flipped { transform: rotateY(180deg); }
+    .card-front, .card-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 1rem; }
+    .card-back { transform: rotateY(180deg); }
+    .product-card {
+      background: white; border-radius: 1.5rem; overflow: hidden;
+      box-shadow: 0 4px 0 #e5e7eb, 0 8px 16px rgba(0, 0, 0, 0.08);
+      transition: all 0.2s ease;
+    }
+    .product-card:hover { transform: translateY(-8px); box-shadow: 0 12px 0 #fbbf24, 0 24px 48px rgba(251, 191, 36, 0.25); }
+    .tarot-card { transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); cursor: pointer; }
+    .tarot-card:hover { transform: translateY(-8px) scale(1.02); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2); }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-yellow-50 via-purple-50 to-yellow-100 min-h-screen">
+  <!-- Daily Quote Banner -->
+  <div class="bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-400 text-white text-center py-2 px-4 text-sm">
+    <div class="flex items-center justify-center gap-2">
+      <svg class="w-4 h-4 animate-sparkle" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+      <span class="font-medium" id="daily-quote">Vũ trụ luôn ở bên bạn, tin tưởng vào hành trình của mình nhé!</span>
+      <svg class="w-4 h-4 animate-sparkle" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="bg-white/80 backdrop-blur-md border-b border-yellow-200 shadow-sm sticky top-0 z-50">
+    <div class="container mx-auto px-4">
+      <div class="flex items-center justify-between h-16">
+        <a href="#" class="flex items-center gap-2">
+          <img src="/chicken-mascot.png" alt="CHIPSTAROT" class="w-10 h-10 object-contain">
+          <span class="text-xl font-bold bg-gradient-to-r from-yellow-600 to-yellow-500 bg-clip-text text-transparent">CHIPSTAROT</span>
+        </a>
+        <nav class="hidden md:flex items-center gap-1">
+          <a href="#home" class="px-4 py-2 rounded-lg font-medium text-yellow-600 bg-yellow-100">Trang chủ</a>
+          <a href="#tarot" class="px-4 py-2 rounded-lg font-medium text-gray-600 hover:text-yellow-600 hover:bg-yellow-50 transition-all">Xem Tarot</a>
+          <a href="#cards" class="px-4 py-2 rounded-lg font-medium text-gray-600 hover:text-yellow-600 hover:bg-yellow-50 transition-all">Ý nghĩa lá bài</a>
+          <a href="#shop" class="px-4 py-2 rounded-lg font-medium text-gray-600 hover:text-yellow-600 hover:bg-yellow-50 transition-all">Shop</a>
+          <a href="#game" class="px-4 py-2 rounded-lg font-medium text-gray-600 hover:text-yellow-600 hover:bg-yellow-50 transition-all">Trò chơi</a>
+        </nav>
+        <button onclick="showLogin()" class="hidden md:flex items-center gap-2 bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white px-4 py-2 rounded-full font-medium transition-all">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+          Đăng nhập
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section id="home" class="relative min-h-[85vh] flex items-center justify-center overflow-hidden">
+    <div class="absolute inset-0">
+      <img src="/hero-tarot.jpg" alt="Tarot Background" class="w-full h-full object-cover">
+      <div class="absolute inset-0 bg-gradient-to-b from-purple-900/40 via-purple-800/30 to-yellow-900/50"></div>
+    </div>
+    <div class="relative z-10 container mx-auto px-4 text-center">
+      <img src="/chicken-mascot.png" alt="CHIPSTAROT" class="w-32 h-32 md:w-48 md:h-48 mx-auto mb-6 animate-float drop-shadow-2xl">
+      <h1 class="text-5xl md:text-7xl font-bold mb-4">
+        <span class="bg-gradient-to-r from-yellow-300 via-yellow-400 to-yellow-300 bg-clip-text text-transparent drop-shadow-lg">CHIPSTAROT</span>
+      </h1>
+      <p class="text-xl md:text-2xl text-white/90 mb-8 max-w-2xl mx-auto font-light">
+        Khám phá bí ẩn vũ trụ qua 78 lá bài Tarot<br>
+        <span class="text-yellow-300">Mang vũ trụ bên mình - Chạm để chữa lành</span>
+      </p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="#tarot" class="btn-3d-yellow">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+          Bốc Bài Ngay
+        </a>
+        <a href="#shop" class="btn-3d-white">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+          Khám Phá Shop
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="py-20 bg-white">
+    <div class="container mx-auto px-4">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Khám Phá Thế Giới <span class="text-yellow-500">Tarot</span></h2>
+        <p class="text-gray-600 max-w-2xl mx-auto">CHIPSTAROT mang đến trải nghiệm Tarot độc đáo với phong cách đầy màu sắc</p>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <a href="#tarot" class="feature-card">
+          <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-yellow-400 to-yellow-500 flex items-center justify-center mb-4">
+            <svg class="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+          </div>
+          <h3 class="text-xl font-semibold text-gray-800 mb-2">Trải Bài Tarot</h3>
+          <p class="text-gray-600 text-sm">Bốc bài và nhận thông điệp từ vũ trụ</p>
+          <div class="mt-4 flex items-center text-yellow-600 text-sm font-medium">Khám phá <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></div>
+        </a>
+        <a href="#cards" class="feature-card">
+          <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-purple-400 to-purple-500 flex items-center justify-center mb-4">
+            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+          </div>
+          <h3 class="text-xl font-semibold text-gray-800 mb-2">Ý Nghĩa Lá Bài</h3>
+          <p class="text-gray-600 text-sm">Khám phá 78 lá bài Tarot</p>
+          <div class="mt-4 flex items-center text-yellow-600 text-sm font-medium">Khám phá <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></div>
+        </a>
+        <a href="#shop" class="feature-card">
+          <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-pink-400 to-pink-500 flex items-center justify-center mb-4">
+            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+          </div>
+          <h3 class="text-xl font-semibold text-gray-800 mb-2">Shop NFC</h3>
+          <p class="text-gray-600 text-sm">Móc khóa đá phong thủy tích hợp NFC</p>
+          <div class="mt-4 flex items-center text-yellow-600 text-sm font-medium">Khám phá <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></div>
+        </a>
+        <a href="#game" class="feature-card">
+          <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-green-400 to-green-500 flex items-center justify-center mb-4">
+            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"/></svg>
+          </div>
+          <h3 class="text-xl font-semibold text-gray-800 mb-2">Trò Chơi</h3>
+          <p class="text-gray-600 text-sm">Chơi game con gà vượt chướng ngại!</p>
+          <div class="mt-4 flex items-center text-yellow-600 text-sm font-medium">Khám phá <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- About Section with Rotating Card -->
+  <section class="py-20 bg-gradient-to-br from-yellow-50 to-purple-50">
+    <div class="container mx-auto px-4">
+      <div class="flex flex-col lg:flex-row items-center gap-12">
+        <div class="lg:w-1/2 flex justify-center">
+          <div class="card-flip-container">
+            <div class="card-flip" id="rotating-card">
+              <div class="card-front">
+                <img src="/card-back-rotating.png" alt="Tarot Card Back" class="w-72 h-auto rounded-2xl shadow-2xl">
+              </div>
+              <div class="card-back">
+                <img src="/card-back.png" alt="Tarot Card Front" class="w-72 h-auto rounded-2xl shadow-2xl">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="lg:w-1/2 text-center lg:text-left">
+          <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-6">Chíp Tarot Say <span class="text-yellow-500">"Hiii"</span> 👋</h2>
+          <div class="space-y-4 text-gray-600">
+            <p><span class="font-semibold text-yellow-600">🐥 Chạm là xem:</span> Áp điện thoại vào đá tích hợp NFC → Tự động trải và giải mã Tarot</p>
+            <p><span class="font-semibold text-yellow-600">💰 Tiết kiệm:</span> Không mất thờ gian học thuộc bài, không tốn tiền đi xem bên ngoài</p>
+            <p><span class="font-semibold text-yellow-600">✨ Đa năng:</span> Dễ dàng xem cho bản thân và bạn bè mọi lúc mọi nơi</p>
+          </div>
+          <a href="#shop" class="btn-3d-yellow mt-8 inline-flex">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/></svg>
+            Tìm Hiểu Thêm
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tarot Reading Section -->
+  <section id="tarot" class="py-20 bg-gradient-to-br from-purple-900 via-purple-800 to-yellow-900">
+    <div class="container mx-auto px-4 text-center">
+      <h2 class="text-4xl md:text-5xl font-bold text-white mb-4">
+        <svg class="inline-block w-8 h-8 mr-2 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+        Trải Bài Tarot
+      </h2>
+      <p class="text-white/70 text-lg max-w-2xl mx-auto mb-12">Chọn một lá bài để nhận thông điệp từ vũ trụ hôm nay</p>
+      
+      <div class="grid grid-cols-4 md:grid-cols-8 lg:grid-cols-12 gap-3 mb-12" id="tarot-grid">
+        <!-- Cards will be generated by JavaScript -->
+      </div>
+      
+      <div id="card-result" class="hidden max-w-md mx-auto bg-white/10 backdrop-blur-md rounded-3xl p-8">
+        <img id="result-image" src="" alt="" class="w-48 mx-auto rounded-2xl shadow-2xl mb-6">
+        <h3 id="result-name" class="text-2xl font-bold text-white mb-2"></h3>
+        <p id="result-meaning" class="text-white/80"></p>
+        <button onclick="resetTarot()" class="mt-6 px-6 py-3 bg-yellow-500 hover:bg-yellow-600 text-white rounded-full font-medium transition-colors">Chọn lại</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Card Meanings Section -->
+  <section id="cards" class="py-20 bg-white">
+    <div class="container mx-auto px-4">
+      <div class="text-center mb-12">
+        <h2 class="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
+          <svg class="inline-block w-10 h-10 mr-3 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+          Ý Nghĩa 78 Lá Bài Tarot
+        </h2>
+        <p class="text-gray-600 text-lg max-w-2xl mx-auto">Khám phá bí ẩn và thông điệp sâu sắc từ mỗi lá bài</p>
+      </div>
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4" id="card-meanings-grid">
+        <!-- Major Arcana cards will be displayed here -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Shop Section -->
+  <section id="shop" class="py-20 bg-gradient-to-br from-yellow-50 via-purple-50 to-yellow-100">
+    <div class="container mx-auto px-4">
+      <div class="text-center mb-12">
+        <h2 class="text-4xl md:text-5xl font-bold text-gray-800 mb-4">Shop <span class="text-yellow-500">NFC Phong Thủy</span></h2>
+        <p class="text-gray-600 text-lg max-w-2xl mx-auto">Móc khóa đá phong thủy tích hợp NFC - Chạm để xem Tarot</p>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <!-- Product 1 -->
+        <div class="product-card">
+          <div class="aspect-square bg-gradient-to-br from-gray-100 to-white p-6 flex items-center justify-center">
+            <img src="/products/white-crystal.png" alt="Thạch Anh Trắng" class="max-h-full object-contain">
+          </div>
+          <div class="p-6">
+            <div class="flex items-center gap-2 mb-2">
+              <svg class="w-4 h-4 text-yellow-400 fill-yellow-400" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+              <span class="text-sm text-gray-600">4.9 (128 đánh giá)</span>
+            </div>
+            <h3 class="text-lg font-bold text-gray-800 mb-2">Móc khóa NFC Đá Thạch Anh Trắng</h3>
+            <p class="text-gray-600 text-sm mb-4">Thạch Anh Trắng - Viên đá của sự tinh khiết và clarity</p>
+            <div class="flex items-center gap-3 mb-4">
+              <span class="text-2xl font-bold text-red-500">299.000đ</span>
+              <span class="text-gray-400 line-through">399.000đ</span>
+            </div>
+            <a href="https://shopee.vn/geehandmade" target="_blank" class="block w-full py-3 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white rounded-xl font-medium text-center transition-colors">
+              Mua trên Shopee
+            </a>
+          </div>
+        </div>
+        <!-- Product 2 -->
+        <div class="product-card">
+          <div class="aspect-square bg-gradient-to-br from-purple-100 to-purple-50 p-6 flex items-center justify-center">
+            <img src="/products/purple-crystal.png" alt="Thạch Anh Tím" class="max-h-full object-contain">
+          </div>
+          <div class="p-6">
+            <div class="flex items-center gap-2 mb-2">
+              <svg class="w-4 h-4 text-yellow-400 fill-yellow-400" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+              <span class="text-sm text-gray-600">4.8 (96 đánh giá)</span>
+            </div>
+            <h3 class="text-lg font-bold text-gray-800 mb-2">Móc khóa NFC Đá Thạch Anh Tím</h3>
+            <p class="text-gray-600 text-sm mb-4">Thạch Anh Tím - Viên đá của trực giác và tâm linh</p>
+            <div class="flex items-center gap-3 mb-4">
+              <span class="text-2xl font-bold text-red-500">349.000đ</span>
+              <span class="text-gray-400 line-through">449.000đ</span>
+            </div>
+            <a href="https://shopee.vn/geehandmade" target="_blank" class="block w-full py-3 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white rounded-xl font-medium text-center transition-colors">
+              Mua trên Shopee
+            </a>
+          </div>
+        </div>
+        <!-- Product 3 -->
+        <div class="product-card">
+          <div class="aspect-square bg-gradient-to-br from-amber-100 to-yellow-50 p-6 flex items-center justify-center">
+            <img src="/products/tiger-eye.png" alt="Mắt Hổ" class="max-h-full object-contain">
+          </div>
+          <div class="p-6">
+            <div class="flex items-center gap-2 mb-2">
+              <svg class="w-4 h-4 text-yellow-400 fill-yellow-400" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+              <span class="text-sm text-gray-600">4.9 (156 đánh giá)</span>
+            </div>
+            <h3 class="text-lg font-bold text-gray-800 mb-2">Móc khóa NFC Đá Mắt Hổ</h3>
+            <p class="text-gray-600 text-sm mb-4">Mắt Hổ - Viên đá của sự bảo vệ và can đảm</p>
+            <div class="flex items-center gap-3 mb-4">
+              <span class="text-2xl font-bold text-red-500">279.000đ</span>
+              <span class="text-gray-400 line-through">379.000đ</span>
+            </div>
+            <a href="https://shopee.vn/geehandmade" target="_blank" class="block w-full py-3 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white rounded-xl font-medium text-center transition-colors">
+              Mua trên Shopee
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Game Section -->
+  <section id="game" class="py-20 bg-gradient-to-br from-purple-900 via-purple-800 to-yellow-900">
+    <div class="container mx-auto px-4 text-center">
+      <h2 class="text-4xl md:text-5xl font-bold text-white mb-4">
+        <svg class="inline-block w-10 h-10 mr-3 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"/></svg>
+        Chíp Phiêu Lưu
+      </h2>
+      <p class="text-white/70 text-lg mb-8">Giúp chú gà Chíp vượt qua các chướng ngại vật!</p>
+      <div class="max-w-3xl mx-auto">
+        <canvas id="gameCanvas" width="800" height="350" class="w-full max-w-2xl mx-auto bg-black rounded-2xl shadow-2xl cursor-pointer"></canvas>
+        <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="bg-white/10 backdrop-blur-md rounded-xl p-4 text-center">
+            <div class="text-3xl mb-2">⬆️</div>
+            <h3 class="text-white font-semibold">Nhảy</h3>
+            <p class="text-white/60 text-sm">Nhấn Space hoặc click</p>
+          </div>
+          <div class="bg-white/10 backdrop-blur-md rounded-xl p-4 text-center">
+            <div class="text-3xl mb-2">🎴</div>
+            <h3 class="text-white font-semibold">Tránh</h3>
+            <p class="text-white/60 text-sm">Né các lá bài và vật cản</p>
+          </div>
+          <div class="bg-white/10 backdrop-blur-md rounded-xl p-4 text-center">
+            <div class="text-3xl mb-2">⭐</div>
+            <h3 class="text-white font-semibold">Ghi điểm</h3>
+            <p class="text-white/60 text-sm">Càng xa điểm càng cao</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="py-20 bg-gradient-to-r from-purple-600 to-yellow-500">
+    <div class="container mx-auto px-4 text-center">
+      <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">Sẵn Sàng Khám Phá Vũ Trụ?</h2>
+      <p class="text-white/90 mb-8 max-w-xl mx-auto">Đăng nhập ngay để nhận 3 lượt bốc bài miễn phí và bắt đầu hành trình khám phá bản thân!</p>
+      <button onclick="showLogin()" class="btn-3d-white">
+        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+        Bắt Đầu Ngay
+      </button>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-gradient-to-br from-purple-900 via-purple-800 to-yellow-900 text-white py-12">
+    <div class="container mx-auto px-4">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <div class="flex items-center gap-2 mb-4">
+            <img src="/chicken-mascot.png" alt="CHIPSTAROT" class="w-12 h-12">
+            <span class="text-2xl font-bold text-yellow-400">CHIPSTAROT</span>
+          </div>
+          <p class="text-purple-200 text-sm">Khám phá bí ẩn vũ trụ qua 78 lá bài Tarot</p>
+        </div>
+        <div>
+          <h3 class="text-lg font-semibold text-yellow-400 mb-4">Liên Kết</h3>
+          <ul class="space-y-2 text-purple-200 text-sm">
+            <li><a href="#tarot" class="hover:text-yellow-400 transition-colors">Bói Bài Tarot</a></li>
+            <li><a href="#cards" class="hover:text-yellow-400 transition-colors">Ý Nghĩa Lá Bài</a></li>
+            <li><a href="#shop" class="hover:text-yellow-400 transition-colors">Shop</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="text-lg font-semibold text-yellow-400 mb-4">Liên Hệ</h3>
+          <ul class="space-y-2 text-purple-200 text-sm">
+            <li>+84 867 774 023</li>
+            <li>hello@chipstarot.com</li>
+            <li>Ho Chi Minh City, Vietnam</li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="text-lg font-semibold text-yellow-400 mb-4">Kết Nối</h3>
+          <a href="https://shopee.vn/geehandmade" target="_blank" class="w-10 h-10 bg-purple-700 rounded-xl flex items-center justify-center hover:bg-yellow-500 transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+          </a>
+        </div>
+      </div>
+      <div class="mt-12 pt-6 border-t border-purple-700 text-center text-purple-300 text-sm">
+        © 2024 CHIPSTAROT. All Rights Reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- Login Modal -->
+  <div id="loginModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-8 text-center relative">
+      <button onclick="closeLogin()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+      <img src="/chicken-mascot.png" alt="CHIPSTAROT" class="w-24 h-24 mx-auto mb-6">
+      <h2 class="text-2xl font-bold text-gray-800 mb-2">Chào mừng đến <span class="text-yellow-500">CHIPSTAROT</span></h2>
+      <p class="text-gray-600 mb-8">Đăng nhập để nhận <span class="font-bold text-yellow-600">3 lượt bốc bài miễn phí</span>!</p>
+      <div class="bg-yellow-50 rounded-2xl p-4 mb-6">
+        <div class="flex items-center justify-center gap-2 text-yellow-700 mb-2">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+          <span class="font-semibold">Quyền lợi thành viên</span>
+        </div>
+        <ul class="text-sm text-gray-600 space-y-1">
+          <li>✨ 3 lượt bốc bài miễn phí mỗi ngày</li>
+          <li>🔮 Lưu lại lịch sử trải bài</li>
+          <li>💎 Nhận ưu đãi đặc biệt từ shop</li>
+        </ul>
+      </div>
+      <button onclick="demoLogin()" class="w-full py-3 bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white rounded-full font-medium transition-colors">
+        <svg class="w-4 h-4 inline mr-2" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+        Đăng nhập thử nghiệm
+      </button>
+    </div>
+  </div>
+
+  <!-- Card Detail Modal -->
+  <div id="cardModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto relative">
+      <button onclick="closeCardModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 z-10">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+      <div class="flex flex-col md:flex-row">
+        <div class="md:w-1/3 p-6">
+          <img id="modalCardImage" src="" alt="" class="w-full rounded-2xl shadow-xl">
+        </div>
+        <div class="md:w-2/3 p-6 md:pl-0">
+          <div class="flex items-center gap-2 mb-2">
+            <span id="modalCardArcana" class="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-sm font-medium"></span>
+          </div>
+          <h2 id="modalCardName" class="text-3xl font-bold text-gray-800 mb-4"></h2>
+          <div class="space-y-4">
+            <div>
+              <h3 class="font-semibold text-gray-700 mb-2">🌟 Ý nghĩa chung</h3>
+              <p id="modalCardGeneral" class="text-gray-600"></p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="bg-pink-50 rounded-xl p-4">
+                <h3 class="font-semibold text-pink-700 mb-2">💕 Tình yêu</h3>
+                <p id="modalCardLove" class="text-gray-600 text-sm"></p>
+              </div>
+              <div class="bg-blue-50 rounded-xl p-4">
+                <h3 class="font-semibold text-blue-700 mb-2">💼 Sự nghiệp</h3>
+                <p id="modalCardCareer" class="text-gray-600 text-sm"></p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Daily quotes
+    const quotes = [
+      'Vũ trụ luôn ở bên bạn, tin tưởng vào hành trình của mình nhé!',
+      'Mỗi ngày là một cơ hội mới để tỏa sáng!',
+      'Lắng nghe trái tim, nó biết con đường đúng đắn',
+      'Bạn xứng đáng với tình yêu và hạnh phúc!',
+      'Hãy tin vào bản thân, bạn mạnh mẽ hơn bạn nghĩ!'
+    ];
+    document.getElementById('daily-quote').textContent = quotes[new Date().getDate() % quotes.length];
+
+    // Rotating card animation
+    setInterval(() => {
+      document.getElementById('rotating-card').classList.toggle('flipped');
+    }, 3000);
+
+    // Login modal
+    function showLogin() {
+      document.getElementById('loginModal').classList.remove('hidden');
+      document.getElementById('loginModal').classList.add('flex');
+    }
+    function closeLogin() {
+      document.getElementById('loginModal').classList.add('hidden');
+      document.getElementById('loginModal').classList.remove('flex');
+    }
+    function demoLogin() {
+      closeLogin();
+      alert('Đăng nhập thành công! Bạn đã nhận được 3 lượt bốc bài miễn phí.');
+    }
+
+    // Tarot data (22 Major Arcana)
+    const tarotCards = [
+      { id: 0, name: "The Fool", image: "/tarot-cards/00-the-fool.jpg", meanings: { general: "Khởi đầu mới, vô tư, tiềm năng", love: "Tình yêu mới bắt đầu", career: "Cơ hội mới trong công việc" } },
+      { id: 1, name: "The Magician", image: "/tarot-cards/01-the-magician.jpg", meanings: { general: "Sức mạnh ý chí, khả năng, hành động", love: "Chủ động trong tình yêu", career: "Thành công nhờ kỹ năng" } },
+      { id: 2, name: "The High Priestess", image: "/tarot-cards/02-the-high-priestess.jpg", meanings: { general: "Trực giác, bí mật, tiềm thức", love: "Lắng nghe trực giác", career: "Tin vào linh cảm" } },
+      { id: 3, name: "The Empress", image: "/tarot-cards/03-the-empress.jpg", meanings: { general: "Sự sáng tạo, phong phú, nuôi dưỡng", love: "Tình yêu tràn đầy", career: "Sự nghiệp thịnh vượng" } },
+      { id: 4, name: "The Emperor", image: "/tarot-cards/04-the-emperor.jpg", meanings: { general: "Quyền lực, cấu trúc, ổn định", love: "Tình yêu ổn định", career: "Thăng tiến, lãnh đạo" } },
+      { id: 5, name: "The Hierophant", image: "/tarot-cards/05-the-hierophant.jpg", meanings: { general: "Truyền thống, tín ngưỡng, giáo dục", love: "Tình yêu theo truyền thống", career: "Học hỏi từ chuyên gia" } },
+      { id: 6, name: "The Lovers", image: "/tarot-cards/06-the-lovers.jpg", meanings: { general: "Tình yêu, hài hòa, lựa chọn", love: "Tình yêu đẹp", career: "Quyết định nghề nghiệp" } },
+      { id: 7, name: "The Chariot", image: "/tarot-cards/07-the-chariot.jpg", meanings: { general: "Chiến thắng, quyết tâm, kiểm soát", love: "Chinh phục được tình yêu", career: "Thành công nhờ nỗ lực" } },
+      { id: 8, name: "Strength", image: "/tarot-cards/08-strength.jpg", meanings: { general: "Sức mạnh nội tâm, can đảm", love: "Tình yêu bền chặt", career: "Thành công nhờ kiên trì" } },
+      { id: 9, name: "The Hermit", image: "/tarot-cards/09-the-hermit.jpg", meanings: { general: "Nội tâm, cô đơn, tìm kiếm chân lý", love: "Thờ gian suy ngẫm", career: "Tìm hướng đi mới" } },
+      { id: 10, name: "Wheel of Fortune", image: "/tarot-cards/10-wheel-of-fortune.jpg", meanings: { general: "Vận mệnh, thay đổi, chu kỳ", love: "Tình yêu thay đổi", career: "Thay đổi công việc" } },
+      { id: 11, name: "Justice", image: "/tarot-cards/11-justice.jpg", meanings: { general: "Công lý, cân bằng, sự thật", love: "Công bằng trong tình yêu", career: "Được đền đáp xứng đáng" } },
+      { id: 12, name: "The Hanged Man", image: "/tarot-cards/12-the-hanged-man.jpg", meanings: { general: "Hy sinh, góc nhìn mới", love: "Tình yêu cần sự hy sinh", career: "Tạm dừng để suy ngẫm" } },
+      { id: 13, name: "Death", image: "/tarot-cards/13-death.jpg", meanings: { general: "Kết thúc, chuyển đổi, tái sinh", love: "Kết thúc một giai đoạn", career: "Kết thúc công việc cũ" } },
+      { id: 14, name: "Temperance", image: "/tarot-cards/14-temperance.jpg", meanings: { general: "Cân bằng, hòa hợp, kiên nhẫn", love: "Tình yêu cân bằng", career: "Công việc ổn định" } },
+      { id: 15, name: "The Devil", image: "/tarot-cards/15-the-devil.jpg", meanings: { general: "Ràng buộc, vật chất, cám dỗ", love: "Tình yêu bị ràng buộc", career: "Công việc độc hại" } },
+      { id: 16, name: "The Tower", image: "/tarot-cards/16-the-tower.jpg", meanings: { general: "Đổ vỡ, thay đổi đột ngột", love: "Đổ vỡ tình cảm", career: "Mất việc, thay đổi" } },
+      { id: 17, name: "The Star", image: "/tarot-cards/17-the-star.jpg", meanings: { general: "Hy vọng, cảm hứng, thanh thản", love: "Tình yêu mang hy vọng", career: "Cơ hội mới xuất hiện" } },
+      { id: 18, name: "The Moon", image: "/tarot-cards/18-the-moon.jpg", meanings: { general: "Ảo tưởng, sợ hãi, trực giác", love: "Tình yêu mơ hồ", career: "Công việc không rõ ràng" } },
+      { id: 19, name: "The Sun", image: "/tarot-cards/19-the-sun.jpg", meanings: { general: "Vui vẻ, thành công, sức sống", love: "Tình yêu rực rỡ", career: "Thành công rực rỡ" } },
+      { id: 20, name: "Judgement", image: "/tarot-cards/20-judgement.jpg", meanings: { general: "Thức tỉnh, tái sinh, phán xét", love: "Thức tỉnh trong tình yêu", career: "Cơ hội làm lại" } },
+      { id: 21, name: "The World", image: "/tarot-cards/21-the-world.jpg", meanings: { general: "Hoàn thành, hội nhập, thành tựu", love: "Tình yêu trọn vẹn", career: "Sự nghiệp đạt đỉnh" } },
+    ];
+
+    // Generate tarot grid
+    const tarotGrid = document.getElementById('tarot-grid');
+    for (let i = 0; i < 24; i++) {
+      const card = document.createElement('button');
+      card.className = 'aspect-[2/3] rounded-lg overflow-hidden transition-all duration-300 hover:scale-105';
+      card.innerHTML = `<img src="/card-back-rotating.png" alt="Card" class="w-full h-full object-cover">`;
+      card.onclick = () => drawCard();
+      tarotGrid.appendChild(card);
+    }
+
+    function drawCard() {
+      const randomCard = tarotCards[Math.floor(Math.random() * tarotCards.length)];
+      document.getElementById('result-image').src = randomCard.image;
+      document.getElementById('result-name').textContent = randomCard.name;
+      document.getElementById('result-meaning').textContent = randomCard.meanings.general;
+      document.getElementById('card-result').classList.remove('hidden');
+      document.getElementById('tarot-grid').classList.add('hidden');
+    }
+
+    function resetTarot() {
+      document.getElementById('card-result').classList.add('hidden');
+      document.getElementById('tarot-grid').classList.remove('hidden');
+    }
+
+    // Generate card meanings grid
+    const meaningsGrid = document.getElementById('card-meanings-grid');
+    tarotCards.forEach(card => {
+      const cardEl = document.createElement('button');
+      cardEl.className = 'tarot-card bg-white rounded-2xl overflow-hidden shadow-lg';
+      cardEl.innerHTML = `
+        <div class="aspect-[2/3] relative">
+          <img src="${card.image}" alt="${card.name}" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+          <div class="absolute bottom-0 left-0 right-0 p-3">
+            <span class="text-xs text-white/70">Major Arcana</span>
+            <h3 class="text-white font-semibold text-sm">${card.name}</h3>
+          </div>
+        </div>
+      `;
+      cardEl.onclick = () => showCardModal(card);
+      meaningsGrid.appendChild(cardEl);
+    });
+
+    function showCardModal(card) {
+      document.getElementById('modalCardImage').src = card.image;
+      document.getElementById('modalCardName').textContent = card.name;
+      document.getElementById('modalCardArcana').textContent = 'Major Arcana';
+      document.getElementById('modalCardGeneral').textContent = card.meanings.general;
+      document.getElementById('modalCardLove').textContent = card.meanings.love;
+      document.getElementById('modalCardCareer').textContent = card.meanings.career;
+      document.getElementById('cardModal').classList.remove('hidden');
+      document.getElementById('cardModal').classList.add('flex');
+    }
+
+    function closeCardModal() {
+      document.getElementById('cardModal').classList.add('hidden');
+      document.getElementById('cardModal').classList.remove('flex');
+    }
+
+    // Simple Chicken Game
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    let gameState = 'menu';
+    let score = 0;
+    let chicken = { x: 50, y: 250, velocity: 0, isJumping: false };
+    let obstacles = [];
+    let gameSpeed = 5;
+    const GROUND_Y = 250;
+    const GRAVITY = 0.6;
+    const JUMP_FORCE = -12;
+
+    function drawGame() {
+      // Clear
+      ctx.fillStyle = '#1a1a2e';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Stars
+      ctx.fillStyle = '#ffffff';
+      for (let i = 0; i < 50; i++) {
+        ctx.fillRect((i * 73) % 800, (i * 37) % 175, (i % 3) + 1, (i % 3) + 1);
+      }
+
+      // Ground
+      ctx.fillStyle = '#0f3460';
+      ctx.fillRect(0, GROUND_Y, canvas.width, canvas.height - GROUND_Y);
+      ctx.strokeStyle = '#e94560';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(0, GROUND_Y);
+      ctx.lineTo(canvas.width, GROUND_Y);
+      ctx.stroke();
+
+      if (gameState === 'menu') {
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 30px Inter';
+        ctx.textAlign = 'center';
+        ctx.fillText('Chíp Phiêu Lưu', 400, 150);
+        ctx.font = '20px Inter';
+        ctx.fillText('Nhấn Space hoặc Click để bắt đầu', 400, 200);
+        ctx.fillText('Điểm cao nhất: ' + (localStorage.getItem('highScore') || 0), 400, 240);
+      } else if (gameState === 'playing') {
+        // Update chicken
+        chicken.velocity += GRAVITY;
+        chicken.y += chicken.velocity;
+        if (chicken.y >= GROUND_Y - 40) {
+          chicken.y = GROUND_Y - 40;
+          chicken.velocity = 0;
+          chicken.isJumping = false;
+        }
+
+        // Spawn obstacles
+        if (Math.random() < 0.02) {
+          obstacles.push({ x: 800, y: GROUND_Y - 40, width: 30, height: 40 });
+        }
+
+        // Update obstacles
+        for (let i = obstacles.length - 1; i >= 0; i--) {
+          obstacles[i].x -= gameSpeed;
+          
+          // Collision
+          if (chicken.x < obstacles[i].x + obstacles[i].width &&
+              chicken.x + 40 > obstacles[i].x &&
+              chicken.y < obstacles[i].y + obstacles[i].height &&
+              chicken.y + 40 > obstacles[i].y) {
+            gameOver();
+          }
+          
+          if (obstacles[i].x + obstacles[i].width < 0) {
+            obstacles.splice(i, 1);
+            score++;
+            if (score % 10 === 0) gameSpeed += 0.5;
+          }
+        }
+
+        // Draw chicken (yellow circle)
+        ctx.fillStyle = '#fbbf24';
+        ctx.beginPath();
+        ctx.arc(chicken.x + 20, chicken.y + 20, 20, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#000000';
+        ctx.beginPath();
+        ctx.arc(chicken.x + 28, chicken.y + 15, 4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#f97316';
+        ctx.beginPath();
+        ctx.moveTo(chicken.x + 35, chicken.y + 18);
+        ctx.lineTo(chicken.x + 42, chicken.y + 22);
+        ctx.lineTo(chicken.x + 35, chicken.y + 26);
+        ctx.fill();
+
+        // Draw obstacles
+        obstacles.forEach(obs => {
+          ctx.fillStyle = '#7c3aed';
+          ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
+          ctx.fillStyle = '#fbbf24';
+          ctx.fillRect(obs.x + 3, obs.y + 3, obs.width - 6, obs.height - 6);
+          ctx.fillStyle = '#7c3aed';
+          ctx.font = '16px Arial';
+          ctx.fillText('?', obs.x + 10, obs.y + 25);
+        });
+
+        // Score
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 24px Inter';
+        ctx.textAlign = 'left';
+        ctx.fillText('Score: ' + score, 20, 40);
+      } else if (gameState === 'gameover') {
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 40px Inter';
+        ctx.textAlign = 'center';
+        ctx.fillText('Game Over!', 400, 150);
+        ctx.font = '30px Inter';
+        ctx.fillText('Điểm: ' + score, 400, 200);
+        ctx.font = '20px Inter';
+        ctx.fillText('Nhấn Space hoặc Click để chơi lại', 400, 250);
+      }
+
+      requestAnimationFrame(drawGame);
+    }
+
+    function jump() {
+      if (gameState === 'menu' || gameState === 'gameover') {
+        resetGame();
+        gameState = 'playing';
+      } else if (gameState === 'playing' && !chicken.isJumping) {
+        chicken.velocity = JUMP_FORCE;
+        chicken.isJumping = true;
+      }
+    }
+
+    function resetGame() {
+      chicken = { x: 50, y: GROUND_Y - 40, velocity: 0, isJumping: false };
+      obstacles = [];
+      score = 0;
+      gameSpeed = 5;
+    }
+
+    function gameOver() {
+      gameState = 'gameover';
+      const highScore = parseInt(localStorage.getItem('highScore') || '0');
+      if (score > highScore) {
+        localStorage.setItem('highScore', score);
+      }
+    }
+
+    canvas.addEventListener('click', jump);
+    document.addEventListener('keydown', (e) => {
+      if (e.code === 'Space') {
+        e.preventDefault();
+        jump();
+      }
+    });
+
+    drawGame();
+  </script>
+</body>
+</html>
