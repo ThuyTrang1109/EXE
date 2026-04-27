@@ -1,50 +1,50 @@
 import { useState, useEffect } from 'react';
 
 interface NFCScannerOverlayProps {
-  onSuccess: (credits: number) => void;
+  onSuccess: (credits: number, nfcTagId?: string) => void;
   onClose: () => void;
 }
 
 export default function NFCScannerOverlay({ onSuccess, onClose }: NFCScannerOverlayProps) {
   const [status, setStatus] = useState<'idle' | 'scanning' | 'success' | 'error'>('scanning');
-  const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
-    // 1. Real Web NFC Integration (if supported)
-    let ndef: any = null;
+    let detectedTagId: string | undefined;
+
+    // 1. Real Web NFC Integration (Chrome Android only)
     const startRealScan = async () => {
       try {
         if ('NDEFReader' in window) {
-          ndef = new (window as any).NDEFReader();
+          const ndef = new (window as any).NDEFReader();
           await ndef.scan();
           ndef.onreading = (event: any) => {
-            console.log("NFC Tag detected!", event.serialNumber);
+            detectedTagId = event.serialNumber as string | undefined;
+            console.log('NFC Tag detected!', detectedTagId);
             setStatus('success');
-            setTimeout(() => onSuccess(10), 1500);
+            setTimeout(() => onSuccess(10, detectedTagId), 1500);
           };
         }
       } catch (error) {
-        console.warn("Web NFC not supported or permission denied", error);
+        console.warn('Web NFC not supported or permission denied', error);
       }
     };
 
     startRealScan();
 
-    // 2. Simulation fallback (always runs as a backup or for non-supported devices)
+    // 2. Simulation fallback for unsupported devices / desktop
     const timer = setTimeout(() => {
       if (status !== 'success') {
+        // Generate a pseudo-unique tag ID for demo tracking
+        const simTagId = `SIM-${Date.now().toString(36).toUpperCase()}`;
         setStatus('success');
-        setTimeout(() => {
-          onSuccess(10);
-        }, 1500);
+        setTimeout(() => onSuccess(10, simTagId), 1500);
       }
     }, 3500);
 
     return () => {
       clearTimeout(timer);
-      // Clean up NDEF if needed
     };
-  }, [onSuccess]);
+  }, [onSuccess, status]);
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">

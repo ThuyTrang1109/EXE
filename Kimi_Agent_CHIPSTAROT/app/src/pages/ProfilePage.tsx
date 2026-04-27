@@ -1,6 +1,8 @@
 import { useState } from 'react';
+import { useAuth } from '@/lib/AuthContext';
 
 export default function ProfilePage({ user, setPage, onScanClick }: any) {
+  const { credits, expiryLabel, creditsExpiresAt } = useAuth();
   const [activeTab, setActiveTab] = useState<'history' | 'orders' | 'nfc'>('history');
 // ... existing mock data ...
 
@@ -83,15 +85,41 @@ export default function ProfilePage({ user, setPage, onScanClick }: any) {
     <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-purple-50 to-yellow-100 py-12 px-4">
       <div className="max-w-4xl mx-auto">
         <div className="bg-white rounded-3xl shadow-2xl overflow-hidden mb-8 border border-white/20">
-          <div className="bg-gradient-to-r from-purple-600 via-purple-700 to-indigo-800 p-8 text-white flex flex-col md:flex-row items-center gap-6 relative overflow-hidden">
+          <div className="bg-gradient-to-r from-purple-600 via-purple-700 to-indigo-800 p-8 text-white flex flex-col md:flex-row items-start gap-6 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl" />
-            <div className="w-24 h-24 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-5xl border-4 border-white/30 shadow-lg">👤</div>
-            <div className="text-center md:text-left z-10">
-              <h1 className="text-3xl font-bold mb-1">{user.name}</h1>
-              <p className="text-purple-200">{user.email}</p>
-              <div className="mt-3 flex flex-wrap justify-center md:justify-start gap-2">
-                <span className="px-3 py-1 bg-yellow-400 text-purple-900 rounded-full text-[10px] font-bold uppercase tracking-wider shadow-sm">Thành viên CHIPSTAROT</span>
-                <span className="px-3 py-1 bg-purple-500/30 text-white rounded-full text-[10px] font-bold uppercase tracking-wider backdrop-blur-sm border border-white/20">Hạng Đồng</span>
+            <div className="w-24 h-24 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-5xl border-4 border-white/30 shadow-lg flex-shrink-0 mt-2">👤</div>
+            <div className="text-center md:text-left z-10 w-full">
+              <div className="flex flex-col md:flex-row md:justify-between md:items-start w-full gap-4">
+                <div>
+                  <h1 className="text-3xl font-bold mb-1">{user.name}</h1>
+                  <p className="text-purple-200 mb-3">{user.email}</p>
+                  <div className="flex flex-wrap justify-center md:justify-start gap-2">
+                    <span className="px-3 py-1 bg-yellow-400 text-purple-900 rounded-full text-[10px] font-bold uppercase tracking-wider shadow-sm">Thành viên CHIPSTAROT</span>
+                    <span className="px-3 py-1 bg-purple-500/30 text-white rounded-full text-[10px] font-bold uppercase tracking-wider backdrop-blur-sm border border-white/20">Hạng Đồng</span>
+                  </div>
+                </div>
+                
+                {/* Credits Card */}
+                <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/20 min-w-[200px] text-center md:text-right flex flex-col md:items-end items-center">
+                  <p className="text-purple-200 text-xs font-bold uppercase tracking-wider mb-1">Số dư lượt bốc bài</p>
+                  <div className="flex items-end gap-2 mb-2">
+                    <span className="text-4xl font-black text-yellow-400 leading-none">{credits}</span>
+                    <span className="text-yellow-400/80 text-sm font-medium pb-1">lượt</span>
+                  </div>
+                  {credits > 0 ? (
+                    <div className={`text-xs font-medium px-2.5 py-1 rounded-lg ${
+                      expiryLabel.urgency === 'expired' ? 'bg-red-500/80 text-white' :
+                      expiryLabel.urgency === 'warning' ? 'bg-amber-500/80 text-white' :
+                      'bg-green-500/80 text-white'
+                    }`}>
+                      {creditsExpiresAt ? `Hạn dùng: ${new Date(creditsExpiresAt).toLocaleDateString('vi-VN')}` : 'Vô thời hạn (NFC)'}
+                    </div>
+                  ) : (
+                    <button onClick={() => setPage('shop')} className="text-xs font-bold text-yellow-400 hover:text-yellow-300 underline mt-1">
+                      Nạp thêm lượt ngay →
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           </div>

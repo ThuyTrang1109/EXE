@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import './App.css';
+import { useAuth } from '@/lib/AuthContext';
 
 // Components
 import Header from '@/components/Header';
@@ -13,8 +14,6 @@ import CheckoutPage from '@/pages/CheckoutPage';
 import AdminPage from '@/pages/AdminPage';
 import ProfilePage from '@/pages/ProfilePage';
 import AuthPage from '@/pages/AuthPage';
-
-// Heavy pages (still in separate files)
 import ReadingPage from '@/pages/ReadingPage';
 import CardsPage from '@/pages/CardsPage';
 import GamePage from '@/pages/GamePage';
@@ -22,23 +21,43 @@ import BlogPage from '@/pages/BlogPage';
 import ProductDetailPage from '@/pages/ProductDetailPage';
 import NFCScannerOverlay from '@/components/NFCScannerOverlay';
 
-// IDE Refresh trigger
+type PageType =
+  | 'home' | 'reading' | 'cards' | 'shop' | 'product-detail'
+  | 'game' | 'blog' | 'cart' | 'checkout' | 'admin' | 'profile' | 'auth';
 
-type PageType = 'home' | 'reading' | 'cards' | 'shop' | 'product-detail' | 'game' | 'blog' | 'cart' | 'checkout' | 'admin' | 'profile' | 'auth';
+const VALID_PAGES: PageType[] = [
+  'home', 'reading', 'cards', 'shop', 'product-detail',
+  'game', 'blog', 'cart', 'checkout', 'admin', 'profile', 'auth',
+];
 
 export default function App() {
+  // ── Auth (từ AuthContext — persistent qua reload) ──
+  const { user, loading, credits, creditsExpired, expiryLabel, addCredits, consumeCredit, logout } = useAuth();
+
+  // ── Local UI state ──
   const [page, setPage] = useState<PageType>(() => {
     const path = window.location.pathname.substring(1);
-    const validPages = ['home', 'reading', 'cards', 'shop', 'product-detail', 'game', 'blog', 'cart', 'checkout', 'admin', 'profile', 'auth'];
-    return validPages.includes(path) ? (path as PageType) : 'home';
+    return VALID_PAGES.includes(path as PageType) ? (path as PageType) : 'home';
   });
   const [selectedProductId, setSelectedProductId] = useState<number | null>(null);
-  const [user, setUser] = useState<any>(null);
-  const [credits, setCredits] = useState(0);
   const [showScanner, setShowScanner] = useState(false);
-  const [cart, setCart] = useState<any[]>([]);
   const [showPaywall, setShowPaywall] = useState(false);
+  const [cart, setCart] = useState<any[]>(() => {
+    // Persist cart in localStorage
+    try {
+      const saved = localStorage.getItem('chipstarot_cart');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
 
+  // ── Sync cart to localStorage ──
+  useEffect(() => {
+    localStorage.setItem('chipstarot_cart', JSON.stringify(cart));
+  }, [cart]);
+
+  // ── URL sync ──
   useEffect(() => {
     let path = page === 'home' ? '/' : `/${page}`;
     if (page === 'product-detail' && selectedProductId) {
@@ -47,27 +66,25 @@ export default function App() {
     window.history.pushState({}, '', path);
   }, [page, selectedProductId]);
 
+  // ── Back button + NFC tagId param ──
   useEffect(() => {
     const handlePopState = () => {
       const path = window.location.pathname.substring(1);
       const parts = path.split('/');
-      
       if (parts[0] === 'product' && parts[1]) {
         setPage('product-detail');
         setSelectedProductId(parseInt(parts[1]));
         return;
       }
-
-      const validPages = ['home', 'reading', 'cards', 'shop', 'game', 'blog', 'cart', 'checkout', 'admin', 'profile', 'auth'];
-      setPage(validPages.includes(path) ? (path as PageType) : 'home');
+      setPage(VALID_PAGES.includes(path as PageType) ? (path as PageType) : 'home');
     };
 
-    // Check for tagId in URL for automatic NFC processing
+    // Auto-open NFC scanner if ?tagId= is in URL
     const params = new URLSearchParams(window.location.search);
     const tagId = params.get('tagId');
     if (tagId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setShowScanner(true);
-      // Clean up the URL to prevent re-triggering on refresh
       window.history.replaceState({}, '', window.location.pathname);
     }
 
@@ -75,23 +92,34 @@ export default function App() {
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
+  // ── Navigation helpers ──
   const viewProduct = (id: number) => {
     setSelectedProductId(id);
     setPage('product-detail');
     window.scrollTo(0, 0);
   };
 
-  const handleScanSuccess = (addedCredits: number) => {
-    setCredits(prev => prev + addedCredits);
+  // ── NFC scan success: cộng credits vào DB ──
+  const handleScanSuccess = async (addedCredits: number, nfcTagId?: string) => {
+    await addCredits(addedCredits, nfcTagId);
     setShowScanner(false);
   };
 
-  const logout = () => { setUser(null); setCredits(0); setPage('home'); };
-  const consumeCredit = () => {
-    if (credits > 0) { setCredits(credits - 1); return true; }
-    setShowPaywall(true);
-    return false;
+  // ── Consume credit for reading ──
+  const handleConsumeCredit = async (): Promise<boolean> => {
+    if (credits <= 0) {
+      setShowPaywall(true);
+      return false;
+    }
+    const success = await consumeCredit();
+    if (!success) {
+      setShowPaywall(true);
+      return false;
+    }
+    return true;
   };
+
+  // ── Cart helpers ──
   const addToCart = (p: any) => {
     const existing = cart.find(c => c.id === p.id);
     if (existing) setCart(cart.map(c => c.id === p.id ? { ...c, qty: c.qty + 1 } : c));
@@ -105,6 +133,18 @@ export default function App() {
   const cartTotal = cart.reduce((s, c) => s + c.price * c.qty, 0);
   const cartCount = cart.reduce((s, c) => s + c.qty, 0);
 
+  // ── Loading screen khi đang kiểm tra session ──
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-purple-800 to-yellow-900 flex items-center justify-center">
+        <div className="text-center text-white">
+          <div className="text-6xl animate-bounce mb-6">🔮</div>
+          <p className="text-purple-200 text-lg">Đang kết nối vũ trụ...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-purple-50 to-yellow-100">
       <Header
@@ -112,47 +152,96 @@ export default function App() {
         setPage={setPage}
         user={user}
         credits={credits}
+        creditsExpired={creditsExpired}
+        expiryLabel={expiryLabel}
         logout={logout}
         cartCount={cartCount}
       />
 
       {page === 'home' && <HomePage setPage={setPage} user={user} />}
-      {page === 'reading' && <ReadingPage user={user} consumeCredit={consumeCredit} setPage={setPage} />}
+      {page === 'reading' && <ReadingPage user={user} consumeCredit={handleConsumeCredit} setPage={setPage} />}
       {page === 'cards' && <CardsPage />}
-      {page === 'shop' && <ShopPage addToCart={addToCart} viewProduct={viewProduct} />}
-      {page === 'product-detail' && selectedProductId && <ProductDetailPage productId={selectedProductId} setPage={setPage} addToCart={addToCart} />}
-      {page === 'cart' && <CartPage cart={cart} updateQty={updateQty} removeFromCart={removeFromCart} total={cartTotal} setPage={setPage} />}
+      {page === 'shop' && <ShopPage addToCart={addToCart} viewProduct={viewProduct} setPage={setPage} />}
+      {page === 'product-detail' && selectedProductId && (
+        <ProductDetailPage productId={selectedProductId} setPage={setPage} addToCart={addToCart} />
+      )}
+      {page === 'cart' && (
+        <CartPage cart={cart} updateQty={updateQty} removeFromCart={removeFromCart} total={cartTotal} setPage={setPage} />
+      )}
       {page === 'checkout' && <CheckoutPage cart={cart} total={cartTotal} setPage={setPage} />}
       {page === 'game' && <GamePage />}
       {page === 'blog' && <BlogPage />}
       {page === 'admin' && <AdminPage setPage={setPage} />}
-      {page === 'profile' && <ProfilePage user={user} setPage={setPage} onScanClick={() => setShowScanner(true)} />}
-      {page === 'auth' && <AuthPage setUser={setUser} setCredits={setCredits} setPage={setPage} />}
+      {page === 'profile' && (
+        <ProfilePage user={user} setPage={setPage} onScanClick={() => setShowScanner(true)} />
+      )}
+      {page === 'auth' && <AuthPage setPage={setPage} />}
 
       <Footer setPage={setPage} />
 
       {/* Paywall Modal */}
       {showPaywall && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setShowPaywall(false)}>
-          <div className="bg-white rounded-3xl max-w-md w-full p-8 text-center relative" onClick={e => e.stopPropagation()}>
-            <button onClick={() => setShowPaywall(false)} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          onClick={() => setShowPaywall(false)}
+        >
+          <div
+            className="bg-white rounded-3xl max-w-md w-full p-8 text-center relative"
+            onClick={e => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setShowPaywall(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl"
+            >
+              &times;
+            </button>
             <div className="text-6xl mb-4">🔮</div>
-            <h2 className="text-2xl font-bold mb-2">Hết lượt bốc bài!</h2>
-            <p className="text-gray-600 mb-4">Bạn đã sử dụng hết 3 lượt miễn phí.</p>
-            <div className="bg-gradient-to-r from-purple-100 to-yellow-100 rounded-xl p-4 mb-6">
-              <p className="font-semibold text-purple-700">💎 Mua móc khóa NFC để nhận thêm lượt!</p>
-              <p className="text-sm text-gray-600 mt-1">Mỗi sản phẩm đi kèm 10 lượt bốc bài</p>
+            <h2 className="text-2xl font-bold mb-2">
+              {creditsExpired ? 'Lượt bốc bài đã hết hạn!' : 'Hết lượt bốc bài!'}
+            </h2>
+            <p className="text-gray-600 mb-5">
+              {user 
+                ? (creditsExpired ? 'Gói Tarot của bạn đã quá hạn sử dụng.' : 'Bạn đã sử dụng hết toàn bộ lượt.') 
+                : 'Bạn đã dùng hết lượt miễn phí.'}
+            </p>
+
+            {/* Option 1: Mua gói lượt số */}
+            <button
+              onClick={() => { setShowPaywall(false); setPage('shop'); }}
+              className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold py-4 rounded-2xl mb-3 hover:opacity-90 transition-all active:scale-95"
+            >
+              ⚡ Mua Gói Lượt Tarot — nạp ngay!
+              <p className="text-xs text-purple-200 font-normal mt-0.5">Từ 29.000đ / 5 lượt — cộng tức thì</p>
+            </button>
+
+            {/* Divider */}
+            <div className="flex items-center gap-3 my-3">
+              <div className="flex-1 h-px bg-gray-200" />
+              <span className="text-xs text-gray-400">hoặc</span>
+              <div className="flex-1 h-px bg-gray-200" />
             </div>
-            <button onClick={() => { setShowPaywall(false); setPage('shop'); }} className="btn-3d-yellow w-full mb-3">Khám phá Shop ngay</button>
-            <button onClick={() => setShowPaywall(false)} className="text-gray-500 hover:text-gray-700 text-sm">Để sau</button>
+
+            {/* Option 2: Mua móc khóa vật lý */}
+            <button
+              onClick={() => { setShowPaywall(false); setPage('shop'); }}
+              className="w-full bg-gradient-to-r from-yellow-400 to-amber-400 text-white font-bold py-4 rounded-2xl mb-4 hover:opacity-90 transition-all active:scale-95"
+            >
+              📿 Mua Móc Khóa NFC
+              <p className="text-xs text-yellow-900 font-normal mt-0.5">Tặng kèm 10 lượt — quét chip khi nhận hàng</p>
+            </button>
+
+            <button onClick={() => setShowPaywall(false)} className="text-gray-400 hover:text-gray-600 text-sm">
+              Để sau
+            </button>
           </div>
         </div>
       )}
 
+      {/* NFC Scanner Overlay */}
       {showScanner && (
-        <NFCScannerOverlay 
-          onSuccess={handleScanSuccess} 
-          onClose={() => setShowScanner(false)} 
+        <NFCScannerOverlay
+          onSuccess={handleScanSuccess}
+          onClose={() => setShowScanner(false)}
         />
       )}
     </div>

@@ -5,11 +5,13 @@ interface HeaderProps {
   setPage: (p: any) => void;
   user: any;
   credits: number;
+  creditsExpired?: boolean;
+  expiryLabel?: { label: string; urgency: 'none' | 'ok' | 'warning' | 'expired' };
   logout: () => void;
   cartCount: number;
 }
 
-export default function Header({ page, setPage, user, credits, logout, cartCount }: HeaderProps) {
+export default function Header({ page, setPage, user, credits, creditsExpired, expiryLabel, logout, cartCount }: HeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const navs = [
     { key: 'home', label: 'Trang chủ' },
@@ -52,8 +54,23 @@ export default function Header({ page, setPage, user, credits, logout, cartCount
               <div className="hidden md:flex items-center gap-3">
                 <button onClick={() => setPage('profile')} className="text-sm font-medium text-blue-600 hover:text-blue-800 bg-blue-100 px-3 py-1 rounded-full">👤 Hồ sơ</button>
                 <button onClick={() => setPage('admin')} className="text-sm font-medium text-purple-600 hover:text-purple-800 bg-purple-100 px-3 py-1 rounded-full">Admin</button>
-                <span className="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-sm font-medium">{credits} lượt</span>
-                <button onClick={logout} className="text-sm text-gray-500 hover:text-red-500">Đăng xuất</button>
+                <div className="relative group">
+                  <span className={`px-3 py-1 rounded-full text-sm font-medium cursor-help flex items-center gap-1 ${
+                    creditsExpired ? 'bg-red-100 text-red-700' :
+                    expiryLabel?.urgency === 'warning' ? 'bg-amber-100 text-amber-700' :
+                    'bg-yellow-100 text-yellow-700'
+                  }`}>
+                    {creditsExpired ? 'Hết hạn' : `${credits} lượt`}
+                    {expiryLabel?.urgency === 'warning' && !creditsExpired && '⚠️'}
+                  </span>
+                  {/* Tooltip */}
+                  {expiryLabel && expiryLabel.urgency !== 'none' && (
+                    <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-max max-w-[200px] px-3 py-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
+                      {creditsExpired ? 'Lượt bốc bài đã hết hạn' : `Hạn dùng: ${expiryLabel.label}`}
+                    </div>
+                  )}
+                </div>
+                <button onClick={() => { logout(); setPage('home'); }} className="text-sm text-gray-500 hover:text-red-500">Đăng xuất</button>
               </div>
             ) : (
               <button onClick={() => setPage('auth')} className="hidden md:block px-4 py-2 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white rounded-full font-medium text-sm hover:from-yellow-600 hover:to-yellow-700 transition-all">Đăng nhập</button>

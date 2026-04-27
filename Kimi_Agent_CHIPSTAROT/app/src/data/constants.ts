@@ -176,10 +176,60 @@ export const SUGGESTED_QUESTIONS: Record<string, string[]> = {
 };
 
 export const PRODUCTS = [
-  { id: 1, name: "Móc khóa NFC CHIPSTAROT", desc: "Chạm vào điện thoại để xem bài Tarot mỗi ngày.", price: 199000, oldPrice: 299000, image: "/products/nfc-chick.jpg", rating: 4.9, reviews: 128, tag: "Bán chạy", tagColor: "bg-red-500" },
-  { id: 2, name: "Móc khóa Đá Thạch Anh Tím", desc: "Đá thạch anh tím tự nhiên, mang lại bình an và may mắn.", price: 89000, oldPrice: 129000, image: "/products/amethyst.jpg", rating: 4.8, reviews: 86, tag: "Mới", tagColor: "bg-green-500" },
-  { id: 3, name: "Móc khóa Đá Mắt Hổ", desc: "Đá mắt hổ mang lại sự tự tin và bảo vệ.", price: 79000, oldPrice: 99000, image: "/products/tiger-eye.jpg", rating: 4.7, reviews: 52, tag: "", tagColor: "" },
-  { id: 4, name: "Móc khóa Đá Thạch Anh Hồng", desc: "Đá thạch anh hồng mang lại tình yêu và sự hòa hợp.", price: 85000, oldPrice: 109000, image: "/products/rose-quartz.jpg", rating: 4.9, reviews: 34, tag: "", tagColor: "" },
-  { id: 5, name: "Móc khóa Đá Aventurine Xanh", desc: "Đá aventurine xanh mang lại may mắn và thịnh vượng.", price: 79000, oldPrice: 99000, image: "/products/green-stone.jpg", rating: 4.7, reviews: 45, tag: "Mới", tagColor: "bg-green-500" },
-  { id: 6, name: "Móc khóa Đá Thạch Anh Trắng", desc: "Đá thạch anh trắng trong suốt, khuếch đại năng lượng tích cực.", price: 69000, oldPrice: 89000, image: "/products/clear-quartz.jpg", rating: 4.8, reviews: 67, tag: "", tagColor: "" },
+  { id: 1, name: "Móc khóa NFC CHIPSTAROT", desc: "Chạm vào điện thoại để xem bài Tarot mỗi ngày. Tặng kèm 10 lượt bốc bài!", price: 199000, oldPrice: 299000, image: "/products/nfc-chick.jpg", rating: 4.9, reviews: 128, tag: "Bán chạy", tagColor: "bg-red-500", nfcCredits: 10 },
+  { id: 2, name: "Móc khóa Đá Thạch Anh Tím", desc: "Đá thạch anh tím tự nhiên, mang lại bình an và may mắn. Tặng kèm 10 lượt bốc bài!", price: 89000, oldPrice: 129000, image: "/products/amethyst.jpg", rating: 4.8, reviews: 86, tag: "Mới", tagColor: "bg-green-500", nfcCredits: 10 },
+  { id: 3, name: "Móc khóa Đá Mắt Hổ", desc: "Đá mắt hổ mang lại sự tự tin và bảo vệ. Tặng kèm 10 lượt bốc bài!", price: 79000, oldPrice: 99000, image: "/products/tiger-eye.jpg", rating: 4.7, reviews: 52, tag: "", tagColor: "", nfcCredits: 10 },
+  { id: 4, name: "Móc khóa Đá Thạch Anh Hồng", desc: "Đá thạch anh hồng mang lại tình yêu và sự hòa hợp. Tặng kèm 10 lượt bốc bài!", price: 85000, oldPrice: 109000, image: "/products/rose-quartz.jpg", rating: 4.9, reviews: 34, tag: "", tagColor: "", nfcCredits: 10 },
+  { id: 5, name: "Móc khóa Đá Aventurine Xanh", desc: "Đá aventurine xanh mang lại may mắn và thịnh vượng. Tặng kèm 10 lượt bốc bài!", price: 79000, oldPrice: 99000, image: "/products/green-stone.jpg", rating: 4.7, reviews: 45, tag: "Mới", tagColor: "bg-green-500", nfcCredits: 10 },
+  { id: 6, name: "Móc khóa Đá Thạch Anh Trắng", desc: "Đá thạch anh trắng trong suốt, khuếch đại năng lượng tích cực. Tặng kèm 10 lượt bốc bài!", price: 69000, oldPrice: 89000, image: "/products/clear-quartz.jpg", rating: 4.8, reviews: 67, tag: "", tagColor: "", nfcCredits: 10 },
+];
+
+// ─── Gói Mua Lượt Tarot (Digital Credit Packages) ───
+// expiryDays: số ngày lượt còn hiệu lực kể từ ngày mua (khớp với schema.sql)
+export const CREDIT_PACKAGES = [
+  {
+    id: 'cp_starter',
+    name: 'Gói Khởi Đầu',
+    credits: 5,
+    price: 29000,
+    oldPrice: 39000,
+    expiryDays: 30,                              // *** Hạn dùng: 30 ngày ***
+    expiryLabel: '30 ngày',
+    icon: '🌙',
+    tag: '',
+    tagColor: '',
+    color: 'from-indigo-400 to-purple-500',
+    desc: 'Trải nghiệm 5 lần bốc bài trong 30 ngày, phù hợp người mới.',
+    perCredit: 5800,
+  },
+  {
+    id: 'cp_popular',
+    name: 'Gói Phổ Biến',
+    credits: 15,
+    price: 69000,
+    oldPrice: 99000,
+    expiryDays: 90,                              // *** Hạn dùng: 90 ngày ***
+    expiryLabel: '90 ngày',
+    icon: '🔮',
+    tag: 'Phổ biến nhất',
+    tagColor: 'bg-purple-500',
+    color: 'from-purple-500 to-pink-500',
+    desc: '15 lượt bốc bài trong 90 ngày — tiết kiệm 30% so với mua lẻ.',
+    perCredit: 4600,
+  },
+  {
+    id: 'cp_premium',
+    name: 'Gói Cao Cấp',
+    credits: 50,
+    price: 179000,
+    oldPrice: 290000,
+    expiryDays: 365,                             // *** Hạn dùng: 365 ngày (1 năm) ***
+    expiryLabel: '365 ngày',
+    icon: '✨',
+    tag: 'Tiết kiệm 38%',
+    tagColor: 'bg-yellow-500',
+    color: 'from-yellow-400 to-orange-500',
+    desc: '50 lượt bốc bài trong 365 ngày — dành cho tín đồ Tarot thực thụ.',
+    perCredit: 3580,
+  },
 ];

@@ -65,7 +65,8 @@ CREATE TABLE customer_profiles (
     zodiac_sign VARCHAR(50),
     life_path_number INT,
     avatar_url TEXT,
-    credits INT DEFAULT 0, -- Lượt bốc bài tích lũy
+    credits INT DEFAULT 0,                              -- Lượt bốc bài tích lũy
+    credits_expires_at TIMESTAMP WITH TIME ZONE,        -- Thời hạn sử dụng lượt (NULL = không hết hạn / chỉ từ NFC)
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -174,6 +175,51 @@ CREATE TABLE hero_banners (
     is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
+
+-- ─────────────────────────────────────────────
+-- Gói Mua Lượt Tarot (Digital Credit Packages)
+-- Người dùng mua gói → credits cộng tức thì, expires_at = NOW() + expiry_days
+-- ─────────────────────────────────────────────
+CREATE TABLE tarot_credit_packages (
+    id VARCHAR(30) PRIMARY KEY,              -- VD: 'cp_starter', 'cp_popular', 'cp_premium'
+    name VARCHAR(100) NOT NULL,              -- Tên gói hiển thị
+    credits INT NOT NULL,                   -- Số lượt bốc bài nhận được
+    price DECIMAL(12,2) NOT NULL,           -- Giá bán
+    old_price DECIMAL(12,2),               -- Giá gốc (để hiện % giảm giá)
+    expiry_days INT NOT NULL DEFAULT 30,   -- *** THỜI HẠN SỬ DỤNG LỢT (ngày kể từ ngày mua) ***
+    icon VARCHAR(10),                       -- Emoji icon hiển thị
+    description TEXT,                       -- Mô tả ngắn
+    is_active BOOLEAN DEFAULT TRUE,
+    display_order INT DEFAULT 0,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Lịch sử giao dịch mua gói lượt Tarot
+CREATE TABLE credit_package_purchases (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    account_id UUID REFERENCES accounts(id) ON DELETE CASCADE,
+    package_id VARCHAR(30) REFERENCES tarot_credit_packages(id),
+    credits_granted INT NOT NULL,           -- Số lượt đã cộng vào tài khoản
+    expires_at TIMESTAMP WITH TIME ZONE NOT NULL, -- *** Lượt này hết hạn lúc nào ***
+    amount_paid DECIMAL(12,2) NOT NULL,
+    payment_method VARCHAR(50),            -- 'momo', 'vnpay', 'demo'
+    transaction_id VARCHAR(100),
+    status VARCHAR(20) DEFAULT 'completed', -- 'pending', 'completed', 'refunded'
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Index để query nhanh giao dịch theo account
+CREATE INDEX idx_credit_pkg_purchases_account ON credit_package_purchases(account_id);
+CREATE INDEX idx_credit_pkg_purchases_expires ON credit_package_purchases(expires_at);
+
+-- Seed dữ liệu ban đầu cho các gói lượt
+-- expiry_days: Gói Khởi Đầu = 30 ngày, Gói Phổ Biến = 90 ngày, Gói Cao Cấp = 365 ngày
+INSERT INTO tarot_credit_packages (id, name, credits, price, old_price, expiry_days, icon, description, display_order)
+VALUES
+    ('cp_starter', 'Gói Khởi Đầu',   5,  29000,  39000,  30,  '🌙', 'Trải nghiệm 5 lần bốc bài — dùng trong 30 ngày.',              1),
+    ('cp_popular', 'Gói Phổ Biến',  15,  69000,  99000,  90,  '🔮', '15 lượt bốc bài — dùng trong 90 ngày, tiết kiệm 30%.',         2),
+    ('cp_premium', 'Gói Cao Cấp',   50, 179000, 290000,  365, '✨', '50 lượt bốc bài — dùng trong 365 ngày, tiết kiệm 38%.',        3);
+
 
 -- Giỏ hàng (Carts)
 CREATE TABLE carts (

@@ -16,9 +16,9 @@ export default function ReadingPage({ user, consumeCredit, setPage }: any) {
 
   useEffect(() => {
     if (step === 6 && revealed && user && !creditUsed) {
-      const success = consumeCredit();
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      if (success) setCreditUsed(true);
+      consumeCredit().then((success: boolean) => {
+        if (success) setCreditUsed(true);
+      });
     }
   }, [step, revealed, user, creditUsed, consumeCredit]);
 
