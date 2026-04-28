@@ -190,7 +190,7 @@ export const CREDIT_PACKAGES = [
   {
     id: 'cp_starter',
     name: 'Gói Khởi Đầu',
-    credits: 5,
+    dailyCredits: 3,
     price: 29000,
     oldPrice: 39000,
     expiryDays: 30,                              // *** Hạn dùng: 30 ngày ***
@@ -199,13 +199,13 @@ export const CREDIT_PACKAGES = [
     tag: '',
     tagColor: '',
     color: 'from-indigo-400 to-purple-500',
-    desc: 'Trải nghiệm 5 lần bốc bài trong 30 ngày, phù hợp người mới.',
-    perCredit: 5800,
+    desc: '3 lượt bốc bài/ngày trong suốt 30 ngày, phù hợp người mới.',
+    perCredit: 322,
   },
   {
     id: 'cp_popular',
     name: 'Gói Phổ Biến',
-    credits: 15,
+    dailyCredits: 5,
     price: 69000,
     oldPrice: 99000,
     expiryDays: 90,                              // *** Hạn dùng: 90 ngày ***
@@ -214,13 +214,13 @@ export const CREDIT_PACKAGES = [
     tag: 'Phổ biến nhất',
     tagColor: 'bg-purple-500',
     color: 'from-purple-500 to-pink-500',
-    desc: '15 lượt bốc bài trong 90 ngày — tiết kiệm 30% so với mua lẻ.',
-    perCredit: 4600,
+    desc: '5 lượt bốc bài/ngày trong 90 ngày — tối đa hiệu quả tâm linh.',
+    perCredit: 153,
   },
   {
     id: 'cp_premium',
     name: 'Gói Cao Cấp',
-    credits: 50,
+    dailyCredits: 10,
     price: 179000,
     oldPrice: 290000,
     expiryDays: 365,                             // *** Hạn dùng: 365 ngày (1 năm) ***
@@ -229,7 +229,7 @@ export const CREDIT_PACKAGES = [
     tag: 'Tiết kiệm 38%',
     tagColor: 'bg-yellow-500',
     color: 'from-yellow-400 to-orange-500',
-    desc: '50 lượt bốc bài trong 365 ngày — dành cho tín đồ Tarot thực thụ.',
-    perCredit: 3580,
+    desc: '10 lượt bốc bài/ngày trong cả năm — dành cho tín đồ Tarot.',
+    perCredit: 49,
   },
 ];

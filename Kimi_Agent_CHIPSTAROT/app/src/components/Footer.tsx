@@ -10,7 +10,7 @@ export default function Footer({ setPage }: any) {
           <div>
             <h3 className="text-lg font-semibold text-yellow-400 mb-4">Liên Kết</h3>
             <ul className="space-y-2 text-purple-200 text-sm">
-              {[{k:'reading',l:'Bói Bài Tarot'},{k:'cards',l:'Ý Nghĩa Lá Bài'},{k:'shop',l:'Shop'},{k:'blog',l:'Blog'}].map(l => (
+              {[{k:'reading',l:'Bói Bài Tarot'},{k:'cards',l:'Ý Nghĩa Lá Bài'},{k:'shop',l:'Shop'},{k:'blog',l:'Blog'},{k:'about',l:'Giới Thiệu'}].map(l => (
                 <li key={l.k}><button onClick={() => setPage(l.k)} className="hover:text-yellow-400 transition-colors">{l.l}</button></li>
               ))}
             </ul>

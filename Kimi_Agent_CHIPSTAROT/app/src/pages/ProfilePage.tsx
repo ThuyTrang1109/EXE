@@ -4,6 +4,7 @@ import { useAuth } from '@/lib/AuthContext';
 export default function ProfilePage({ user, setPage, onScanClick }: any) {
   const { credits, expiryLabel, creditsExpiresAt } = useAuth();
   const [activeTab, setActiveTab] = useState<'history' | 'orders' | 'nfc'>('history');
+  const [selectedOrder, setSelectedOrder] = useState<any>(null);
 // ... existing mock data ...
 
   const mockHistory = [
@@ -230,7 +231,7 @@ export default function ProfilePage({ user, setPage, onScanClick }: any) {
                         <span className="text-[10px] text-gray-400 uppercase font-bold">Tổng thanh toán</span>
                         <span className="text-xl font-bold text-red-500">{o.total.toLocaleString()}đ</span>
                       </div>
-                      <button className="px-6 py-2 bg-white text-gray-600 rounded-xl text-sm font-bold border border-gray-200 hover:bg-gray-100 transition-all shadow-sm">Xem chi tiết</button>
+                      <button onClick={() => setSelectedOrder(o)} className="px-6 py-2 bg-white text-gray-600 rounded-xl text-sm font-bold border border-gray-200 hover:bg-gray-100 transition-all shadow-sm">Xem chi tiết</button>
                     </div>
                   </div>
                 ))}
@@ -275,6 +276,51 @@ export default function ProfilePage({ user, setPage, onScanClick }: any) {
           </div>
         </div>
       </div>
+
+      {selectedOrder && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200" onClick={() => setSelectedOrder(null)}>
+          <div className="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl relative animate-in zoom-in-95 duration-200" onClick={e => e.stopPropagation()}>
+            <div className="bg-gradient-to-r from-purple-600 to-indigo-600 p-6 text-white flex justify-between items-center">
+              <div>
+                <h3 className="text-xl font-bold">Chi tiết đơn hàng</h3>
+                <p className="text-sm text-purple-200">{selectedOrder.id}</p>
+              </div>
+              <button onClick={() => setSelectedOrder(null)} className="w-8 h-8 flex items-center justify-center bg-white/20 rounded-full hover:bg-white/40 transition-colors">&times;</button>
+            </div>
+            <div className="p-6">
+              <div className="mb-6 bg-yellow-50 rounded-xl p-4 border border-yellow-100">
+                <p className="text-xs text-gray-500 font-medium mb-1">Trạng thái hiện tại</p>
+                <div className="flex items-center justify-between">
+                  <p className="font-bold text-yellow-700">{selectedOrder.statusText}</p>
+                  <p className="text-xs text-gray-400">{selectedOrder.date}</p>
+                </div>
+              </div>
+              
+              <h4 className="font-bold text-gray-800 mb-3">Sản phẩm đã đặt</h4>
+              <div className="space-y-3 mb-6 max-h-48 overflow-y-auto pr-2">
+                {selectedOrder.items.map((item: any, idx: number) => (
+                  <div key={idx} className="flex items-center gap-4 bg-gray-50 p-3 rounded-xl">
+                    <img src={item.image} alt={item.name} className="w-12 h-12 rounded-lg object-cover" />
+                    <div className="flex-1">
+                      <p className="text-sm font-bold text-gray-800 line-clamp-1">{item.name}</p>
+                      <p className="text-xs text-gray-500">SL: {item.qty}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="border-t border-gray-100 pt-4 flex justify-between items-center">
+                <span className="text-gray-500 font-medium">Tổng thanh toán</span>
+                <span className="text-2xl font-black text-red-500">{selectedOrder.total.toLocaleString()}đ</span>
+              </div>
+            </div>
+            <div className="p-4 bg-gray-50 border-t border-gray-100 flex gap-3">
+              <button className="flex-1 py-3 bg-purple-600 text-white rounded-xl font-bold hover:bg-purple-700 transition-colors">Theo dõi vận chuyển</button>
+              <button onClick={() => setSelectedOrder(null)} className="flex-1 py-3 bg-white text-gray-600 border border-gray-200 rounded-xl font-bold hover:bg-gray-100 transition-colors">Đóng</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

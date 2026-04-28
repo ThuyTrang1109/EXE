@@ -126,8 +126,8 @@ export default function ShopPage({ addToCart, viewProduct, setPage }: any) {
                     <div className="p-6 flex flex-col flex-1">
                       {/* Credits highlight */}
                       <div className="bg-purple-50 rounded-2xl p-4 text-center mb-3">
-                        <p className="text-4xl font-black text-purple-700">{pkg.credits}</p>
-                        <p className="text-purple-500 text-sm font-semibold">lượt bốc bài</p>
+                        <p className="text-4xl font-black text-purple-700">{pkg.dailyCredits}</p>
+                        <p className="text-purple-500 text-sm font-semibold">lượt bốc bài / ngày</p>
                       </div>
 
                       {/* Thời hạn badge */}
@@ -215,7 +215,7 @@ export default function ShopPage({ addToCart, viewProduct, setPage }: any) {
                     {CREDIT_PACKAGES.map(pkg => (
                       <tr key={pkg.id} className="hover:bg-purple-50/50">
                         <td className="px-6 py-4 font-semibold text-gray-800">{pkg.icon} {pkg.name}</td>
-                        <td className="px-4 py-4 text-center text-purple-700 font-bold">{pkg.credits} lượt</td>
+                        <td className="px-4 py-4 text-center text-purple-700 font-bold">{pkg.dailyCredits} lượt/ngày</td>
                         <td className="px-4 py-4 text-center text-red-500 font-bold">{pkg.price.toLocaleString()}đ</td>
                         <td className="px-4 py-4 text-center text-gray-600">{pkg.perCredit.toLocaleString()}đ</td>
                         <td className="px-4 py-4 text-center">

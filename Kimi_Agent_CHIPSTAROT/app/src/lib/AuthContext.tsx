@@ -82,6 +82,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             name: session.user.email?.split('@')[0] || 'Người dùng',
             credits: 0,
             credits_expires_at: null,
+            daily_allowance: 0,
+            last_reset_date: null,
             role_id: 2,
             avatar_url: null,
           });
@@ -110,9 +112,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (email === 'demo@chipstarot.com' && password === '123456') {
         const expiresAt = new Date();
         expiresAt.setDate(expiresAt.getDate() + 90); // demo: 90 ngày
+        const todayStr = new Date().toISOString().split('T')[0];
         const demoUser: AppUser = {
           id: 'demo-user', email, name: 'Tarot Lover',
           credits: 3, credits_expires_at: expiresAt.toISOString(),
+          daily_allowance: 3, last_reset_date: todayStr,
           role_id: 2, avatar_url: null,
         };
         syncFromProfile(demoUser);
@@ -147,6 +151,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         account_id: data.user.id,
         full_name: name,
         credits: 0,
+        daily_allowance: 0,
         credits_expires_at: null,
       });
     }
@@ -194,7 +199,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     if (!isSupabaseConfigured) {
       // Demo mode: tính local
-      const newBalance = credits + pkg.credits;
+      const newBalance = pkg.dailyCredits; // Reset credit to daily package immediately
       const expiresDate = new Date();
       // Nếu đang còn thời hạn cũ → nối thêm sau
       const base = creditsExpiresAt && new Date(creditsExpiresAt) > new Date()
@@ -202,23 +207,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         : new Date();
       base.setDate(base.getDate() + pkg.expiryDays);
       const newExpiresAt = base.toISOString();
+      const todayStr = new Date().toISOString().split('T')[0];
 
       setCredits(newBalance);
       setCreditsExpiresAt(newExpiresAt);
-      setUser(prev => prev ? { ...prev, credits: newBalance, credits_expires_at: newExpiresAt } : null);
+      setUser(prev => prev ? { ...prev, credits: newBalance, credits_expires_at: newExpiresAt, daily_allowance: pkg.dailyCredits, last_reset_date: todayStr } : null);
 
       // Persist demo session
-      const updatedUser = { ...user, credits: newBalance, credits_expires_at: newExpiresAt };
+      const updatedUser = { ...user, credits: newBalance, credits_expires_at: newExpiresAt, daily_allowance: pkg.dailyCredits, last_reset_date: todayStr } as AppUser;
       localStorage.setItem('chipstarot_demo_user', JSON.stringify(updatedUser));
       expiresDate.setTime(base.getTime());
       return {
         success: true,
-        message: `✅ Nạp thành công ${pkg.credits} lượt! Hạn dùng đến ${expiresDate.toLocaleDateString('vi-VN')}`,
+        message: `✅ Mua gói thành công! Bạn có ${pkg.dailyCredits} lượt bốc bài/ngày. Hạn dùng: ${expiresDate.toLocaleDateString('vi-VN')}`,
       };
     }
 
     const { newBalance, newExpiresAt, error } = await purchaseCreditPackage(
-      user.id, packageId, pkg.credits, pkg.expiryDays, pkg.price, 'demo'
+      user.id, packageId, pkg.dailyCredits, pkg.expiryDays, pkg.price, 'demo'
     );
 
     if (error) return { success: false, message: `Lỗi: ${error}` };
@@ -229,9 +235,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     return {
       success: true,
-      message: `✅ Nạp thành công ${pkg.credits} lượt! Hạn dùng đến ${new Date(newExpiresAt).toLocaleDateString('vi-VN')}`,
+      message: `✅ Mua thành công! Bạn có ${pkg.dailyCredits} lượt bốc bài/ngày. Hạn dùng đến ${new Date(newExpiresAt).toLocaleDateString('vi-VN')}`,
     };
-  }, [user, credits, creditsExpiresAt]);
+  }, [user, creditsExpiresAt]);
 
   // ── Consume 1 credit for a reading ──
   const consumeCredit = useCallback(async (): Promise<boolean> => {
@@ -282,6 +288,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (saved) {
         try {
           const demoUser: AppUser = JSON.parse(saved);
+          
+          // Kiểm tra và reset hàng ngày cho demo
+          const todayStr = new Date().toISOString().split('T')[0];
+          if (demoUser.daily_allowance && demoUser.daily_allowance > 0 && demoUser.last_reset_date !== todayStr) {
+            demoUser.credits = demoUser.daily_allowance;
+            demoUser.last_reset_date = todayStr;
+            localStorage.setItem('chipstarot_demo_user', JSON.stringify(demoUser));
+          }
+
           // eslint-disable-next-line react-hooks/set-state-in-effect
           syncFromProfile(demoUser);
         } catch {

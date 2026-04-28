@@ -19,15 +19,17 @@ import CardsPage from '@/pages/CardsPage';
 import GamePage from '@/pages/GamePage';
 import BlogPage from '@/pages/BlogPage';
 import ProductDetailPage from '@/pages/ProductDetailPage';
+import AboutPage from '@/pages/AboutPage';
+import NotFoundPage from '@/pages/NotFoundPage';
 import NFCScannerOverlay from '@/components/NFCScannerOverlay';
 
 type PageType =
   | 'home' | 'reading' | 'cards' | 'shop' | 'product-detail'
-  | 'game' | 'blog' | 'cart' | 'checkout' | 'admin' | 'profile' | 'auth';
+  | 'game' | 'blog' | 'cart' | 'checkout' | 'admin' | 'profile' | 'auth' | 'about' | 'not-found';
 
 const VALID_PAGES: PageType[] = [
   'home', 'reading', 'cards', 'shop', 'product-detail',
-  'game', 'blog', 'cart', 'checkout', 'admin', 'profile', 'auth',
+  'game', 'blog', 'cart', 'checkout', 'admin', 'profile', 'auth', 'about'
 ];
 
 export default function App() {
@@ -37,7 +39,8 @@ export default function App() {
   // ── Local UI state ──
   const [page, setPage] = useState<PageType>(() => {
     const path = window.location.pathname.substring(1);
-    return VALID_PAGES.includes(path as PageType) ? (path as PageType) : 'home';
+    if (!path) return 'home';
+    return VALID_PAGES.includes(path as PageType) ? (path as PageType) : 'not-found';
   });
   const [selectedProductId, setSelectedProductId] = useState<number | null>(null);
   const [showScanner, setShowScanner] = useState(false);
@@ -76,7 +79,11 @@ export default function App() {
         setSelectedProductId(parseInt(parts[1]));
         return;
       }
-      setPage(VALID_PAGES.includes(path as PageType) ? (path as PageType) : 'home');
+      if (!path) {
+        setPage('home');
+      } else {
+        setPage(VALID_PAGES.includes(path as PageType) ? (path as PageType) : 'not-found');
+      }
     };
 
     // Auto-open NFC scanner if ?tagId= is in URL
@@ -171,11 +178,13 @@ export default function App() {
       {page === 'checkout' && <CheckoutPage cart={cart} total={cartTotal} setPage={setPage} />}
       {page === 'game' && <GamePage />}
       {page === 'blog' && <BlogPage />}
+      {page === 'about' && <AboutPage />}
       {page === 'admin' && <AdminPage setPage={setPage} />}
       {page === 'profile' && (
         <ProfilePage user={user} setPage={setPage} onScanClick={() => setShowScanner(true)} />
       )}
       {page === 'auth' && <AuthPage setPage={setPage} />}
+      {page === 'not-found' && <NotFoundPage setPage={setPage} />}
 
       <Footer setPage={setPage} />
 
@@ -211,7 +220,7 @@ export default function App() {
               className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold py-4 rounded-2xl mb-3 hover:opacity-90 transition-all active:scale-95"
             >
               ⚡ Mua Gói Lượt Tarot — nạp ngay!
-              <p className="text-xs text-purple-200 font-normal mt-0.5">Từ 29.000đ / 5 lượt — cộng tức thì</p>
+              <p className="text-xs text-purple-200 font-normal mt-0.5">Từ 29.000đ / 3 lượt mỗi ngày — cộng tức thì</p>
             </button>
 
             {/* Divider */}

@@ -59,14 +59,19 @@ CREATE TABLE customer_profiles (
     account_id UUID PRIMARY KEY REFERENCES accounts(id) ON DELETE CASCADE,
     full_name VARCHAR(100),
     phone_number VARCHAR(20),
-    address TEXT,
+    province VARCHAR(100),
+    district VARCHAR(100),
+    ward VARCHAR(100),
+    street_address VARCHAR(255),
     date_of_birth DATE,
     gender VARCHAR(20),
     zodiac_sign VARCHAR(50),
     life_path_number INT,
     avatar_url TEXT,
-    credits INT DEFAULT 0,                              -- Lượt bốc bài tích lũy
-    credits_expires_at TIMESTAMP WITH TIME ZONE,        -- Thời hạn sử dụng lượt (NULL = không hết hạn / chỉ từ NFC)
+    credits INT DEFAULT 0,                              -- Lượt bốc bài có sẵn cho ngày hôm nay (reset hàng ngày hoặc từ NFC)
+    daily_allowance INT DEFAULT 0,                      -- Định mức lượt nhận được MỖI NGÀY từ Gói
+    last_reset_date DATE,                               -- Ngày reset lượt bốc bài gần nhất (YYYY-MM-DD)
+    credits_expires_at TIMESTAMP WITH TIME ZONE,        -- Thời hạn sử dụng gói (NULL = không có gói)
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -183,7 +188,7 @@ CREATE TABLE hero_banners (
 CREATE TABLE tarot_credit_packages (
     id VARCHAR(30) PRIMARY KEY,              -- VD: 'cp_starter', 'cp_popular', 'cp_premium'
     name VARCHAR(100) NOT NULL,              -- Tên gói hiển thị
-    credits INT NOT NULL,                   -- Số lượt bốc bài nhận được
+    credits_per_day INT NOT NULL,           -- Số lượt bốc bài MỖI NGÀY
     price DECIMAL(12,2) NOT NULL,           -- Giá bán
     old_price DECIMAL(12,2),               -- Giá gốc (để hiện % giảm giá)
     expiry_days INT NOT NULL DEFAULT 30,   -- *** THỜI HẠN SỬ DỤNG LỢT (ngày kể từ ngày mua) ***
@@ -199,8 +204,8 @@ CREATE TABLE credit_package_purchases (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     account_id UUID REFERENCES accounts(id) ON DELETE CASCADE,
     package_id VARCHAR(30) REFERENCES tarot_credit_packages(id),
-    credits_granted INT NOT NULL,           -- Số lượt đã cộng vào tài khoản
-    expires_at TIMESTAMP WITH TIME ZONE NOT NULL, -- *** Lượt này hết hạn lúc nào ***
+    credits_per_day_granted INT NOT NULL,           -- Số lượt MỖI NGÀY đã cấp vào tài khoản
+    expires_at TIMESTAMP WITH TIME ZONE NOT NULL, -- *** Gói này hết hạn lúc nào ***
     amount_paid DECIMAL(12,2) NOT NULL,
     payment_method VARCHAR(50),            -- 'momo', 'vnpay', 'demo'
     transaction_id VARCHAR(100),
@@ -214,11 +219,11 @@ CREATE INDEX idx_credit_pkg_purchases_expires ON credit_package_purchases(expire
 
 -- Seed dữ liệu ban đầu cho các gói lượt
 -- expiry_days: Gói Khởi Đầu = 30 ngày, Gói Phổ Biến = 90 ngày, Gói Cao Cấp = 365 ngày
-INSERT INTO tarot_credit_packages (id, name, credits, price, old_price, expiry_days, icon, description, display_order)
+INSERT INTO tarot_credit_packages (id, name, credits_per_day, price, old_price, expiry_days, icon, description, display_order)
 VALUES
-    ('cp_starter', 'Gói Khởi Đầu',   5,  29000,  39000,  30,  '🌙', 'Trải nghiệm 5 lần bốc bài — dùng trong 30 ngày.',              1),
-    ('cp_popular', 'Gói Phổ Biến',  15,  69000,  99000,  90,  '🔮', '15 lượt bốc bài — dùng trong 90 ngày, tiết kiệm 30%.',         2),
-    ('cp_premium', 'Gói Cao Cấp',   50, 179000, 290000,  365, '✨', '50 lượt bốc bài — dùng trong 365 ngày, tiết kiệm 38%.',        3);
+    ('cp_starter', 'Gói Khởi Đầu',   3,  29000,  39000,  30,  '🌙', '3 lượt bốc bài/ngày trong suốt 30 ngày, phù hợp người mới.',              1),
+    ('cp_popular', 'Gói Phổ Biến',  5,  69000,  99000,  90,  '🔮', '5 lượt bốc bài/ngày trong 90 ngày — tối đa hiệu quả tâm linh.',         2),
+    ('cp_premium', 'Gói Cao Cấp',   10, 179000, 290000,  365, '✨', '10 lượt bốc bài/ngày trong cả năm — dành cho tín đồ Tarot.',        3);
 
 
 -- Giỏ hàng (Carts)
@@ -245,9 +250,13 @@ CREATE TABLE orders (
     discount_amount DECIMAL(12,2) DEFAULT 0,      -- Số tiền được giảm
     shipping_fee DECIMAL(12,2) DEFAULT 0,         -- Phí vận chuyển
     total_amount DECIMAL(12,2) NOT NULL,          -- Tổng thanh toán cuối cùng
-    shipping_address TEXT NOT NULL,
+    shipping_province VARCHAR(100) NOT NULL,
+    shipping_district VARCHAR(100) NOT NULL,
+    shipping_ward VARCHAR(100) NOT NULL,
+    shipping_street VARCHAR(255) NOT NULL,
     recipient_name VARCHAR(100),                  -- Tên người nhận
     recipient_phone VARCHAR(20),                  -- SĐT người nhận
+    recipient_email VARCHAR(255),                 -- Email người nhận (Hỗ trợ Guest Checkout)
     notes TEXT,                                   -- Ghi chú đơn hàng
     status VARCHAR(20) DEFAULT 'pending',         -- 'pending'|'processing'|'shipped'|'delivered'|'cancelled'
     payment_status VARCHAR(20) DEFAULT 'unpaid',  -- 'unpaid'|'paid'|'refunded'

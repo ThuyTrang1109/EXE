@@ -1,15 +1,51 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { VIETNAM_ADDRESS_DATA } from '../data/addressData';
 
 export default function CheckoutPage({ cart, total, setPage }: any) {
   const [form, setForm] = useState({ name: '', phone: '', address: '', note: '', method: 'momo' });
   const [step, setStep] = useState<'form' | 'success'>('form');
   const [error, setError] = useState('');
 
+  // Address State
+  const [province, setProvince] = useState('');
+  const [district, setDistrict] = useState('');
+  const [ward, setWard] = useState('');
+  const [street, setStreet] = useState('');
+
+  useEffect(() => {
+    if (province === 'Khác') {
+      setForm(prev => ({ ...prev, address: street }));
+    } else {
+      const fullAddress = [street, ward, district, province].filter(Boolean).join(', ');
+      setForm(prev => ({ ...prev, address: fullAddress }));
+    }
+  }, [province, district, ward, street]);
+
   const handleOrder = () => {
-    if (!form.name || !form.phone || !form.address) {
-      setError('Vui lòng điền đầy đủ thông tin giao hàng (Họ tên, SĐT, Địa chỉ)!');
+    if (!form.name || !form.phone) {
+      setError('Vui lòng điền họ tên và số điện thoại!');
       return;
     }
+
+    // Validate số điện thoại Việt Nam cơ bản
+    const phoneRegex = /(84|0[3|5|7|8|9])+([0-9]{8})\b/;
+    if (!phoneRegex.test(form.phone.replace(/\s+/g, ''))) {
+      setError('Số điện thoại không hợp lệ (Vui lòng nhập đúng định dạng SĐT Việt Nam)!');
+      return;
+    }
+
+    if (province === 'Khác') {
+      if (!street.trim()) {
+        setError('Vui lòng nhập địa chỉ chi tiết!');
+        return;
+      }
+    } else {
+      if (!province || !district || !ward || !street.trim()) {
+        setError('Vui lòng chọn đầy đủ Tỉnh/Thành, Quận/Huyện, Phường/Xã và nhập số nhà!');
+        return;
+      }
+    }
+
     setError('');
     setStep('success');
   };
@@ -30,6 +66,9 @@ export default function CheckoutPage({ cart, total, setPage }: any) {
       </div>
     </div>
   );
+
+  const selectedProvData = VIETNAM_ADDRESS_DATA.find(p => p.name === province);
+  const selectedDistData = selectedProvData?.districts.find(d => d.name === district);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-purple-50 to-yellow-100 py-12 px-4">
@@ -54,23 +93,93 @@ export default function CheckoutPage({ cart, total, setPage }: any) {
         <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
           <h2 className="text-lg font-bold text-gray-700 mb-4">📋 Thông tin giao hàng</h2>
           <div className="space-y-4">
-            {[
-              { key: 'name', label: 'Họ và Tên *', placeholder: 'Nguyễn Lan Anh', type: 'text' },
-              { key: 'phone', label: 'Số điện thoại *', placeholder: '0867 774 023', type: 'tel' },
-              { key: 'address', label: 'Địa chỉ giao hàng *', placeholder: 'Số nhà, đường, phường, quận, thành phố', type: 'text' },
-              { key: 'note', label: 'Ghi chú (tuỳ chọn)', placeholder: 'Giao giờ hành chính, gọi trước khi giao...', type: 'text' },
-            ].map(f => (
-              <div key={f.key}>
-                <label className="block text-sm font-medium text-gray-600 mb-1">{f.label}</label>
-                <input
-                  type={f.type}
-                  value={form[f.key as keyof typeof form]}
-                  onChange={e => setForm({ ...form, [f.key]: e.target.value })}
-                  placeholder={f.placeholder}
+            <div>
+              <label className="block text-sm font-medium text-gray-600 mb-1">Họ và Tên *</label>
+              <input
+                type="text"
+                value={form.name}
+                onChange={e => setForm({ ...form, name: e.target.value })}
+                placeholder="Nguyễn Lan Anh"
+                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-yellow-400 focus:outline-none focus:ring-2 focus:ring-yellow-100 text-gray-800"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-600 mb-1">Số điện thoại *</label>
+              <input
+                type="tel"
+                value={form.phone}
+                onChange={e => setForm({ ...form, phone: e.target.value })}
+                placeholder="0867 774 023"
+                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-yellow-400 focus:outline-none focus:ring-2 focus:ring-yellow-100 text-gray-800"
+              />
+            </div>
+            
+            {/* Address Section */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div>
+                <label className="block text-sm font-medium text-gray-600 mb-1">Tỉnh/Thành phố *</label>
+                <select
+                  value={province}
+                  onChange={e => { setProvince(e.target.value); setDistrict(''); setWard(''); }}
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-yellow-400 focus:outline-none focus:ring-2 focus:ring-yellow-100 text-gray-800"
-                />
+                >
+                  <option value="">-- Chọn --</option>
+                  {VIETNAM_ADDRESS_DATA.map(p => <option key={p.name} value={p.name}>{p.name}</option>)}
+                  <option value="Khác">Khác</option>
+                </select>
               </div>
-            ))}
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-600 mb-1">Quận/Huyện *</label>
+                <select
+                  value={district}
+                  onChange={e => { setDistrict(e.target.value); setWard(''); }}
+                  disabled={!province || province === 'Khác'}
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-yellow-400 focus:outline-none focus:ring-2 focus:ring-yellow-100 text-gray-800 disabled:bg-gray-50 disabled:text-gray-400"
+                >
+                  <option value="">-- Chọn --</option>
+                  {selectedProvData?.districts.map(d => <option key={d.name} value={d.name}>{d.name}</option>)}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-600 mb-1">Phường/Xã *</label>
+                <select
+                  value={ward}
+                  onChange={e => setWard(e.target.value)}
+                  disabled={!district}
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-yellow-400 focus:outline-none focus:ring-2 focus:ring-yellow-100 text-gray-800 disabled:bg-gray-50 disabled:text-gray-400"
+                >
+                  <option value="">-- Chọn --</option>
+                  {selectedDistData?.wards.map(w => <option key={w} value={w}>{w}</option>)}
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-600 mb-1">
+                {province === 'Khác' ? 'Địa chỉ chi tiết *' : 'Số nhà, tên đường *'}
+              </label>
+              <input
+                type="text"
+                value={street}
+                onChange={e => setStreet(e.target.value)}
+                placeholder={province === 'Khác' ? 'Số nhà, đường, phường, quận, tỉnh...' : 'Số nhà, tên đường...'}
+                disabled={!province}
+                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-yellow-400 focus:outline-none focus:ring-2 focus:ring-yellow-100 text-gray-800 disabled:bg-gray-50 disabled:text-gray-400"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-600 mb-1">Ghi chú (tuỳ chọn)</label>
+              <input
+                type="text"
+                value={form.note}
+                onChange={e => setForm({ ...form, note: e.target.value })}
+                placeholder="Giao giờ hành chính, gọi trước khi giao..."
+                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-yellow-400 focus:outline-none focus:ring-2 focus:ring-yellow-100 text-gray-800"
+              />
+            </div>
           </div>
         </div>
 

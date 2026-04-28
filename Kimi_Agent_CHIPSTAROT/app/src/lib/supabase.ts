@@ -48,7 +48,9 @@ export interface AppUser {
   email: string;
   name: string;
   credits: number;
-  credits_expires_at: string | null;  // Thời hạn hiệu lực của lượt bốc bài
+  credits_expires_at: string | null;  // Thời hạn hiệu lực của gói
+  daily_allowance: number;            // Định mức lượt mỗi ngày
+  last_reset_date: string | null;     // Ngày reset gần nhất (YYYY-MM-DD)
   role_id: number;
   avatar_url: string | null;
 }
@@ -103,7 +105,7 @@ export async function fetchUserProfile(userId: string): Promise<AppUser | null> 
 
   const { data, error } = await supabase
     .from('customer_profiles')
-    .select('account_id, full_name, credits, credits_expires_at, avatar_url')
+    .select('account_id, full_name, credits, credits_expires_at, avatar_url, daily_allowance, last_reset_date')
     .eq('account_id', userId)
     .single();
 
@@ -112,14 +114,18 @@ export async function fetchUserProfile(userId: string): Promise<AppUser | null> 
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return null;
 
-  // Nếu credits_expires_at đã qua → tự động reset credits về 0 trên server
   const expiresAt: string | null = data.credits_expires_at ?? null;
   let credits = data.credits ?? 0;
+  const dailyAllowance = data.daily_allowance ?? 0;
+  let lastResetDate = data.last_reset_date ?? null;
+  const todayStr = new Date().toISOString().split('T')[0];
+
   if (expiresAt && new Date() >= new Date(expiresAt) && credits > 0) {
-    // Lượt đã hết hạn → reset về 0 (ghi log)
+    // Gói đã hết hạn → reset về 0 (ghi log)
     credits = 0;
     await supabase.from('customer_profiles').update({
       credits: 0,
+      daily_allowance: 0,
       credits_expires_at: null,
       updated_at: new Date().toISOString(),
     }).eq('account_id', userId);
@@ -128,8 +134,17 @@ export async function fetchUserProfile(userId: string): Promise<AppUser | null> 
       amount: -(data.credits),
       balance_after: 0,
       type: 'expiry_reset',
-      note: `Lượt bốc bài hết hạn vào ${new Date(expiresAt).toLocaleDateString('vi-VN')}`,
+      note: `Gói hết hạn vào ${new Date(expiresAt).toLocaleDateString('vi-VN')}`,
     });
+  } else if (dailyAllowance > 0 && lastResetDate !== todayStr && expiresAt && new Date() < new Date(expiresAt)) {
+    // Sang ngày mới và gói còn hạn -> Reset lượt về định mức ngày
+    credits = dailyAllowance; // Có thể cộng dồn hoặc reset đúng bằng định mức (tùy nghiệp vụ, ở đây là reset)
+    lastResetDate = todayStr;
+    await supabase.from('customer_profiles').update({
+      credits: credits,
+      last_reset_date: lastResetDate,
+      updated_at: new Date().toISOString(),
+    }).eq('account_id', userId);
   }
 
   return {
@@ -138,6 +153,8 @@ export async function fetchUserProfile(userId: string): Promise<AppUser | null> 
     name: data.full_name || user.email?.split('@')[0] || 'Người dùng',
     credits,
     credits_expires_at: credits > 0 ? expiresAt : null,
+    daily_allowance: dailyAllowance,
+    last_reset_date: lastResetDate,
     role_id: 2,
     avatar_url: data.avatar_url,
   };
@@ -193,11 +210,14 @@ export async function purchaseCreditPackage(
   newExpires.setDate(newExpires.getDate() + expiryDays);
   const newExpiresAt = newExpires.toISOString();
 
-  // 3. Cập nhật customer_profiles
+  // 3. Cập nhật customer_profiles (thêm daily_allowance)
+  const todayStr = new Date().toISOString().split('T')[0];
   const { error: updateErr } = await supabase
     .from('customer_profiles')
     .update({
       credits: newBalance,
+      daily_allowance: credits, // Tham số credits lúc này truyền vào từ pkg.dailyCredits
+      last_reset_date: todayStr,
       credits_expires_at: newExpiresAt,
       updated_at: now.toISOString(),
     })
@@ -312,6 +332,7 @@ export async function consumeUserCredit(userId: string, readingId?: string): Pro
     // Hết hạn → reset credits về 0, không cho tiêu
     await supabase.from('customer_profiles').update({
       credits: 0,
+      daily_allowance: 0,
       credits_expires_at: null,
       updated_at: new Date().toISOString(),
     }).eq('account_id', userId);
@@ -320,7 +341,7 @@ export async function consumeUserCredit(userId: string, readingId?: string): Pro
       amount: -(profile.credits),
       balance_after: 0,
       type: 'expiry_reset',
-      note: `Lượt hết hạn vào ${new Date(expiresAt).toLocaleDateString('vi-VN')}`,
+      note: `Gói hết hạn vào ${new Date(expiresAt).toLocaleDateString('vi-VN')}`,
     });
     return -1; // Trả về -1 để App.tsx biết và hiện Paywall
   }
