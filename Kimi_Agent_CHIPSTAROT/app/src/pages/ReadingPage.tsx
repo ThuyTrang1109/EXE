@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { TAROT_DB, TOPICS, SUB_QUESTIONS, SUGGESTED_QUESTIONS } from '../data/constants';
+import { generateTarotReading } from '../lib/gemini';
 
-export default function ReadingPage({ user, consumeCredit, setPage }: any) {
+export default function ReadingPage({ user, consumeCredit }: any) {
+  const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [name, setName] = useState('');
   const [topic, setTopic] = useState('');
-  const [, _setSubAnswer] = useState('');
+  const [subAnswer, _setSubAnswer] = useState('');
   const [question, setQuestion] = useState('');
   const [cardCount, setCardCount] = useState(0);
   const [shuffled, setShuffled] = useState<any[]>([]);
@@ -13,6 +16,43 @@ export default function ReadingPage({ user, consumeCredit, setPage }: any) {
   const [revealed, setRevealed] = useState(false);
   const [result, setResult] = useState<any[]>([]);
   const [creditUsed, setCreditUsed] = useState(false);
+  const [aiReading, setAiReading] = useState('');
+  const [loadingAI, setLoadingAI] = useState(false);
+  const [isShuffling, setIsShuffling] = useState(false);
+  const [nameError, setNameError] = useState('');
+  const [questionError, setQuestionError] = useState('');
+
+  const handleNameSubmit = () => {
+    const trimmed = name.trim();
+    if (trimmed.length < 2) {
+      setNameError('Tên phải có ít nhất 2 ký tự.');
+      return;
+    }
+    if (!/^[\p{L}\s]+$/u.test(trimmed)) {
+      setNameError('Tên chỉ được chứa chữ cái và khoảng trắng.');
+      return;
+    }
+    if (trimmed.length > 50) {
+      setNameError('Tên quá dài (tối đa 50 ký tự).');
+      return;
+    }
+    setNameError('');
+    setStep(2);
+  };
+
+  const handleQuestionSubmit = () => {
+    const trimmed = question.trim();
+    if (trimmed.length < 10) {
+      setQuestionError('Câu hỏi cần rõ ràng và chi tiết hơn (ít nhất 10 ký tự).');
+      return;
+    }
+    if (trimmed.length > 300) {
+      setQuestionError('Câu hỏi quá dài (tối đa 300 ký tự).');
+      return;
+    }
+    setQuestionError('');
+    setStep(5);
+  };
 
   useEffect(() => {
     if (step === 6 && revealed && user && !creditUsed) {
@@ -36,9 +76,31 @@ export default function ReadingPage({ user, consumeCredit, setPage }: any) {
       const newSel = [...selected, idx];
       setSelected(newSel);
       if (newSel.length === cardCount) {
-        setTimeout(() => {
+        setTimeout(async () => {
           setRevealed(true);
-          setResult(newSel.map(i => shuffled[i]));
+          const pickedCards = newSel.map(i => shuffled[i]);
+          setResult(pickedCards);
+          
+          // Gọi AI giải bài
+          setLoadingAI(true);
+          try {
+            const aiResult = await generateTarotReading(
+              name,
+              TOPICS.find(t => t.id === topic)?.name || topic,
+              subAnswer,
+              question,
+              pickedCards
+            );
+            setAiReading(aiResult);
+            // Add food for tamagotchi game
+            const currentFood = parseInt(localStorage.getItem('chipstarot_chicken_food') || '0');
+            localStorage.setItem('chipstarot_chicken_food', (currentFood + 1).toString());
+          } catch (err) {
+            console.error(err);
+            setAiReading('Có lỗi xảy ra khi tải lời giải từ vũ trụ.');
+          } finally {
+            setLoadingAI(false);
+          }
         }, 500);
       }
     }
@@ -47,7 +109,7 @@ export default function ReadingPage({ user, consumeCredit, setPage }: any) {
   const reset = () => {
     setStep(1); setName(''); setTopic(''); _setSubAnswer(''); setQuestion('');
     setCardCount(0); setShuffled([]); setSelected([]); setRevealed(false); setResult([]);
-    setCreditUsed(false);
+    setCreditUsed(false); setAiReading(''); setLoadingAI(false); setIsShuffling(false);
   };
 
   const currentTopic = TOPICS.find(t => t.id === topic);
@@ -77,16 +139,16 @@ export default function ReadingPage({ user, consumeCredit, setPage }: any) {
             <h2 className="text-3xl font-bold text-white mb-4">Bạn tên là gì?</h2>
             <p className="text-purple-200 mb-8">Để vũ trụ có thể gửi thông điệp riêng cho bạn</p>
             <input
-              className="w-full max-w-md mx-auto block px-6 py-4 rounded-2xl bg-white/10 border border-white/30 text-white placeholder-white/40 text-lg text-center focus:outline-none focus:border-yellow-400"
+              className={`w-full max-w-md mx-auto block px-6 py-4 rounded-2xl bg-white/10 border ${nameError ? 'border-red-400 focus:border-red-400' : 'border-white/30 focus:border-yellow-400'} text-white placeholder-white/40 text-lg text-center focus:outline-none transition-colors`}
               placeholder="Nhập tên của bạn..."
               value={name}
-              onChange={e => setName(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && name.trim() && setStep(2)}
+              onChange={e => { setName(e.target.value); setNameError(''); }}
+              onKeyDown={e => e.key === 'Enter' && handleNameSubmit()}
             />
+            {nameError && <p className="text-red-400 text-sm mt-2 font-medium">{nameError}</p>}
             <button
-              onClick={() => setStep(2)}
-              disabled={!name.trim()}
-              className="btn-3d-yellow mt-6 disabled:opacity-40 disabled:cursor-not-allowed"
+              onClick={handleNameSubmit}
+              className="btn-3d-yellow mt-6"
             >
               Tiếp tục →
             </button>
@@ -148,15 +210,20 @@ export default function ReadingPage({ user, consumeCredit, setPage }: any) {
               ))}
             </div>
             <textarea
-              className="w-full max-w-2xl mx-auto block px-5 py-4 rounded-2xl bg-white/10 border border-white/30 text-white placeholder-white/40 focus:outline-none focus:border-yellow-400 resize-none"
+              className={`w-full max-w-2xl mx-auto block px-5 py-4 rounded-2xl bg-white/10 border ${questionError ? 'border-red-400 focus:border-red-400' : 'border-white/30 focus:border-yellow-400'} text-white placeholder-white/40 focus:outline-none resize-none transition-colors`}
               placeholder="Hoặc nhập câu hỏi của bạn..."
               rows={3}
               value={question}
-              onChange={e => setQuestion(e.target.value)}
+              onChange={e => { setQuestion(e.target.value); setQuestionError(''); }}
             />
+            {questionError && <p className="text-red-400 text-sm mt-2 font-medium">{questionError}</p>}
             <div className="flex gap-4 justify-center mt-6">
-              <button onClick={() => setStep(5)} className="btn-3d-yellow">Tiếp tục →</button>
-              <button onClick={() => { setQuestion(''); setStep(5); }} className="btn-3d-white">Bỏ qua</button>
+              <button 
+                onClick={handleQuestionSubmit}
+                className="btn-3d-yellow"
+              >
+                Tiếp tục →
+              </button>
             </div>
           </div>
         )}
@@ -174,8 +241,12 @@ export default function ReadingPage({ user, consumeCredit, setPage }: any) {
                   key={opt.count}
                   onClick={() => {
                     setCardCount(opt.count);
-                    shuffle();
+                    setIsShuffling(true);
                     setStep(6);
+                    setTimeout(() => {
+                      shuffle();
+                      setIsShuffling(false);
+                    }, 3500);
                   }}
                   className="spread-card-3d"
                 >
@@ -188,8 +259,27 @@ export default function ReadingPage({ user, consumeCredit, setPage }: any) {
           </div>
         )}
 
+        {/* Step 6: Shuffling Animation */}
+        {step === 6 && isShuffling && (
+          <div className="flex flex-col items-center justify-center py-32 overflow-visible relative">
+            <div className="absolute inset-0 bg-yellow-400/20 blur-[100px] rounded-full animate-pulse pointer-events-none" />
+            <div className="relative w-32 h-48 perspective-1000 z-10">
+               {[...Array(15)].map((_, i) => (
+                 <div 
+                   key={i}
+                   className="absolute top-0 left-0 w-full h-full rounded-xl bg-[url('/card-back.png')] bg-cover bg-center magic-shuffle-card border border-white/20"
+                   style={{ '--i': i } as any}
+                 />
+               ))}
+            </div>
+            <p className="mt-24 text-yellow-400 font-bold text-xl animate-pulse tracking-widest drop-shadow-[0_0_8px_rgba(251,191,36,0.8)] z-10">
+              Vũ trụ đang kết nối...
+            </p>
+          </div>
+        )}
+
         {/* Step 6: Draw + Result */}
-        {step === 6 && !revealed && (
+        {step === 6 && !isShuffling && !revealed && (
           <div className="text-center">
             <h2 className="text-2xl font-bold text-white mb-2">
               Hãy chọn {cardCount} lá bài cho {name}
@@ -203,11 +293,12 @@ export default function ReadingPage({ user, consumeCredit, setPage }: any) {
                   key={idx}
                   onClick={() => handleSelectCard(idx)}
                   disabled={selected.includes(idx) || selected.length >= cardCount}
-                  className={`aspect-[2/3] rounded-lg transition-all ${
+                  className={`aspect-[2/3] rounded-lg transition-all card-entrance bg-[url('/card-back.png')] bg-cover bg-center border border-white/10 ${
                     selected.includes(idx)
-                      ? 'bg-yellow-400 scale-110 shadow-lg shadow-yellow-400/50'
-                      : 'bg-gradient-to-br from-purple-600 to-purple-800 hover:from-purple-500 hover:to-purple-700 hover:-translate-y-1'
+                      ? 'ring-2 ring-yellow-400 scale-110 shadow-lg shadow-yellow-400/50'
+                      : 'hover:ring-2 hover:ring-purple-400 hover:-translate-y-2 hover:shadow-[0_10px_20px_rgba(168,85,247,0.4)]'
                   }`}
+                  style={{ animationDelay: `${(idx % 13) * 30 + Math.floor(idx / 13) * 15}ms` }}
                 />
               ))}
             </div>
@@ -221,7 +312,7 @@ export default function ReadingPage({ user, consumeCredit, setPage }: any) {
               <div className="text-center">
                 <h2 className="text-2xl font-bold text-white mb-4">🔮 Lá bài của {name} đã sẵn sàng!</h2>
                 <p className="text-purple-200 mb-6">Đăng nhập để xem ý nghĩa đầy đủ từ vũ trụ</p>
-                <button onClick={() => setPage('auth')} className="btn-3d-yellow">Đăng nhập để xem →</button>
+                <button onClick={() => navigate('/auth')} className="btn-3d-yellow">Đăng nhập để xem →</button>
               </div>
             ) : creditUsed ? (
               <div>
@@ -242,9 +333,29 @@ export default function ReadingPage({ user, consumeCredit, setPage }: any) {
                     </div>
                   ))}
                 </div>
+
+                {/* AI Reading Section */}
+                <div className="mt-10 bg-white/10 backdrop-blur-md rounded-2xl p-6 md:p-8 border border-white/20 shadow-xl">
+                  <h3 className="text-xl font-bold text-yellow-400 mb-4 flex items-center gap-2">
+                    <span>✨</span> Thông điệp sâu sắc từ Vũ trụ (AI)
+                  </h3>
+                  {loadingAI ? (
+                    <div className="flex flex-col items-center py-8">
+                      <div className="w-10 h-10 border-4 border-yellow-400 border-t-transparent rounded-full animate-spin mb-4"></div>
+                      <p className="text-purple-200 text-sm animate-pulse">Vũ trụ đang kết nối và luận giải thông điệp cho bạn...</p>
+                    </div>
+                  ) : aiReading ? (
+                    <div className="text-white/90 leading-relaxed whitespace-pre-line text-base font-medium">
+                      {aiReading}
+                    </div>
+                  ) : (
+                    <p className="text-white/60 text-sm italic">Nhập API Key trong file .env để nhận thông điệp từ AI.</p>
+                  )}
+                </div>
+
                 <div className="flex gap-4 justify-center mt-10">
                   <button onClick={reset} className="btn-3d-yellow">🔄 Trải bài mới</button>
-                  <button onClick={() => setPage('shop')} className="btn-3d-white">🛍️ Khám phá shop</button>
+                  <button onClick={() => navigate('/shop')} className="btn-3d-white">🛍️ Khám phá shop</button>
                 </div>
               </div>
             ) : (

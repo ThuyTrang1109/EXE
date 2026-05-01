@@ -1,15 +1,13 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';
 import { isSupabaseConfigured } from '@/lib/supabase';
 
 type AuthMode = 'login' | 'register' | 'forgot' | 'verify';
 
-interface AuthPageProps {
-  setPage: (p: any) => void;
-}
-
-export default function AuthPage({ setPage }: AuthPageProps) {
+export default function AuthPage() {
   const { login, register } = useAuth();
+  const navigate = useNavigate();
   const [mode, setMode] = useState<AuthMode>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -50,7 +48,7 @@ export default function AuthPage({ setPage }: AuthPageProps) {
         if (err) {
           setError(err);
         } else {
-          setPage('home');
+          navigate('/');
         }
 
       } else if (mode === 'register') {
@@ -90,7 +88,7 @@ export default function AuthPage({ setPage }: AuthPageProps) {
             setError('Mã xác thực không hợp lệ! (Demo: nhập 123456)');
           } else {
             const err = await login(email, password || 'demo_pass');
-            if (!err) setPage('home');
+            if (!err) navigate('/');
           }
         } else {
           // Real OTP via Supabase
@@ -103,7 +101,7 @@ export default function AuthPage({ setPage }: AuthPageProps) {
           if (verifyErr) {
             setError('Mã xác thực không hợp lệ hoặc đã hết hạn!');
           } else {
-            setPage('home');
+            navigate('/');
           }
         }
       }

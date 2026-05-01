@@ -1,15 +1,17 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { PRODUCTS, CREDIT_PACKAGES } from '../data/constants';
 import { useAuth } from '@/lib/AuthContext';
 
-export default function ShopPage({ addToCart, viewProduct, setPage }: any) {
+export default function ShopPage({ addToCart, viewProduct }: any) {
+  const navigate = useNavigate();
   const { user, buyPackage, creditsExpiresAt, expiryLabel } = useAuth();
   const [activeTab, setActiveTab] = useState<'products' | 'credits'>('products');
   const [buyingPkg, setBuyingPkg] = useState<string | null>(null);
   const [resultMsg, setResultMsg] = useState<{ id: string; msg: string; ok: boolean } | null>(null);
 
   const handleBuyCredits = async (pkg: typeof CREDIT_PACKAGES[0]) => {
-    if (!user) { setPage('auth'); return; }
+    if (!user) { navigate('/auth'); return; }
     setBuyingPkg(pkg.id);
     const { success, message } = await buyPackage(pkg.id);
     setBuyingPkg(null);
@@ -163,7 +165,7 @@ export default function ShopPage({ addToCart, viewProduct, setPage }: any) {
 
                       {!user && (
                         <p className="text-center text-xs text-gray-400 mt-2">
-                          Cần <button onClick={() => setPage('auth')} className="text-purple-600 underline font-medium">đăng nhập</button> để mua gói
+                          Cần <button onClick={() => navigate('/auth')} className="text-purple-600 underline font-medium">đăng nhập</button> để mua gói
                         </p>
                       )}
                     </div>

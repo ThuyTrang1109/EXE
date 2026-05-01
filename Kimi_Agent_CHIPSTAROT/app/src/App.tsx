@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import './App.css';
 import { useAuth } from '@/lib/AuthContext';
 
@@ -23,30 +24,17 @@ import AboutPage from '@/pages/AboutPage';
 import NotFoundPage from '@/pages/NotFoundPage';
 import NFCScannerOverlay from '@/components/NFCScannerOverlay';
 
-type PageType =
-  | 'home' | 'reading' | 'cards' | 'shop' | 'product-detail'
-  | 'game' | 'blog' | 'cart' | 'checkout' | 'admin' | 'profile' | 'auth' | 'about' | 'not-found';
-
-const VALID_PAGES: PageType[] = [
-  'home', 'reading', 'cards', 'shop', 'product-detail',
-  'game', 'blog', 'cart', 'checkout', 'admin', 'profile', 'auth', 'about'
-];
-
 export default function App() {
   // ── Auth (từ AuthContext — persistent qua reload) ──
   const { user, loading, credits, creditsExpired, expiryLabel, addCredits, consumeCredit, logout } = useAuth();
 
-  // ── Local UI state ──
-  const [page, setPage] = useState<PageType>(() => {
-    const path = window.location.pathname.substring(1);
-    if (!path) return 'home';
-    return VALID_PAGES.includes(path as PageType) ? (path as PageType) : 'not-found';
-  });
-  const [selectedProductId, setSelectedProductId] = useState<number | null>(null);
+  // ── Navigation ──
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const [showScanner, setShowScanner] = useState(false);
   const [showPaywall, setShowPaywall] = useState(false);
   const [cart, setCart] = useState<any[]>(() => {
-    // Persist cart in localStorage
     try {
       const saved = localStorage.getItem('chipstarot_cart');
       return saved ? JSON.parse(saved) : [];
@@ -60,49 +48,21 @@ export default function App() {
     localStorage.setItem('chipstarot_cart', JSON.stringify(cart));
   }, [cart]);
 
-  // ── URL sync ──
+  // ── Handle NFC tagId from URL ──
   useEffect(() => {
-    let path = page === 'home' ? '/' : `/${page}`;
-    if (page === 'product-detail' && selectedProductId) {
-      path = `/product/${selectedProductId}`;
-    }
-    window.history.pushState({}, '', path);
-  }, [page, selectedProductId]);
-
-  // ── Back button + NFC tagId param ──
-  useEffect(() => {
-    const handlePopState = () => {
-      const path = window.location.pathname.substring(1);
-      const parts = path.split('/');
-      if (parts[0] === 'product' && parts[1]) {
-        setPage('product-detail');
-        setSelectedProductId(parseInt(parts[1]));
-        return;
-      }
-      if (!path) {
-        setPage('home');
-      } else {
-        setPage(VALID_PAGES.includes(path as PageType) ? (path as PageType) : 'not-found');
-      }
-    };
-
-    // Auto-open NFC scanner if ?tagId= is in URL
-    const params = new URLSearchParams(window.location.search);
+    const params = new URLSearchParams(location.search);
     const tagId = params.get('tagId');
     if (tagId) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setShowScanner(true);
-      window.history.replaceState({}, '', window.location.pathname);
+      // Clear the query param without refreshing
+      navigate(location.pathname, { replace: true });
     }
+  }, [location, navigate]);
 
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
-  }, []);
-
-  // ── Navigation helpers ──
+  // ── Navigation helper ──
   const viewProduct = (id: number) => {
-    setSelectedProductId(id);
-    setPage('product-detail');
+    navigate(`/product/${id}`);
     window.scrollTo(0, 0);
   };
 
@@ -155,8 +115,6 @@ export default function App() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-purple-50 to-yellow-100">
       <Header
-        page={page}
-        setPage={setPage}
         user={user}
         credits={credits}
         creditsExpired={creditsExpired}
@@ -165,28 +123,25 @@ export default function App() {
         cartCount={cartCount}
       />
 
-      {page === 'home' && <HomePage setPage={setPage} user={user} />}
-      {page === 'reading' && <ReadingPage user={user} consumeCredit={handleConsumeCredit} setPage={setPage} />}
-      {page === 'cards' && <CardsPage />}
-      {page === 'shop' && <ShopPage addToCart={addToCart} viewProduct={viewProduct} setPage={setPage} />}
-      {page === 'product-detail' && selectedProductId && (
-        <ProductDetailPage productId={selectedProductId} setPage={setPage} addToCart={addToCart} />
-      )}
-      {page === 'cart' && (
-        <CartPage cart={cart} updateQty={updateQty} removeFromCart={removeFromCart} total={cartTotal} setPage={setPage} />
-      )}
-      {page === 'checkout' && <CheckoutPage cart={cart} total={cartTotal} setPage={setPage} />}
-      {page === 'game' && <GamePage />}
-      {page === 'blog' && <BlogPage />}
-      {page === 'about' && <AboutPage />}
-      {page === 'admin' && <AdminPage setPage={setPage} />}
-      {page === 'profile' && (
-        <ProfilePage user={user} setPage={setPage} onScanClick={() => setShowScanner(true)} />
-      )}
-      {page === 'auth' && <AuthPage setPage={setPage} />}
-      {page === 'not-found' && <NotFoundPage setPage={setPage} />}
+      <Routes>
+        <Route path="/" element={<HomePage setPage={(p: any) => navigate(p === 'home' ? '/' : `/${p}`)} user={user} />} />
+        <Route path="/home" element={<HomePage setPage={(p: any) => navigate(p === 'home' ? '/' : `/${p}`)} user={user} />} />
+        <Route path="/reading" element={<ReadingPage user={user} consumeCredit={handleConsumeCredit} />} />
+        <Route path="/cards" element={<CardsPage />} />
+        <Route path="/shop" element={<ShopPage addToCart={addToCart} viewProduct={viewProduct} />} />
+        <Route path="/product/:productId" element={<ProductDetailPage addToCart={addToCart} />} />
+        <Route path="/cart" element={<CartPage cart={cart} updateQty={updateQty} removeFromCart={removeFromCart} total={cartTotal} />} />
+        <Route path="/checkout" element={<CheckoutPage cart={cart} total={cartTotal} />} />
+        <Route path="/game" element={<GamePage />} />
+        <Route path="/blog" element={<BlogPage />} />
+        <Route path="/about" element={<AboutPage />} />
+        <Route path="/admin" element={<AdminPage setPage={(p: any) => navigate(p === 'home' ? '/' : `/${p}`)} />} />
+        <Route path="/profile" element={<ProfilePage user={user} onScanClick={() => setShowScanner(true)} />} />
+        <Route path="/auth" element={<AuthPage />} />
+        <Route path="*" element={<NotFoundPage />} />
+      </Routes>
 
-      <Footer setPage={setPage} />
+      <Footer />
 
       {/* Paywall Modal */}
       {showPaywall && (
@@ -216,7 +171,7 @@ export default function App() {
 
             {/* Option 1: Mua gói lượt số */}
             <button
-              onClick={() => { setShowPaywall(false); setPage('shop'); }}
+              onClick={() => { setShowPaywall(false); navigate('/shop'); }}
               className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold py-4 rounded-2xl mb-3 hover:opacity-90 transition-all active:scale-95"
             >
               ⚡ Mua Gói Lượt Tarot — nạp ngay!
@@ -232,7 +187,7 @@ export default function App() {
 
             {/* Option 2: Mua móc khóa vật lý */}
             <button
-              onClick={() => { setShowPaywall(false); setPage('shop'); }}
+              onClick={() => { setShowPaywall(false); navigate('/shop'); }}
               className="w-full bg-gradient-to-r from-yellow-400 to-amber-400 text-white font-bold py-4 rounded-2xl mb-4 hover:opacity-90 transition-all active:scale-95"
             >
               📿 Mua Móc Khóa NFC

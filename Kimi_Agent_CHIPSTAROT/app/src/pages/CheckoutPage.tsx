@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { VIETNAM_ADDRESS_DATA } from '../data/addressData';
 
-export default function CheckoutPage({ cart, total, setPage }: any) {
+export default function CheckoutPage({ cart, total }: any) {
+  const navigate = useNavigate();
   const [form, setForm] = useState({ name: '', phone: '', address: '', note: '', method: 'momo' });
   const [step, setStep] = useState<'form' | 'success'>('form');
   const [error, setError] = useState('');
@@ -14,6 +16,7 @@ export default function CheckoutPage({ cart, total, setPage }: any) {
 
   useEffect(() => {
     if (province === 'Khác') {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setForm(prev => ({ ...prev, address: street }));
     } else {
       const fullAddress = [street, ward, district, province].filter(Boolean).join(', ');
@@ -62,7 +65,7 @@ export default function CheckoutPage({ cart, total, setPage }: any) {
           <p><span className="font-semibold">💳 Thanh toán:</span> {form.method === 'momo' ? 'MoMo' : form.method === 'vnpay' ? 'VNPay' : 'Tiền mặt (COD)'}</p>
           <p><span className="font-semibold">💰 Tổng tiền:</span> <span className="text-red-500 font-bold">{total.toLocaleString()}đ</span></p>
         </div>
-        <button onClick={() => setPage('home')} className="btn-3d-yellow w-full">🏠 Về Trang Chủ</button>
+        <button onClick={() => navigate('/')} className="btn-3d-yellow w-full">🏠 Về Trang Chủ</button>
       </div>
     </div>
   );
@@ -73,7 +76,7 @@ export default function CheckoutPage({ cart, total, setPage }: any) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-purple-50 to-yellow-100 py-12 px-4">
       <div className="max-w-2xl mx-auto">
-        <button onClick={() => setPage('cart')} className="text-gray-500 hover:text-yellow-600 flex items-center gap-2 mb-6 text-sm">← Quay lại giỏ hàng</button>
+        <button onClick={() => navigate('/cart')} className="text-gray-500 hover:text-yellow-600 flex items-center gap-2 mb-6 text-sm">← Quay lại giỏ hàng</button>
         <h1 className="text-3xl font-bold text-gray-800 mb-8">🔐 Thanh Toán</h1>
 
         <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">

@@ -1,4 +1,7 @@
-export default function NotFoundPage({ setPage }: { setPage: (p: any) => void }) {
+import { useNavigate } from 'react-router-dom';
+
+export default function NotFoundPage() {
+  const navigate = useNavigate();
   return (
     <div className="min-h-[85vh] bg-gradient-to-br from-purple-900 via-purple-800 to-yellow-900 flex items-center justify-center p-4 text-center">
       <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-10 max-w-lg w-full shadow-2xl border border-white/20 text-white">
@@ -8,7 +11,7 @@ export default function NotFoundPage({ setPage }: { setPage: (p: any) => void })
         <p className="text-white/70 mb-8">
           Có vẻ như vũ trụ đã chuyển hướng bạn đến một trang không tồn tại, hoặc lá bài này đã bị ẩn đi.
         </p>
-        <button onClick={() => setPage('home')} className="btn-3d-yellow px-8 py-3 w-full font-bold">
+        <button onClick={() => navigate('/')} className="btn-3d-yellow px-8 py-3 w-full font-bold">
           🏠 Quay lại thực tại (Trang chủ)
         </button>
       </div>

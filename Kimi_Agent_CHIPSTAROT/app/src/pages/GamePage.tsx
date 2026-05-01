@@ -1,184 +1,226 @@
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+
+const LEVELS = [
+  { maxExp: 20, name: 'Quả Trứng Huyền Bí', emoji: '🥚', desc: 'Đang ấp ủ năng lượng từ các vì sao...', size: 'text-8xl' },
+  { maxExp: 50, name: 'Gà Con Tập Sự', emoji: '🐣', desc: 'Mới nở, cực kỳ ham ăn và cần sự chăm sóc.', size: 'text-8xl' },
+  { maxExp: 100, name: 'Gà Tarot Cập Cấp', emoji: '🐓', desc: 'Đã trưởng thành và bắt đầu cảm nhận được năng lượng Tarot.', size: 'text-9xl' },
+  { maxExp: Infinity, name: 'Gà Thần Vũ Trụ', emoji: '✨🐔✨', desc: 'Đã tiến hóa hoàn toàn! Sẵn sàng ban phát phước lành.', size: 'text-9xl drop-shadow-[0_0_30px_rgba(251,191,36,0.8)]' },
+];
 
 export default function GamePage() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [score, setScore] = useState(0);
-  const [highScore] = useState(() => parseInt(localStorage.getItem('chipstarot_highscore') || '0'));
-  const [gameState, setGameState] = useState<'idle' | 'playing' | 'gameover'>('idle');
-  const gameRef = useRef<any>({});
+  const navigate = useNavigate();
+  const [exp, setExp] = useState(() => parseInt(localStorage.getItem('chipstarot_chicken_exp') || '0'));
+  const [food, setFood] = useState(() => parseInt(localStorage.getItem('chipstarot_chicken_food') || '0'));
+  const [isFeeding, setIsFeeding] = useState(false);
+  const [showRewardModal, setShowRewardModal] = useState(false);
 
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+  const saveState = (newExp: number, newFood: number) => {
+    localStorage.setItem('chipstarot_chicken_exp', newExp.toString());
+    localStorage.setItem('chipstarot_chicken_food', newFood.toString());
+    setExp(newExp);
+    setFood(newFood);
+  };
 
-    const g = gameRef.current;
-    g.running = false;
+  const getLevelInfo = (currentExp: number) => {
+    for (let i = 0; i < LEVELS.length; i++) {
+      if (currentExp < LEVELS[i].maxExp) return { level: i, ...LEVELS[i] };
+    }
+    return { level: 3, ...LEVELS[3] };
+  };
 
-    const GROUND = canvas.height - 60;
-    const resetGame = () => {
-      g.chicken = { x: 80, y: GROUND, vy: 0, jumping: false };
-      g.obstacles = [];
-      g.frameCount = 0;
-      g.score = 0;
-      g.speed = 5;
-    };
+  const currentInfo = getLevelInfo(exp);
+  const prevMaxExp = currentInfo.level === 0 ? 0 : LEVELS[currentInfo.level - 1].maxExp;
+  const targetExp = currentInfo.maxExp === Infinity ? exp : currentInfo.maxExp;
+  const progressPercent = currentInfo.level === 3 ? 100 : ((exp - prevMaxExp) / (targetExp - prevMaxExp)) * 100;
 
-    const jump = () => {
-      if (g.chicken && !g.chicken.jumping) {
-        g.chicken.vy = -14;
-        g.chicken.jumping = true;
-      }
-    };
+  const handleFeed = () => {
+    if (food <= 0) return;
 
-    const startGame = () => {
-      resetGame();
-      g.running = true;
-      setGameState('playing');
-      loop();
-    };
+    setIsFeeding(true);
+    setTimeout(() => setIsFeeding(false), 500);
 
-    const loop = () => {
-      if (!g.running) return;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      // Background
-      ctx.fillStyle = '#1a0533';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = '#2d1b69';
-      ctx.fillRect(0, GROUND + 30, canvas.width, canvas.height);
-
-      // Ground line
-      ctx.strokeStyle = '#fbbf24';
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.moveTo(0, GROUND + 30);
-      ctx.lineTo(canvas.width, GROUND + 30);
-      ctx.stroke();
-
-      // Chicken (simple rect)
-      ctx.fillStyle = '#fbbf24';
-      ctx.fillRect(g.chicken.x, g.chicken.y, 32, 40);
-      ctx.fillStyle = '#f59e0b';
-      ctx.fillRect(g.chicken.x + 4, g.chicken.y + 4, 12, 12);
-
-      // Gravity
-      g.chicken.vy += 0.7;
-      g.chicken.y += g.chicken.vy;
-      if (g.chicken.y >= GROUND) {
-        g.chicken.y = GROUND;
-        g.chicken.vy = 0;
-        g.chicken.jumping = false;
-      }
-
-      // Obstacles
-      g.frameCount++;
-      if (g.frameCount % 90 === 0) {
-        g.obstacles.push({ x: canvas.width, y: GROUND, w: 20, h: 40 + Math.random() * 20 });
-        if (g.frameCount % 300 === 0) g.speed = Math.min(g.speed + 0.5, 12);
-      }
-
-      for (let i = g.obstacles.length - 1; i >= 0; i--) {
-        const obs = g.obstacles[i];
-        obs.x -= g.speed;
-        ctx.fillStyle = '#a855f7';
-        ctx.fillRect(obs.x, obs.y - obs.h + 40, obs.w, obs.h);
-
-        // Collision
-        if (
-          g.chicken.x + 28 > obs.x + 4 &&
-          g.chicken.x + 4 < obs.x + obs.w - 4 &&
-          g.chicken.y + 36 > obs.y - obs.h + 40
-        ) {
-          g.running = false;
-          const finalScore = Math.floor(g.score);
-          const saved = parseInt(localStorage.getItem('chipstarot_highscore') || '0');
-          if (finalScore > saved) localStorage.setItem('chipstarot_highscore', String(finalScore));
-          setScore(finalScore);
-          setGameState('gameover');
-          return;
-        }
-
-        if (obs.x + obs.w < 0) g.obstacles.splice(i, 1);
-      }
-
-      // Score
-      g.score += 0.1;
-      setScore(Math.floor(g.score));
-
-      ctx.fillStyle = '#fbbf24';
-      ctx.font = 'bold 20px monospace';
-      ctx.fillText(`${Math.floor(g.score)}`, canvas.width - 80, 30);
-
-      requestAnimationFrame(loop);
-    };
-
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.code === 'Space') {
-        e.preventDefault();
-        if (gameState === 'idle' || gameState === 'gameover') startGame();
-        else jump();
-      }
-    };
-    const handleClick = () => {
-      if (gameState === 'idle' || gameState === 'gameover') startGame();
-      else jump();
-    };
-
-    window.addEventListener('keydown', handleKey);
-    canvas.addEventListener('click', handleClick);
-
-    // Draw idle screen
-    ctx.fillStyle = '#1a0533';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = '#fbbf24';
-    ctx.font = 'bold 24px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('🐥 CHIPSTAROT RUNNER', canvas.width / 2, canvas.height / 2 - 20);
-    ctx.font = '16px sans-serif';
-    ctx.fillStyle = '#e9d5ff';
-    ctx.fillText('Nhấn SPACE hoặc Click để bắt đầu', canvas.width / 2, canvas.height / 2 + 20);
-    ctx.textAlign = 'left';
-
-    g.startGame = startGame;
-    g.jump = jump;
-
-    return () => {
-      g.running = false;
-      window.removeEventListener('keydown', handleKey);
-      canvas.removeEventListener('click', handleClick);
-    };
-  }, [gameState]);
+    const newExp = exp + 10;
+    saveState(newExp, food - 1);
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-purple-800 to-yellow-900 flex flex-col items-center justify-center py-12 px-4">
-      <h1 className="text-3xl font-bold text-yellow-400 mb-2">🎮 CHIPSTAROT Runner</h1>
-      <p className="text-purple-200 text-sm mb-6">Nhấn SPACE hoặc Click để nhảy qua chướng ngại vật!</p>
-
-      <div className="flex gap-8 mb-4">
-        <div className="text-center"><p className="text-purple-300 text-xs">Điểm hiện tại</p><p className="text-white font-bold text-2xl">{score}</p></div>
-        <div className="text-center"><p className="text-purple-300 text-xs">Cao nhất</p><p className="text-yellow-400 font-bold text-2xl">{highScore}</p></div>
+    <div className="min-h-screen bg-[#0d0029] py-12 px-4 relative overflow-hidden flex flex-col items-center justify-center">
+      {/* Background elements */}
+      <div className="absolute inset-0 bg-[url('/noise.png')] opacity-20 mix-blend-overlay pointer-events-none" />
+      <div className="absolute inset-0">
+        {[...Array(30)].map((_, i) => (
+          <div
+            key={i}
+            className="absolute rounded-full bg-yellow-400 animate-pulse"
+            style={{
+              width: `${((i * 3 + 1) % 3) + 1}px`,
+              height: `${((i * 3 + 1) % 3) + 1}px`,
+              left: `${(i * 13.7) % 100}%`,
+              top: `${(i * 23.3) % 100}%`,
+              animationDelay: `${(i * 0.5) % 2}s`,
+            }}
+          />
+        ))}
       </div>
 
-      <canvas
-        ref={canvasRef}
-        width={800}
-        height={300}
-        className="rounded-2xl border-2 border-yellow-400/30 shadow-2xl cursor-pointer max-w-full"
-        style={{ imageRendering: 'pixelated' }}
-      />
+      <div className="relative z-10 max-w-2xl w-full">
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center gap-2 bg-purple-900/50 text-yellow-400 text-sm font-semibold px-4 py-2 rounded-full mb-4 border border-purple-700/50">
+            🎮 Nuôi Thú Ảo
+          </div>
+          <h1 className="text-4xl md:text-5xl font-black text-white mb-3">Khu Vườn Phép Thuật</h1>
+          <p className="text-purple-200">Cho linh thú ăn bằng cách xem Tarot để nhận quà tặng đặc biệt!</p>
+        </div>
 
-      {gameState === 'gameover' && (
-        <div className="mt-6 text-center">
-          <p className="text-white text-lg font-semibold">Game Over! Điểm: <span className="text-yellow-400">{score}</span></p>
-          <button onClick={() => setGameState('idle')} className="btn-3d-yellow mt-3">🔄 Chơi lại</button>
+        <div className="bg-white/10 backdrop-blur-md rounded-3xl border border-white/20 p-8 shadow-2xl relative overflow-hidden">
+          {/* Status Bar */}
+          <div className="flex justify-between items-center bg-black/30 rounded-2xl p-4 mb-8">
+            <div>
+              <p className="text-purple-300 text-xs font-bold mb-1 uppercase tracking-wider">Lương Thực</p>
+              <p className="text-2xl font-black text-white flex items-center gap-2">
+                <span>🍗</span> {food} <span className="text-sm font-normal text-purple-200">phần</span>
+              </p>
+            </div>
+            <div className="text-right">
+              <p className="text-purple-300 text-xs font-bold mb-1 uppercase tracking-wider">Cấp Độ {currentInfo.level + 1}</p>
+              <p className="text-lg font-bold text-yellow-400">{currentInfo.name}</p>
+            </div>
+          </div>
+
+          {/* Pet Character */}
+          <div className="h-64 flex flex-col items-center justify-center relative my-8">
+            <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-yellow-400/10 rounded-full blur-3xl transition-all duration-1000 ${currentInfo.level === 3 ? 'w-64 h-64 bg-yellow-400/30' : ''}`} />
+
+            <div className={`transition-transform duration-300 ${isFeeding ? 'scale-125 -translate-y-4' : 'scale-100 animate-bounce-slow'} ${currentInfo.size}`}>
+              {currentInfo.emoji}
+            </div>
+
+            {isFeeding && (
+              <div className="absolute top-10 right-1/4 text-2xl animate-ping">💖</div>
+            )}
+
+            <p className="mt-8 text-center text-purple-200 max-w-sm relative z-10 italic">
+              "{currentInfo.desc}"
+            </p>
+          </div>
+
+          {/* Progress Bar */}
+          <div className="mb-8">
+            <div className="flex justify-between text-xs font-bold text-purple-300 mb-2">
+              <span>EXP: {exp}</span>
+              {currentInfo.level < 3 ? <span>Cần đạt: {targetExp}</span> : <span>MAX LEVEL</span>}
+            </div>
+            <div className="h-4 bg-black/40 rounded-full overflow-hidden border border-white/10">
+              <div
+                className="h-full bg-gradient-to-r from-yellow-500 to-yellow-300 transition-all duration-500 ease-out relative"
+                style={{ width: `${progressPercent}%` }}
+              >
+                <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.2)_50%,transparent_75%,transparent_100%)] bg-[length:20px_20px] animate-[shimmer_1s_linear_infinite]" />
+              </div>
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <button
+              onClick={handleFeed}
+              disabled={food <= 0 || currentInfo.level === 3}
+              className={`py-4 px-6 rounded-2xl font-bold text-lg flex items-center justify-center gap-2 transition-all ${food > 0 && currentInfo.level < 3
+                  ? 'bg-gradient-to-r from-green-500 to-emerald-400 text-white hover:scale-105 shadow-lg shadow-green-500/30 cursor-pointer'
+                  : 'bg-white/5 text-white/40 cursor-not-allowed border border-white/10'
+                }`}
+            >
+              🍗 Cho ăn (-1 Thức ăn)
+            </button>
+
+            {currentInfo.level === 3 ? (
+              <button
+                onClick={() => setShowRewardModal(true)}
+                className="py-4 px-6 rounded-2xl font-bold text-lg bg-gradient-to-r from-yellow-500 to-amber-500 text-white hover:scale-105 shadow-lg shadow-yellow-500/30 flex items-center justify-center gap-2 animate-pulse"
+              >
+                🎁 Mở Quà Tặng!
+              </button>
+            ) : (
+              <button
+                onClick={() => navigate('/reading')}
+                className="py-4 px-6 rounded-2xl font-bold text-lg bg-gradient-to-r from-purple-600 to-indigo-500 text-white hover:scale-105 shadow-lg shadow-purple-500/30 flex items-center justify-center gap-2"
+              >
+                🔮 Xem Tarot kiếm thức ăn
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Reward Modal */}
+      {showRewardModal && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-gradient-to-br from-yellow-500 to-orange-500 rounded-3xl p-1 relative max-w-md w-full animate-[wiggle_1s_ease-in-out_infinite]">
+            <div className="bg-white rounded-[22px] p-8 text-center relative overflow-hidden">
+              <div className="absolute -top-20 -right-20 w-40 h-40 bg-yellow-400/20 rounded-full blur-3xl" />
+
+              <div className="text-6xl mb-6">🎫</div>
+              <h2 className="text-3xl font-black text-gray-800 mb-2">Chúc Mừng!</h2>
+              <p className="text-gray-600 mb-6">Bạn đã nuôi Gà Thần Vũ Trụ thành công. Đây là phần thưởng dành cho bạn:</p>
+
+              <div className="bg-orange-50 border-2 border-dashed border-orange-300 rounded-xl p-4 mb-6 relative">
+                <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full">
+                  MÃ GIẢM GIÁ
+                </span>
+                <p className="text-2xl font-black text-orange-600 tracking-widest mt-2">GATHAN50</p>
+                <p className="text-sm text-orange-800 mt-1">Giảm 50% khi mua gói năng lượng Tarot!</p>
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText('GATHAN50');
+                    alert('Đã copy mã: GATHAN50');
+                  }}
+                  className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-3 rounded-xl transition-colors"
+                >
+                  Copy Mã
+                </button>
+                <button
+                  onClick={() => {
+                    setShowRewardModal(false);
+                    navigate('/shop');
+                  }}
+                  className="flex-1 bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 rounded-xl transition-colors"
+                >
+                  Đến Shop
+                </button>
+              </div>
+
+              <button
+                onClick={() => setShowRewardModal(false)}
+                className="mt-6 text-sm text-gray-400 hover:text-gray-600 font-medium"
+              >
+                Đóng lại
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
-      {gameState === 'idle' && (
-        <button onClick={() => setGameState('playing')} className="btn-3d-yellow mt-6">▶️ Bắt đầu</button>
-      )}
+      <style dangerouslySetInnerHTML={{
+        __html: `
+        @keyframes bounce-slow {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-10px); }
+        }
+        .animate-bounce-slow {
+          animation: bounce-slow 3s ease-in-out infinite;
+        }
+        @keyframes shimmer {
+          100% { background-position: 20px 0; }
+        }
+        @keyframes wiggle {
+          0%, 100% { transform: rotate(-2deg); }
+          50% { transform: rotate(2deg); }
+        }
+      `}} />
     </div>
   );
 }

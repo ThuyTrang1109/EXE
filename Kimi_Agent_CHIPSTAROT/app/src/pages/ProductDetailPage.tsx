@@ -1,14 +1,18 @@
 import { useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { PRODUCTS } from '../data/constants';
 
 interface ProductDetailPageProps {
-  productId: number;
-  setPage: (p: any) => void;
   addToCart: (p: any) => void;
 }
 
-export default function ProductDetailPage({ productId, setPage, addToCart }: ProductDetailPageProps) {
-  const product = PRODUCTS.find(p => p.id === productId) || PRODUCTS[0];
+export default function ProductDetailPage({ addToCart }: ProductDetailPageProps) {
+  const { productId } = useParams<{ productId: string }>();
+  const navigate = useNavigate();
+  
+  const id = parseInt(productId || '0');
+  const product = PRODUCTS.find(p => p.id === id) || PRODUCTS[0];
+  
   const [activeTab, setActiveTab] = useState<'desc' | 'nfc' | 'reviews'>('desc');
 
   return (
@@ -16,9 +20,9 @@ export default function ProductDetailPage({ productId, setPage, addToCart }: Pro
       <div className="max-w-6xl mx-auto">
         {/* Breadcrumbs */}
         <nav className="mb-8 flex items-center gap-2 text-sm text-gray-500">
-          <button onClick={() => setPage('home')} className="hover:text-yellow-600 transition-colors">Trang chủ</button>
+          <button onClick={() => navigate('/')} className="hover:text-yellow-600 transition-colors">Trang chủ</button>
           <span>/</span>
-          <button onClick={() => setPage('shop')} className="hover:text-yellow-600 transition-colors">Shop</button>
+          <button onClick={() => navigate('/shop')} className="hover:text-yellow-600 transition-colors">Shop</button>
           <span>/</span>
           <span className="text-gray-800 font-medium">{product.name}</span>
         </nav>

@@ -1,7 +1,9 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';
 
-export default function ProfilePage({ user, setPage, onScanClick }: any) {
+export default function ProfilePage({ user, onScanClick }: any) {
+  const navigate = useNavigate();
   const { credits, expiryLabel, creditsExpiresAt } = useAuth();
   const [activeTab, setActiveTab] = useState<'history' | 'orders' | 'nfc'>('history');
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
@@ -76,7 +78,7 @@ export default function ProfilePage({ user, setPage, onScanClick }: any) {
           <div className="text-6xl mb-4 animate-bounce">🔒</div>
           <h2 className="text-2xl font-bold mb-2">Vui lòng đăng nhập</h2>
           <p className="text-gray-600 mb-6">Đăng nhập để xem nhật ký trải bài và quản lý đơn hàng của bạn.</p>
-          <button onClick={() => setPage('auth')} className="btn-3d-yellow w-full">Đăng nhập ngay</button>
+          <button onClick={() => navigate('/auth')} className="btn-3d-yellow w-full">Đăng nhập ngay</button>
         </div>
       </div>
     );
@@ -116,7 +118,7 @@ export default function ProfilePage({ user, setPage, onScanClick }: any) {
                       {creditsExpiresAt ? `Hạn dùng: ${new Date(creditsExpiresAt).toLocaleDateString('vi-VN')}` : 'Vô thời hạn (NFC)'}
                     </div>
                   ) : (
-                    <button onClick={() => setPage('shop')} className="text-xs font-bold text-yellow-400 hover:text-yellow-300 underline mt-1">
+                    <button onClick={() => navigate('/shop')} className="text-xs font-bold text-yellow-400 hover:text-yellow-300 underline mt-1">
                       Nạp thêm lượt ngay →
                     </button>
                   )}
@@ -178,7 +180,7 @@ export default function ProfilePage({ user, setPage, onScanClick }: any) {
                     </div>
                   </div>
                 ))}
-                <button onClick={() => setPage('reading')} className="w-full py-6 mt-4 border-2 border-dashed border-purple-200 text-purple-400 rounded-3xl hover:bg-purple-50 hover:border-purple-400 hover:text-purple-600 font-bold transition-all flex flex-col items-center gap-2">
+                <button onClick={() => navigate('/reading')} className="w-full py-6 mt-4 border-2 border-dashed border-purple-200 text-purple-400 rounded-3xl hover:bg-purple-50 hover:border-purple-400 hover:text-purple-600 font-bold transition-all flex flex-col items-center gap-2">
                   <span className="text-3xl">🔮</span>
                   <span>Tiếp tục hành trình bốc bài</span>
                 </button>
@@ -270,7 +272,7 @@ export default function ProfilePage({ user, setPage, onScanClick }: any) {
                   ))}
                 </div>
                 
-                <button onClick={() => setPage('shop')} className="w-full py-4 mt-4 bg-purple-50 text-purple-600 rounded-2xl font-bold hover:bg-purple-100 transition-all border border-purple-100">🛒 Mua thêm thiết bị mới</button>
+                <button onClick={() => navigate('/shop')} className="w-full py-4 mt-4 bg-purple-50 text-purple-600 rounded-2xl font-bold hover:bg-purple-100 transition-all border border-purple-100">🛒 Mua thêm thiết bị mới</button>
               </div>
             )}
           </div>
