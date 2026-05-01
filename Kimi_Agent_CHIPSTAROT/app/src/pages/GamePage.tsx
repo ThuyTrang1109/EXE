@@ -143,8 +143,14 @@ export default function GamePage() {
 
             <div className={`transition-transform duration-300 ${
               isFeeding ? 'scale-125 -translate-y-4' : 'scale-100 animate-bounce-slow'
-            } ${currentInfo.size} ${currentInfo.level === 3 ? 'animate-level-glow rounded-full' : ''}`}>
+            } ${currentInfo.size} ${currentInfo.level === 3 ? 'animate-level-glow rounded-full' : ''} relative`}>
               {currentInfo.emoji}
+              {isFeeding && (
+                <>
+                  <div className="absolute -top-4 -right-4 text-2xl animate-sparkle">✨</div>
+                  <div className="absolute -bottom-4 -left-4 text-2xl animate-sparkle delay-150">✨</div>
+                </>
+              )}
             </div>
 
             {isFeeding && (

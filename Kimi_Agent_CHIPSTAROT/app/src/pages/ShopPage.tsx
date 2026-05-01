@@ -148,7 +148,7 @@ export default function ShopPage({ addToCart, viewProduct }: any) {
                       <button
                         onClick={() => handleBuyCredits(pkg)}
                         disabled={isBuying || isResult}
-                        className={`w-full py-3 rounded-2xl font-bold text-sm transition-all mt-auto ${
+                        className={`w-full py-3 rounded-2xl font-bold text-sm transition-all mt-auto relative overflow-hidden ${
                           isResult
                             ? resultMsg?.ok
                               ? 'bg-green-100 text-green-700 cursor-default'
@@ -156,6 +156,7 @@ export default function ShopPage({ addToCart, viewProduct }: any) {
                             : `bg-gradient-to-r ${pkg.color} text-white hover:opacity-90 active:scale-95 disabled:opacity-60`
                         }`}
                       >
+                        {isBuying && <div className="absolute inset-0 skeleton-shimmer opacity-30" />}
                         {isResult
                           ? resultMsg!.msg
                           : isBuying

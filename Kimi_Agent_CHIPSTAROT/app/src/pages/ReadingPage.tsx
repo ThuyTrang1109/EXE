@@ -24,6 +24,7 @@ export default function ReadingPage({ user, consumeCredit }: any) {
   const [nameError, setNameError] = useState('');
   const [dobError, setDobError] = useState('');
   const [questionError, setQuestionError] = useState('');
+  const [isFlyingUp, setIsFlyingUp] = useState(false);
 
   useEffect(() => {
     if (user?.name && step === 1) {
@@ -93,38 +94,43 @@ export default function ReadingPage({ user, consumeCredit }: any) {
       const newSel = [...selected, idx];
       setSelected(newSel);
       if (newSel.length === cardCount) {
-        setTimeout(async () => {
-          setRevealed(true);
-          const pickedCards = newSel.map(i => shuffled[i]);
-          setResult(pickedCards);
-          
-          // Gọi AI giải bài
-          setLoadingAI(true);
-          try {
-            const aiResult = await generateTarotReading(
-              name,
-              TOPICS.find(t => t.id === topic)?.name || topic,
-              subAnswer,
-              question,
-              pickedCards
-            );
-            setAiReading(aiResult);
-            // Add food for tamagotchi game
-            const currentFood = parseInt(localStorage.getItem('chipstarot_chicken_food') || '0');
-            const newFood = currentFood + 1;
-            localStorage.setItem('chipstarot_chicken_food', newFood.toString());
-            if (user) {
-              const exp = parseInt(localStorage.getItem('chipstarot_chicken_exp') || '0');
-              const claimed = JSON.parse(localStorage.getItem('chipstarot_chicken_claimed') || '[]');
-              syncPetProgress(user.id, exp, newFood, claimed);
+        // Đợi 1.5 giây để người dùng nhìn thấy lá bài cuối cùng lật lên
+        setTimeout(() => {
+          setIsFlyingUp(true);
+          // Đợi thêm 1.5 giây cho hiệu ứng bay lên hoàn tất
+          setTimeout(async () => {
+            setRevealed(true);
+            const pickedCards = newSel.map(i => shuffled[i]);
+            setResult(pickedCards);
+            
+            // Gọi AI giải bài
+            setLoadingAI(true);
+            try {
+              const aiResult = await generateTarotReading(
+                name,
+                TOPICS.find(t => t.id === topic)?.name || topic,
+                subAnswer,
+                question,
+                pickedCards
+              );
+              setAiReading(aiResult);
+              // Add food for tamagotchi game
+              const currentFood = parseInt(localStorage.getItem('chipstarot_chicken_food') || '0');
+              const newFood = currentFood + 1;
+              localStorage.setItem('chipstarot_chicken_food', newFood.toString());
+              if (user) {
+                const exp = parseInt(localStorage.getItem('chipstarot_chicken_exp') || '0');
+                const claimed = JSON.parse(localStorage.getItem('chipstarot_chicken_claimed') || '[]');
+                syncPetProgress(user.id, exp, newFood, claimed);
+              }
+            } catch (err) {
+              console.error(err);
+              setAiReading('Có lỗi xảy ra khi tải lời giải từ vũ trụ.');
+            } finally {
+              setLoadingAI(false);
             }
-          } catch (err) {
-            console.error(err);
-            setAiReading('Có lỗi xảy ra khi tải lời giải từ vũ trụ.');
-          } finally {
-            setLoadingAI(false);
-          }
-        }, 500);
+          }, 1500);
+        }, 1500);
       }
     }
   };
@@ -137,7 +143,7 @@ export default function ReadingPage({ user, consumeCredit }: any) {
     _setSubAnswer(''); 
     setQuestion('');
     setCardCount(0); setShuffled([]); setSelected([]); setRevealed(false); setResult([]);
-    setCreditUsed(false); setAiReading(''); setLoadingAI(false); setIsShuffling(false);
+    setCreditUsed(false); setAiReading(''); setLoadingAI(false); setIsShuffling(false); setIsFlyingUp(false);
   };
 
   const currentTopic = TOPICS.find(t => t.id === topic);
@@ -333,26 +339,48 @@ export default function ReadingPage({ user, consumeCredit }: any) {
               Đã chọn: {selected.length}/{cardCount}
             </p>
             <div className="grid grid-cols-6 md:grid-cols-13 gap-1.5 max-w-3xl mx-auto">
-              {shuffled.slice(0, 78).map((_, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => handleSelectCard(idx)}
-                  disabled={selected.includes(idx) || selected.length >= cardCount}
-                  className={`aspect-[2/3] rounded-lg transition-all card-entrance bg-[url('/card-back.png')] bg-cover bg-center border border-white/10 ${
-                    selected.includes(idx)
-                      ? 'ring-2 ring-yellow-400 scale-110 shadow-lg shadow-yellow-400/50'
-                      : 'hover:ring-2 hover:ring-purple-400 hover:-translate-y-2 hover:shadow-[0_10px_20px_rgba(168,85,247,0.4)]'
-                  }`}
-                  style={{ animationDelay: `${(idx % 13) * 30 + Math.floor(idx / 13) * 15}ms` }}
-                />
-              ))}
+              {shuffled.slice(0, 78).map((card, idx) => {
+                const isSelected = selected.includes(idx);
+                // Nếu đang hiệu ứng bay lên, lá bài KHÔNG ĐƯỢC CHỌN sẽ mờ đi và thu nhỏ, lá bài ĐƯỢC CHỌN sẽ bay lên.
+                const flyingClass = isFlyingUp
+                  ? (isSelected ? 'animate-fly-up z-50 pointer-events-none' : 'opacity-0 scale-90 pointer-events-none')
+                  : '';
+                
+                return (
+                  <div
+                    key={idx}
+                    className={`aspect-[2/3] perspective-1000 card-entrance transition-all duration-1000 ${flyingClass}`}
+                    style={!isFlyingUp ? { animationDelay: `${(idx % 13) * 30 + Math.floor(idx / 13) * 15}ms` } : undefined}
+                  >
+                    <button
+                      onClick={() => handleSelectCard(idx)}
+                      disabled={isSelected || selected.length >= cardCount}
+                      className={`relative w-full h-full rounded-lg transition-all duration-700 [transform-style:preserve-3d] outline-none ${
+                        isSelected
+                          ? 'scale-110 shadow-lg shadow-yellow-400/50 [transform:rotateY(180deg)] z-10'
+                          : 'hover:-translate-y-2 hover:shadow-[0_10px_20px_rgba(168,85,247,0.4)] hover:ring-2 hover:ring-purple-400'
+                      }`}
+                    >
+                      {/* Mặt sau (Card back) */}
+                      <div className={`absolute inset-0 w-full h-full rounded-lg bg-[url('/card-back.png')] bg-cover bg-center border border-white/10 [backface-visibility:hidden] ${isSelected ? 'ring-2 ring-yellow-400' : ''}`} />
+                      
+                      {/* Mặt trước (Card face) */}
+                      <div className="absolute inset-0 w-full h-full rounded-lg bg-[#0d0029] border-2 border-yellow-400 [backface-visibility:hidden] [transform:rotateY(180deg)] overflow-hidden flex items-center justify-center">
+                        {isSelected && (
+                          <img src={card.image} alt={card.name} className={`w-full h-full object-cover ${card.reversed ? 'rotate-180' : ''}`} onError={e => (e.currentTarget.src = '/card-back.png')} />
+                        )}
+                      </div>
+                    </button>
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}
 
         {/* Step 6: Revealed Result */}
         {step === 6 && revealed && (
-          <div>
+          <div className="animate-reveal-result">
             {!user ? (
               <div className="text-center">
                 <h2 className="text-2xl font-bold text-white mb-4">🔮 Lá bài của {name} đã sẵn sàng!</h2>
@@ -364,12 +392,16 @@ export default function ReadingPage({ user, consumeCredit }: any) {
                 <h2 className="text-2xl font-bold text-white text-center mb-8">🌟 Thông điệp cho {name}</h2>
                 <div className={`grid gap-6 ${result.length === 1 ? 'grid-cols-1 max-w-sm mx-auto' : 'grid-cols-1 md:grid-cols-3'}`}>
                   {result.map((card, i) => (
-                    <div key={i} className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20 text-center">
+                    <div key={i} className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20 text-center relative group">
+                      {/* Magical Sparkle Effect */}
+                      <div className="absolute -top-2 -right-2 text-xl animate-sparkle opacity-0 group-hover:opacity-100 transition-opacity">✨</div>
+                      <div className="absolute -bottom-2 -left-2 text-xl animate-sparkle delay-300 opacity-0 group-hover:opacity-100 transition-opacity">✨</div>
+                      
                       <p className="text-yellow-400 text-sm font-semibold mb-3">{POSITIONS[result.length === 1 ? 0 : i + 1]}</p>
                       <img
                         src={card.image}
                         alt={card.name}
-                        className={`w-32 mx-auto rounded-xl shadow-2xl mb-4 ${card.reversed ? 'rotate-180' : ''}`}
+                        className={`w-32 mx-auto rounded-xl shadow-2xl mb-4 transition-transform group-hover:scale-105 ${card.reversed ? 'rotate-180' : ''}`}
                         onError={e => (e.currentTarget.src = '/card-back.png')}
                       />
                       <h3 className="text-white font-bold text-lg mb-1">{card.name}</h3>
