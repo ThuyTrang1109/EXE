@@ -40,6 +40,9 @@ export interface CustomerProfile {
   avatar_url: string | null;
   credits: number;
   credits_expires_at: string | null;  // ISO string | null = không hết hạn (từ NFC)
+  pet_exp: number;
+  pet_food: number;
+  pet_claimed_levels: number[];
   updated_at: string;
 }
 
@@ -53,6 +56,9 @@ export interface AppUser {
   last_reset_date: string | null;     // Ngày reset gần nhất (YYYY-MM-DD)
   role_id: number;
   avatar_url: string | null;
+  pet_exp?: number;
+  pet_food?: number;
+  pet_claimed_levels?: number[];
 }
 
 // ─────────────────────────────────────────────
@@ -105,7 +111,7 @@ export async function fetchUserProfile(userId: string): Promise<AppUser | null> 
 
   const { data, error } = await supabase
     .from('customer_profiles')
-    .select('account_id, full_name, credits, credits_expires_at, avatar_url, daily_allowance, last_reset_date')
+    .select('account_id, full_name, credits, credits_expires_at, avatar_url, daily_allowance, last_reset_date, pet_exp, pet_food, pet_claimed_levels')
     .eq('account_id', userId)
     .single();
 
@@ -157,6 +163,9 @@ export async function fetchUserProfile(userId: string): Promise<AppUser | null> 
     last_reset_date: lastResetDate,
     role_id: 2,
     avatar_url: data.avatar_url,
+    pet_exp: data.pet_exp || 0,
+    pet_food: data.pet_food || 0,
+    pet_claimed_levels: data.pet_claimed_levels || [],
   };
 }
 
@@ -257,16 +266,17 @@ export async function purchaseCreditPackage(
 
 /**
  * Cộng credits cho user sau khi quét NFC thành công.
- * NFC credits KHÔNG có thời hạn (credits_expires_at giữ nguyên giá trị cũ).
- * Ghi vào customer_profiles VÀ credit_transactions
+ * NFC credits CÓ THỜI HẠN 6 THÁNG (180 ngày) kể từ ngày kích hoạt.
+ * Sau 6 tháng, người dùng cần mua gói xem Tarot mới để xem tiếp.
+ * Nếu đã có gói cũ còn hạn → nối thêm 180 ngày sau ngày hết hạn cũ.
  */
 export async function addCreditsToUser(
   userId: string,
   amount: number,
   nfcTagId?: string
-): Promise<{ newBalance: number; error: string | null }> {
+): Promise<{ newBalance: number; newExpiresAt: string; error: string | null }> {
   if (!isSupabaseConfigured) {
-    return { newBalance: 0, error: 'Supabase chưa được cấu hình' };
+    return { newBalance: 0, newExpiresAt: '', error: 'Supabase chưa được cấu hình' };
   }
 
   // 1. Lấy số dư hiện tại
@@ -277,33 +287,49 @@ export async function addCreditsToUser(
     .single();
 
   if (fetchErr || !profile) {
-    return { newBalance: 0, error: 'Không tìm thấy hồ sơ người dùng' };
+    return { newBalance: 0, newExpiresAt: '', error: 'Không tìm thấy hồ sơ người dùng' };
   }
 
+  const now = new Date();
   const currentCredits = profile.credits ?? 0;
-  const newBalance = currentCredits + amount;
+  const newBalance = currentCredits + amount; // amount = nfcCredits (3 luợt/ngày)
 
-  // 2. Cập nhật credits — KHÔNG đụng tới credits_expires_at (NFC = vô thời hạn)
+  // 2. Tính thời hạn mới: NFC tặng 6 tháng (180 ngày)
+  const NFC_EXPIRY_DAYS = 180; // 6 tháng
+  const oldExpires = profile.credits_expires_at ? new Date(profile.credits_expires_at) : null;
+  const baseDate = oldExpires && oldExpires > now ? oldExpires : now;
+  const newExpires = new Date(baseDate);
+  newExpires.setDate(newExpires.getDate() + NFC_EXPIRY_DAYS);
+  const newExpiresAt = newExpires.toISOString();
+  const todayStr = now.toISOString().split('T')[0];
+
+  // 3. Cập nhật customer_profiles với daily_allowance và expires_at
   const { error: updateErr } = await supabase
     .from('customer_profiles')
-    .update({ credits: newBalance, updated_at: new Date().toISOString() })
+    .update({
+      credits: newBalance,
+      daily_allowance: amount,       // 3 luợt/ngày từ NFC
+      last_reset_date: todayStr,
+      credits_expires_at: newExpiresAt, // Hết hạn sau 6 tháng
+      updated_at: now.toISOString(),
+    })
     .eq('account_id', userId);
 
   if (updateErr) {
-    return { newBalance: currentCredits, error: updateErr.message };
+    return { newBalance: currentCredits, newExpiresAt: '', error: updateErr.message };
   }
 
-  // 3. Ghi lịch sử vào credit_transactions
+  // 4. Ghi lịch sử vào credit_transactions
   await supabase.from('credit_transactions').insert({
     account_id: userId,
     amount: amount,
     balance_after: newBalance,
     type: 'nfc_activation',
     reference_id: nfcTagId || null,
-    note: `Kích hoạt NFC${nfcTagId ? ` - Tag: ${nfcTagId}` : ''}`,
+    note: `Kích hoạt NFC${nfcTagId ? ` - Tag: ${nfcTagId}` : ''} — Tặng ${amount} luợt/ngày, hạn đến ${newExpires.toLocaleDateString('vi-VN')}`,
   });
 
-  return { newBalance, error: null };
+  return { newBalance, newExpiresAt, error: null };
 }
 
 // ─────────────────────────────────────────────
@@ -366,4 +392,36 @@ export async function consumeUserCredit(userId: string, readingId?: string): Pro
   });
 
   return newBalance;
+}
+
+// ─────────────────────────────────────────────
+// Virtual Pet Game Helpers
+// ─────────────────────────────────────────────
+
+/**
+ * Sync pet progress to database for logged in users
+ */
+export async function syncPetProgress(
+  userId: string,
+  exp: number,
+  food: number,
+  claimedLevels: number[]
+): Promise<boolean> {
+  if (!isSupabaseConfigured) return true; // Offline/demo mode
+
+  const { error } = await supabase
+    .from('customer_profiles')
+    .update({
+      pet_exp: exp,
+      pet_food: food,
+      pet_claimed_levels: claimedLevels,
+      updated_at: new Date().toISOString()
+    })
+    .eq('account_id', userId);
+
+  if (error) {
+    console.error('Error syncing pet progress:', error.message);
+    return false;
+  }
+  return true;
 }

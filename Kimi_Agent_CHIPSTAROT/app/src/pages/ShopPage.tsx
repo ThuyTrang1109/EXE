@@ -55,8 +55,8 @@ export default function ShopPage({ addToCart, viewProduct }: any) {
             <div className="bg-gradient-to-r from-purple-600 to-yellow-500 rounded-2xl p-5 mb-8 text-white flex items-center gap-4 shadow-lg">
               <div className="text-4xl">📲</div>
               <div>
-                <p className="font-bold text-lg">Mỗi móc khóa tặng kèm 10 lượt bốc bài Tarot!</p>
-                <p className="text-white/80 text-sm mt-1">Chạm điện thoại vào móc khóa NFC → nhận lượt ngay lập tức</p>
+                <p className="font-bold text-lg">Mỗi móc khóa tặng kèm 6 tháng xem Tarot miễn phí!</p>
+                <p className="text-white/80 text-sm mt-1">Chạm điện thoại vào móc khóa NFC → Nhận ngay 3 lượt bốc bài/ngày trong 6 tháng liên tiếp</p>
               </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -68,7 +68,7 @@ export default function ShopPage({ addToCart, viewProduct }: any) {
                       {p.tag && <span className={`absolute top-3 left-3 ${p.tagColor} text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg`}>{p.tag}</span>}
                       {/* NFC Badge */}
                       <span className="absolute top-3 right-3 bg-white/90 text-purple-700 text-xs font-bold px-2 py-1 rounded-full shadow flex items-center gap-1">
-                        📲 +{p.nfcCredits} lượt
+                        🎁 6 tháng miễn phí
                       </span>
                     </div>
                     <div className="p-6 pb-2">

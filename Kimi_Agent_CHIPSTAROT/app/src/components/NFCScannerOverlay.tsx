@@ -86,7 +86,7 @@ export default function NFCScannerOverlay({ onSuccess, onClose }: NFCScannerOver
         <p className="text-gray-500 text-sm mb-8 leading-relaxed px-4">
           {status === 'scanning' 
             ? 'Vui lòng đưa móc khóa CHIPSTAROT lại gần vùng cảm biến NFC phía sau điện thoại của bạn.' 
-            : 'Đã nhận diện Thẻ NFC CHIP-TR-003. Bạn được cộng thêm 10 lượt bốc bài!'}
+            : 'Đã nhận diện Thẻ NFC thành công! Bạn được tặng 3 lượt/ngày trong 6 tháng miễn phí. Chúc mừng! 🎉'}
         </p>
 
         {status === 'scanning' && (

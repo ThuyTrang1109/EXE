@@ -72,6 +72,9 @@ CREATE TABLE customer_profiles (
     daily_allowance INT DEFAULT 0,                      -- Định mức lượt nhận được MỖI NGÀY từ Gói
     last_reset_date DATE,                               -- Ngày reset lượt bốc bài gần nhất (YYYY-MM-DD)
     credits_expires_at TIMESTAMP WITH TIME ZONE,        -- Thời hạn sử dụng gói (NULL = không có gói)
+    pet_exp INT DEFAULT 0,                              -- Kinh nghiệm thú ảo
+    pet_food INT DEFAULT 0,                             -- Thức ăn thú ảo
+    pet_claimed_levels JSONB DEFAULT '[]'::jsonb,       -- Mảng các cấp độ đã nhận thưởng
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 

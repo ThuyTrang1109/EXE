@@ -2,11 +2,13 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TAROT_DB, TOPICS, SUB_QUESTIONS, SUGGESTED_QUESTIONS } from '../data/constants';
 import { generateTarotReading } from '../lib/gemini';
+import { syncPetProgress } from '../lib/supabase';
 
 export default function ReadingPage({ user, consumeCredit }: any) {
   const navigate = useNavigate();
-  const [step, setStep] = useState(1);
-  const [name, setName] = useState('');
+  const [step, setStep] = useState(user?.name ? 2 : 1);
+  const [name, setName] = useState(user?.name || '');
+  const [dob, setDob] = useState('');
   const [topic, setTopic] = useState('');
   const [subAnswer, _setSubAnswer] = useState('');
   const [question, setQuestion] = useState('');
@@ -20,7 +22,15 @@ export default function ReadingPage({ user, consumeCredit }: any) {
   const [loadingAI, setLoadingAI] = useState(false);
   const [isShuffling, setIsShuffling] = useState(false);
   const [nameError, setNameError] = useState('');
+  const [dobError, setDobError] = useState('');
   const [questionError, setQuestionError] = useState('');
+
+  useEffect(() => {
+    if (user?.name && step === 1) {
+      setName(user.name);
+      setStep(2);
+    }
+  }, [user, step]);
 
   const handleNameSubmit = () => {
     const trimmed = name.trim();
@@ -37,6 +47,13 @@ export default function ReadingPage({ user, consumeCredit }: any) {
       return;
     }
     setNameError('');
+    
+    if (!user && !dob) {
+      setDobError('Vui lòng nhập ngày sinh của bạn.');
+      return;
+    }
+    setDobError('');
+
     setStep(2);
   };
 
@@ -94,7 +111,13 @@ export default function ReadingPage({ user, consumeCredit }: any) {
             setAiReading(aiResult);
             // Add food for tamagotchi game
             const currentFood = parseInt(localStorage.getItem('chipstarot_chicken_food') || '0');
-            localStorage.setItem('chipstarot_chicken_food', (currentFood + 1).toString());
+            const newFood = currentFood + 1;
+            localStorage.setItem('chipstarot_chicken_food', newFood.toString());
+            if (user) {
+              const exp = parseInt(localStorage.getItem('chipstarot_chicken_exp') || '0');
+              const claimed = JSON.parse(localStorage.getItem('chipstarot_chicken_claimed') || '[]');
+              syncPetProgress(user.id, exp, newFood, claimed);
+            }
           } catch (err) {
             console.error(err);
             setAiReading('Có lỗi xảy ra khi tải lời giải từ vũ trụ.');
@@ -107,7 +130,12 @@ export default function ReadingPage({ user, consumeCredit }: any) {
   };
 
   const reset = () => {
-    setStep(1); setName(''); setTopic(''); _setSubAnswer(''); setQuestion('');
+    setStep(user?.name ? 2 : 1); 
+    setName(user?.name || ''); 
+    setDob('');
+    setTopic(''); 
+    _setSubAnswer(''); 
+    setQuestion('');
     setCardCount(0); setShuffled([]); setSelected([]); setRevealed(false); setResult([]);
     setCreditUsed(false); setAiReading(''); setLoadingAI(false); setIsShuffling(false);
   };
@@ -132,20 +160,37 @@ export default function ReadingPage({ user, consumeCredit }: any) {
           ))}
         </div>
 
-        {/* Step 1: Name */}
+        {/* Step 1: Name & DOB */}
         {step === 1 && (
           <div className="text-center">
             <div className="text-5xl mb-4">🌟</div>
-            <h2 className="text-3xl font-bold text-white mb-4">Bạn tên là gì?</h2>
+            <h2 className="text-3xl font-bold text-white mb-4">Bạn là ai?</h2>
             <p className="text-purple-200 mb-8">Để vũ trụ có thể gửi thông điệp riêng cho bạn</p>
-            <input
-              className={`w-full max-w-md mx-auto block px-6 py-4 rounded-2xl bg-white/10 border ${nameError ? 'border-red-400 focus:border-red-400' : 'border-white/30 focus:border-yellow-400'} text-white placeholder-white/40 text-lg text-center focus:outline-none transition-colors`}
-              placeholder="Nhập tên của bạn..."
-              value={name}
-              onChange={e => { setName(e.target.value); setNameError(''); }}
-              onKeyDown={e => e.key === 'Enter' && handleNameSubmit()}
-            />
-            {nameError && <p className="text-red-400 text-sm mt-2 font-medium">{nameError}</p>}
+            <div className="space-y-4 max-w-md mx-auto">
+              <div>
+                <input
+                  className={`w-full block px-6 py-4 rounded-2xl bg-white/10 border ${nameError ? 'border-red-400 focus:border-red-400' : 'border-white/30 focus:border-yellow-400'} text-white placeholder-white/40 text-lg text-center focus:outline-none transition-colors`}
+                  placeholder="Nhập tên của bạn..."
+                  value={name}
+                  onChange={e => { setName(e.target.value); setNameError(''); }}
+                  onKeyDown={e => e.key === 'Enter' && handleNameSubmit()}
+                />
+                {nameError && <p className="text-red-400 text-sm mt-2 font-medium">{nameError}</p>}
+              </div>
+              { !user && (
+                <div>
+                  <div className="text-left text-white/80 text-sm mb-1 ml-2">Ngày sinh:</div>
+                  <input
+                    type="date"
+                    className={`w-full block px-6 py-4 rounded-2xl bg-white/10 border ${dobError ? 'border-red-400 focus:border-red-400' : 'border-white/30 focus:border-yellow-400'} text-white placeholder-white/40 text-lg text-center focus:outline-none transition-colors [color-scheme:dark]`}
+                    value={dob}
+                    onChange={e => { setDob(e.target.value); setDobError(''); }}
+                    onKeyDown={e => e.key === 'Enter' && handleNameSubmit()}
+                  />
+                  {dobError && <p className="text-red-400 text-sm mt-2 font-medium">{dobError}</p>}
+                </div>
+              )}
+            </div>
             <button
               onClick={handleNameSubmit}
               className="btn-3d-yellow mt-6"

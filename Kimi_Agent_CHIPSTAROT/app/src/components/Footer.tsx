@@ -7,6 +7,7 @@ export default function Footer() {
     { k: '/', l: 'Bói Bài Tarot' },
     { k: '/cards', l: 'Ý Nghĩa Lá Bài' },
     { k: '/shop', l: 'Shop' },
+    { k: '/game', l: 'Khu Vườn Phép Thuật' },
     { k: '/blog', l: 'Blog' },
     { k: '/about', l: 'Giới Thiệu' }
   ];

@@ -243,3 +243,29 @@ html { scroll-behavior: smooth; }
     100% { transform: translateZ(0) rotate(720deg) scale(0.8); opacity: 0; }
   }
 }
+
+/* Pet Game: Wiggle animation (for Magic Garden / HomePage CTA) */
+@keyframes wiggle {
+  0%, 100% { transform: rotate(-2deg); }
+  50% { transform: rotate(2deg); }
+}
+.animate-wiggle { animation: wiggle 4s ease-in-out infinite; }
+
+/* Pet Game: Bounce Slow */
+@keyframes bounce-slow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+.animate-bounce-slow { animation: bounce-slow 3s ease-in-out infinite; }
+
+/* Pet Game: Level-up glow pulse */
+@keyframes levelGlow {
+  0%, 100% { box-shadow: 0 0 10px rgba(251, 191, 36, 0.3); }
+  50% { box-shadow: 0 0 40px rgba(251, 191, 36, 0.8), 0 0 80px rgba(251, 191, 36, 0.4); }
+}
+.animate-level-glow { animation: levelGlow 2s ease-in-out infinite; }
+
+/* Shimmer for progress bars */
+@keyframes shimmer {
+  100% { background-position: 20px 0; }
+}

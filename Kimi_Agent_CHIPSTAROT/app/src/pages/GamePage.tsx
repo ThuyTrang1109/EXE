@@ -1,5 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/lib/AuthContext';
+import { syncPetProgress } from '@/lib/supabase';
 
 const LEVELS = [
   { maxExp: 20, name: 'Quả Trứng Huyền Bí', emoji: '🥚', desc: 'Đang ấp ủ năng lượng từ các vì sao...', size: 'text-8xl' },
@@ -8,18 +10,60 @@ const LEVELS = [
   { maxExp: Infinity, name: 'Gà Thần Vũ Trụ', emoji: '✨🐔✨', desc: 'Đã tiến hóa hoàn toàn! Sẵn sàng ban phát phước lành.', size: 'text-9xl drop-shadow-[0_0_30px_rgba(251,191,36,0.8)]' },
 ];
 
+const RANDOM_REWARDS = [
+  { code: 'TAROT10', desc: 'Giảm 10% khi mua gói năng lượng Tarot!' },
+  { code: 'LUCKY20', desc: 'Giảm 20% khi mua gói năng lượng Tarot!' },
+  { code: 'MAGIC30', desc: 'Giảm 30% cho đơn hàng đầu tiên!' },
+  { code: 'GATHAN50', desc: 'Giảm 50% khi mua gói năng lượng (Cực hiếm)!' },
+  { code: 'FREESHIP', desc: 'Miễn phí vận chuyển mọi đơn hàng!' }
+];
+
 export default function GamePage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [exp, setExp] = useState(() => parseInt(localStorage.getItem('chipstarot_chicken_exp') || '0'));
   const [food, setFood] = useState(() => parseInt(localStorage.getItem('chipstarot_chicken_food') || '0'));
+  const [claimedLevels, setClaimedLevels] = useState<number[]>(() => {
+    try { return JSON.parse(localStorage.getItem('chipstarot_chicken_claimed') || '[]'); } catch { return []; }
+  });
   const [isFeeding, setIsFeeding] = useState(false);
   const [showRewardModal, setShowRewardModal] = useState(false);
+  const [currentReward, setCurrentReward] = useState<any>(null);
 
-  const saveState = (newExp: number, newFood: number) => {
+  // Sync between DB and LocalStorage on mount
+  useEffect(() => {
+    if (user) {
+      const dbExp = user.pet_exp || 0;
+      const dbFood = user.pet_food || 0;
+      const dbClaimed = user.pet_claimed_levels || [];
+      const localExp = parseInt(localStorage.getItem('chipstarot_chicken_exp') || '0');
+      
+      if (dbExp > localExp) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setExp(dbExp);
+        setFood(dbFood);
+        setClaimedLevels(dbClaimed);
+        localStorage.setItem('chipstarot_chicken_exp', dbExp.toString());
+        localStorage.setItem('chipstarot_chicken_food', dbFood.toString());
+        localStorage.setItem('chipstarot_chicken_claimed', JSON.stringify(dbClaimed));
+      } else if (localExp > dbExp || localExp > 0) {
+        syncPetProgress(user.id, localExp, food, claimedLevels);
+      }
+    }
+  }, [user, food, claimedLevels]);
+
+  const saveState = (newExp: number, newFood: number, newClaimed?: number[]) => {
     localStorage.setItem('chipstarot_chicken_exp', newExp.toString());
     localStorage.setItem('chipstarot_chicken_food', newFood.toString());
+    if (newClaimed) localStorage.setItem('chipstarot_chicken_claimed', JSON.stringify(newClaimed));
+    
     setExp(newExp);
     setFood(newFood);
+    if (newClaimed) setClaimedLevels(newClaimed);
+
+    if (user) {
+      syncPetProgress(user.id, newExp, newFood, newClaimed || claimedLevels);
+    }
   };
 
   const getLevelInfo = (currentExp: number) => {
@@ -33,6 +77,7 @@ export default function GamePage() {
   const prevMaxExp = currentInfo.level === 0 ? 0 : LEVELS[currentInfo.level - 1].maxExp;
   const targetExp = currentInfo.maxExp === Infinity ? exp : currentInfo.maxExp;
   const progressPercent = currentInfo.level === 3 ? 100 : ((exp - prevMaxExp) / (targetExp - prevMaxExp)) * 100;
+  const hasUnclaimedReward = currentInfo.level > 0 && !claimedLevels.includes(currentInfo.level);
 
   const handleFeed = () => {
     if (food <= 0) return;
@@ -90,9 +135,15 @@ export default function GamePage() {
 
           {/* Pet Character */}
           <div className="h-64 flex flex-col items-center justify-center relative my-8">
-            <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-yellow-400/10 rounded-full blur-3xl transition-all duration-1000 ${currentInfo.level === 3 ? 'w-64 h-64 bg-yellow-400/30' : ''}`} />
+            <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full blur-3xl transition-all duration-1000 ${
+              currentInfo.level === 3
+                ? 'w-64 h-64 bg-yellow-400/30 animate-pulse'
+                : 'w-48 h-48 bg-yellow-400/10'
+            }`} />
 
-            <div className={`transition-transform duration-300 ${isFeeding ? 'scale-125 -translate-y-4' : 'scale-100 animate-bounce-slow'} ${currentInfo.size}`}>
+            <div className={`transition-transform duration-300 ${
+              isFeeding ? 'scale-125 -translate-y-4' : 'scale-100 animate-bounce-slow'
+            } ${currentInfo.size} ${currentInfo.level === 3 ? 'animate-level-glow rounded-full' : ''}`}>
               {currentInfo.emoji}
             </div>
 
@@ -134,12 +185,26 @@ export default function GamePage() {
               🍗 Cho ăn (-1 Thức ăn)
             </button>
 
-            {currentInfo.level === 3 ? (
+            {hasUnclaimedReward ? (
               <button
-                onClick={() => setShowRewardModal(true)}
+                onClick={() => {
+                  const reward = RANDOM_REWARDS[Math.floor(Math.random() * RANDOM_REWARDS.length)];
+                  setCurrentReward(reward);
+                  setShowRewardModal(true);
+                  
+                  const newClaimed = [...claimedLevels, currentInfo.level];
+                  saveState(exp, food, newClaimed);
+                }}
                 className="py-4 px-6 rounded-2xl font-bold text-lg bg-gradient-to-r from-yellow-500 to-amber-500 text-white hover:scale-105 shadow-lg shadow-yellow-500/30 flex items-center justify-center gap-2 animate-pulse"
               >
-                🎁 Mở Quà Tặng!
+                🎁 Nhận Quà Cấp {currentInfo.level + 1}!
+              </button>
+            ) : currentInfo.level === 3 ? (
+              <button
+                onClick={() => navigate('/shop')}
+                className="py-4 px-6 rounded-2xl font-bold text-lg bg-gradient-to-r from-purple-600 to-indigo-500 text-white hover:scale-105 shadow-lg shadow-purple-500/30 flex items-center justify-center gap-2"
+              >
+                🛍️ Mua sắm ngay
               </button>
             ) : (
               <button
@@ -154,7 +219,7 @@ export default function GamePage() {
       </div>
 
       {/* Reward Modal */}
-      {showRewardModal && (
+      {showRewardModal && currentReward && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-gradient-to-br from-yellow-500 to-orange-500 rounded-3xl p-1 relative max-w-md w-full animate-[wiggle_1s_ease-in-out_infinite]">
             <div className="bg-white rounded-[22px] p-8 text-center relative overflow-hidden">
@@ -162,21 +227,21 @@ export default function GamePage() {
 
               <div className="text-6xl mb-6">🎫</div>
               <h2 className="text-3xl font-black text-gray-800 mb-2">Chúc Mừng!</h2>
-              <p className="text-gray-600 mb-6">Bạn đã nuôi Gà Thần Vũ Trụ thành công. Đây là phần thưởng dành cho bạn:</p>
+              <p className="text-gray-600 mb-6">Thú cưng của bạn đã thăng cấp. Đây là phần thưởng dành cho bạn:</p>
 
               <div className="bg-orange-50 border-2 border-dashed border-orange-300 rounded-xl p-4 mb-6 relative">
-                <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full">
+                <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full whitespace-nowrap">
                   MÃ GIẢM GIÁ
                 </span>
-                <p className="text-2xl font-black text-orange-600 tracking-widest mt-2">GATHAN50</p>
-                <p className="text-sm text-orange-800 mt-1">Giảm 50% khi mua gói năng lượng Tarot!</p>
+                <p className="text-2xl font-black text-orange-600 tracking-widest mt-2">{currentReward.code}</p>
+                <p className="text-sm text-orange-800 mt-1">{currentReward.desc}</p>
               </div>
 
               <div className="flex gap-3">
                 <button
                   onClick={() => {
-                    navigator.clipboard.writeText('GATHAN50');
-                    alert('Đã copy mã: GATHAN50');
+                    navigator.clipboard.writeText(currentReward.code);
+                    alert(`Đã copy mã: ${currentReward.code}`);
                   }}
                   className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-3 rounded-xl transition-colors"
                 >
@@ -204,23 +269,7 @@ export default function GamePage() {
         </div>
       )}
 
-      <style dangerouslySetInnerHTML={{
-        __html: `
-        @keyframes bounce-slow {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-10px); }
-        }
-        .animate-bounce-slow {
-          animation: bounce-slow 3s ease-in-out infinite;
-        }
-        @keyframes shimmer {
-          100% { background-position: 20px 0; }
-        }
-        @keyframes wiggle {
-          0%, 100% { transform: rotate(-2deg); }
-          50% { transform: rotate(2deg); }
-        }
-      `}} />
+
     </div>
   );
 }

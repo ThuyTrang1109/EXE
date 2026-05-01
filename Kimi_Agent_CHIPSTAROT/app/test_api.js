@@ -1,4 +1,4 @@
-const apiKey = 'AIzaSyABYP5dm8mkHjKDs3Xcj1v4xHf-fCJhz4E';
+const apiKey = 'AIzaSyD4Mypc8zmpdxmi0dzLUMZq5Q9tqcFKio0';
 const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey}`;
 fetch(url, {
   method: 'POST',

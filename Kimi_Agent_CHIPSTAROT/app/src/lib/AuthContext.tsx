@@ -171,24 +171,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setCreditsExpiresAt(null);
   }, []);
 
-  // ── Add credits (NFC scan — vô thời hạn) ──
+  // ── Add credits (NFC scan — có thời hạn 6 tháng) ──
   const addCredits = useCallback(async (amount: number, nfcTagId?: string) => {
     if (!user) return;
 
     if (!isSupabaseConfigured) {
       const newBalance = credits + amount;
-      // NFC: giữ nguyên creditsExpiresAt cũ (không ghi đè thời hạn gói đang dùng)
+      // Demo mode: tính 6 tháng kể từ hôm nay
+      const base = creditsExpiresAt && new Date(creditsExpiresAt) > new Date()
+        ? new Date(creditsExpiresAt)
+        : new Date();
+      base.setDate(base.getDate() + 180); // 6 tháng
+      const newExpiresAt = base.toISOString();
+      const todayStr = new Date().toISOString().split('T')[0];
       setCredits(newBalance);
-      setUser(prev => prev ? { ...prev, credits: newBalance } : null);
+      setCreditsExpiresAt(newExpiresAt);
+      setUser(prev => prev ? { ...prev, credits: newBalance, credits_expires_at: newExpiresAt, daily_allowance: amount, last_reset_date: todayStr } : null);
       return;
     }
 
-    const { newBalance, error } = await addCreditsToUser(user.id, amount, nfcTagId);
+    const { newBalance, newExpiresAt, error } = await addCreditsToUser(user.id, amount, nfcTagId);
     if (!error) {
       setCredits(newBalance);
-      setUser(prev => prev ? { ...prev, credits: newBalance } : null);
+      setCreditsExpiresAt(newExpiresAt || null);
+      setUser(prev => prev ? { ...prev, credits: newBalance, credits_expires_at: newExpiresAt || null } : null);
     }
-  }, [user, credits]);
+  }, [user, credits, creditsExpiresAt]);
 
   // ── Buy credit package (Digital) ──
   const buyPackage = useCallback(async (packageId: string): Promise<{ success: boolean; message: string }> => {
