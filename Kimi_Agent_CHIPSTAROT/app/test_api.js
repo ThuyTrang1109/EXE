@@ -1,4 +1,5 @@
-const apiKey = 'AIzaSyD4Mypc8zmpdxmi0dzLUMZq5Q9tqcFKio0';
+// Sử dụng mã từ .env hoặc điền thủ công khi test (KHÔNG LƯU MÃ VÀO ĐÂY KHI PUSH GITHUB)
+const apiKey = process.env.VITE_GEMINI_API_KEY || 'YOUR_NEW_GEMINI_API_KEY_HERE';
 const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey}`;
 fetch(url, {
   method: 'POST',
