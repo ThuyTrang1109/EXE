@@ -52,6 +52,7 @@ CREATE TABLE accounts (
     password_hash TEXT NOT NULL,
     role_id INT REFERENCES roles(id) DEFAULT 2,
     is_verified BOOLEAN DEFAULT FALSE,
+    account_status VARCHAR(20) DEFAULT 'active', -- 'active', 'banned', 'unverified'
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -297,9 +298,12 @@ CREATE TABLE tarot_cards (
     name VARCHAR(50) NOT NULL,
     suit VARCHAR(20),
     arcana_type VARCHAR(20),
-    meaning_upright TEXT,
-    meaning_reversed TEXT,
-    image_url TEXT
+    element VARCHAR(20),                  -- 'Fire', 'Water', 'Earth', 'Air', 'Spirit'
+    meaning_general TEXT,                 -- Ý nghĩa tổng quan
+    meaning_upright TEXT,                 -- Ý nghĩa xuôi
+    meaning_reversed TEXT,                -- Ý nghĩa ngược
+    image_url TEXT,                       -- Link ảnh lá bài
+    status VARCHAR(20) DEFAULT 'active'   -- 'active' (đã xuất bản), 'draft' (nháp)
 );
 
 CREATE TABLE tarot_readings (

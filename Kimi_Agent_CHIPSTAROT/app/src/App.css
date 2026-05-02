@@ -296,6 +296,106 @@ html { scroll-behavior: smooth; }
 .animate-level-glow { animation: levelGlow 2s ease-in-out infinite; }
 
 /* Shimmer for progress bars */
+/* Shimmer for progress bars */
 @keyframes shimmer {
   100% { background-position: 20px 0; }
+}
+
+/* AuthPage Animations */
+@keyframes blob {
+  0% { transform: translate(0px, 0px) scale(1); }
+  33% { transform: translate(30px, -50px) scale(1.1); }
+  66% { transform: translate(-20px, 20px) scale(0.9); }
+  100% { transform: translate(0px, 0px) scale(1); }
+}
+
+.animate-blob {
+  animation: blob 7s infinite;
+}
+
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+
+.animation-delay-4000 {
+  animation-delay: 4s;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+/* Mystical Effects */
+@keyframes spin-slow {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 60s linear infinite;
+}
+
+@keyframes magic-dust {
+  0% { transform: translateY(0) scale(0); opacity: 0; filter: blur(2px) drop-shadow(0 0 0px rgba(253,224,71,0)); }
+  20% { opacity: 0.8; filter: blur(1px) drop-shadow(0 0 10px rgba(253,224,71,0.8)); }
+  50% { transform: translateY(-30px) scale(1.5); opacity: 1; filter: blur(0px) drop-shadow(0 0 20px rgba(253,224,71,1)); }
+  80% { opacity: 0.6; filter: blur(1px) drop-shadow(0 0 10px rgba(253,224,71,0.5)); }
+  100% { transform: translateY(-60px) scale(0); opacity: 0; filter: blur(2px) drop-shadow(0 0 0px rgba(253,224,71,0)); }
+}
+
+.animate-magic-dust {
+  animation: magic-dust linear infinite;
+}
+
+@keyframes mystic-pulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(139, 92, 246, 0.2), inset 0 0 20px rgba(139, 92, 246, 0.1); }
+  50% { box-shadow: 0 0 50px rgba(234, 179, 8, 0.4), inset 0 0 40px rgba(234, 179, 8, 0.2); }
+}
+
+.animate-mystic-pulse {
+  animation: mystic-pulse 4s ease-in-out infinite;
+}
+
+@keyframes text-shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+.animate-text-shimmer {
+  background-size: 200% auto;
+  animation: text-shimmer 4s linear infinite;
+}
+
+/* Advanced Mystical Effects */
+@keyframes spin-gradient {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.animate-spin-gradient {
+  animation: spin-gradient 6s linear infinite;
+}
+
+@keyframes hue-shift {
+  0% { filter: hue-rotate(0deg) blur(100px) opacity(0.5); transform: scale(1); }
+  50% { filter: hue-rotate(45deg) blur(120px) opacity(0.8); transform: scale(1.1); }
+  100% { filter: hue-rotate(0deg) blur(100px) opacity(0.5); transform: scale(1); }
+}
+
+.animate-hue-shift {
+  animation: hue-shift 15s infinite alternate ease-in-out;
+}
+
+@keyframes fog-drift {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+.animate-fog-drift {
+  animation: fog-drift 60s linear infinite;
 }

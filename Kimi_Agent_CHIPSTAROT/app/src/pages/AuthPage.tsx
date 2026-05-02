@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';
 import { isSupabaseConfigured } from '@/lib/supabase';
@@ -17,6 +17,17 @@ export default function AuthPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  
+  // Mouse tracking for glowing orb
+  const [mousePos, setMousePos] = useState({ x: -1000, y: -1000 });
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      setMousePos({ x: e.clientX, y: e.clientY });
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -114,191 +125,348 @@ export default function AuthPage() {
   };
 
   const inputClass =
-    'w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all';
+    'w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-yellow-400/50 focus:bg-white/10 transition-all duration-300 backdrop-blur-sm group-hover/input:border-white/20 relative z-10';
+
+  // Dynamic content based on auth mode
+  const getDynamicContent = () => {
+    switch (mode) {
+      case 'register':
+        return {
+          icon: '📜',
+          title: 'Khế Ước Vì Sao',
+          desc: 'Trở thành một phần của vũ trụ. Mở khóa những thông điệp bí ẩn được sắp đặt riêng cho linh hồn bạn.',
+          orbColor: 'bg-yellow-500/20'
+        };
+      case 'forgot':
+        return {
+          icon: '🕯️',
+          title: 'Ánh Sáng Dẫn Lối',
+          desc: 'Lạc bước trong màn đêm? Đừng lo, các vì sao sẽ gửi ánh sáng để dẫn đường bạn trở về.',
+          orbColor: 'bg-blue-500/20'
+        };
+      case 'verify':
+        return {
+          icon: '👁️',
+          title: 'Nghi Thức Dấu Ấn',
+          desc: 'Kết nối linh hồn đã sẵn sàng. Hãy nhập dấu ấn gồm 6 ký tự từ các vì sao để hoàn tất nghi thức.',
+          orbColor: 'bg-cyan-500/20'
+        };
+      case 'login':
+      default:
+        return {
+          icon: '🔮',
+          title: 'Vũ Trụ Gọi Tên',
+          desc: 'Nhấc bức màn sương mù của định mệnh. Những thông điệp từ các vì sao đang chờ đón bạn.',
+          orbColor: 'bg-purple-500/20'
+        };
+    }
+  };
+
+  const currentContent = getDynamicContent();
 
   return (
-    <div className="min-h-[85vh] bg-gradient-to-br from-purple-900 via-purple-800 to-yellow-900 flex items-center justify-center p-4 py-12 relative overflow-hidden">
-      {/* Background blobs */}
-      <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob" />
-      <div className="absolute top-[-10%] right-[-10%] w-96 h-96 bg-yellow-500 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob animation-delay-2000" />
-      <div className="absolute bottom-[-20%] left-[20%] w-96 h-96 bg-pink-500 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob animation-delay-4000" />
+    <div className="min-h-[85vh] bg-[#030008] flex items-center justify-center p-4 py-12 relative overflow-hidden font-sans">
+      
+      {/* Interactive Mouse Glow Orb */}
+      <div 
+        className={`fixed w-96 h-96 ${currentContent.orbColor} rounded-full pointer-events-none filter blur-[80px] z-0 transition-all duration-1000 ease-in-out`}
+        style={{
+          transform: `translate(${mousePos.x - 192}px, ${mousePos.y - 192}px)`,
+          opacity: mousePos.x > 0 ? 1 : 0
+        }}
+      />
 
-      <div className="bg-white/10 backdrop-blur-xl rounded-3xl border border-white/20 p-8 max-w-md w-full shadow-2xl relative z-10 text-white">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-2xl mx-auto flex items-center justify-center text-3xl shadow-lg mb-4">
-            🔮
+      {/* Dynamic Background with Hue Shift */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+        <div className="absolute -top-[20%] -left-[10%] w-[70vw] h-[70vw] bg-purple-900/30 rounded-full mix-blend-screen animate-hue-shift" />
+        <div className="absolute top-[20%] -right-[10%] w-[60vw] h-[60vw] bg-indigo-900/30 rounded-full mix-blend-screen animate-hue-shift" style={{ animationDelay: '-5s' }} />
+        <div className="absolute -bottom-[20%] left-[20%] w-[80vw] h-[80vw] bg-yellow-900/20 rounded-full mix-blend-screen animate-hue-shift" style={{ animationDelay: '-10s' }} />
+        
+        {/* Fog Overlay */}
+        <div className="absolute inset-0 w-[200%] h-full opacity-30 mix-blend-screen animate-fog-drift" style={{ backgroundImage: 'url("https://www.transparenttextures.com/patterns/black-scales.png")' }}></div>
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-30 mix-blend-overlay"></div>
+      </div>
+
+      {/* Astrological / Tarot background wheel */}
+      <div className="absolute top-1/2 left-1/2 w-[90vw] max-w-[1000px] aspect-square opacity-[0.05] pointer-events-none animate-spin-slow origin-center z-0">
+        <svg viewBox="0 0 100 100" className="w-full h-full text-yellow-200 fill-current">
+          <circle cx="50" cy="50" r="48" fill="none" stroke="currentColor" strokeWidth="0.5" strokeDasharray="2 2"/>
+          <circle cx="50" cy="50" r="38" fill="none" stroke="currentColor" strokeWidth="0.5"/>
+          <circle cx="50" cy="50" r="28" fill="none" stroke="currentColor" strokeWidth="0.5" strokeDasharray="1 3"/>
+          <circle cx="50" cy="50" r="18" fill="none" stroke="currentColor" strokeWidth="0.2"/>
+          {[...Array(24)].map((_, i) => (
+            <line key={i} x1="50" y1="50" x2="50" y2="2" transform={`rotate(${i * 15} 50 50)`} stroke="currentColor" strokeWidth={i % 2 === 0 ? "0.3" : "0.1"} strokeDasharray={i % 2 === 0 ? "none" : "1 1"}/>
+          ))}
+          {/* Hexagram */}
+          <polygon points="50,15 80,67 20,67" fill="none" stroke="currentColor" strokeWidth="0.5" strokeDasharray="1 1"/>
+          <polygon points="50,85 80,33 20,33" fill="none" stroke="currentColor" strokeWidth="0.5" strokeDasharray="1 1"/>
+        </svg>
+      </div>
+
+      {/* Magical floating dust particles */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
+        {[...Array(30)].map((_, i) => (
+          <div 
+            key={i}
+            className="absolute bg-yellow-300 rounded-full animate-magic-dust"
+            style={{
+              top: `${Math.random() * 100}%`,
+              left: `${Math.random() * 100}%`,
+              width: `${Math.random() * 3 + 1}px`,
+              height: `${Math.random() * 3 + 1}px`,
+              animationDelay: `${Math.random() * 10}s`,
+              animationDuration: `${5 + Math.random() * 10}s`,
+              opacity: 0,
+              boxShadow: `0 0 ${Math.random() * 10 + 5}px rgba(253,224,71,0.8)`
+            }}
+          />
+        ))}
+      </div>
+
+      <div className="max-w-6xl w-full mx-auto relative z-10 flex flex-col lg:flex-row items-center gap-12 lg:gap-24">
+        
+        {/* Left Side: Graphic / Branding */}
+        <div className="hidden lg:flex flex-1 flex-col justify-center items-start text-white space-y-8 relative">
+          
+          <div className="inline-flex items-center justify-center p-6 bg-white/[0.02] backdrop-blur-2xl rounded-[2rem] border border-white/10 shadow-[0_0_50px_rgba(139,92,246,0.1)] mb-2 animate-float relative group cursor-pointer">
+            <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/20 to-purple-500/20 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-all duration-700 transform group-hover:scale-150"></div>
+            <span className="text-7xl filter drop-shadow-[0_0_20px_rgba(250,204,21,0.6)] relative z-10 animate-pulse transition-all duration-500 ease-in-out">{currentContent.icon}</span>
+            
+            {/* Orbiting rings */}
+            <div className="absolute inset-[-20%] border border-white/5 rounded-full animate-spin-slow"></div>
+            <div className="absolute inset-[-40%] border border-white/5 rounded-full animate-spin-slow" style={{ animationDirection: 'reverse', animationDuration: '40s' }}></div>
           </div>
-          <h1 className="text-2xl font-bold tracking-wider">
-            {mode === 'login' && 'ĐĂNG NHẬP'}
-            {mode === 'register' && 'TẠO TÀI KHOẢN'}
-            {mode === 'forgot' && 'KHÔI PHỤC MẬT KHẨU'}
-            {mode === 'verify' && 'XÁC THỰC EMAIL'}
-          </h1>
-          <p className="text-white/60 text-sm mt-2">
-            {mode === 'login' && 'Chào mừng trở lại với vũ trụ CHIPSTAROT'}
-            {mode === 'register' && 'Tham gia cùng hàng ngàn Reader khác'}
-            {mode === 'forgot' && 'Chúng tôi sẽ gửi mã khôi phục đến email của bạn'}
-            {mode === 'verify' && 'Vui lòng nhập mã gồm 6 chữ số đã được gửi tới email'}
-          </p>
-          {/* Demo badge */}
-          {!isSupabaseConfigured && (
-            <div className="mt-3 px-3 py-1.5 bg-yellow-400/20 border border-yellow-400/40 rounded-full text-yellow-300 text-xs inline-block">
-              ⚡ Chế độ Demo — Dùng: demo@chipstarot.com / 123456
-            </div>
-          )}
+          
+          <div className="animate-fade-in" key={mode}>
+            <h1 className="text-7xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-yellow-100 via-yellow-400 to-yellow-600 animate-text-shimmer drop-shadow-[0_0_15px_rgba(250,204,21,0.3)] mb-8">
+              {currentContent.title}
+            </h1>
+            
+            <p className="text-2xl text-white/70 leading-relaxed max-w-lg font-light">
+              {currentContent.desc}
+            </p>
+          </div>
+          
+          <div className="flex gap-6 mt-10">
+            {[
+              { icon: '✨', label: 'Trực Giác', color: 'hover:border-yellow-500/50 hover:shadow-[0_0_30px_rgba(234,179,8,0.3)] hover:text-yellow-200' },
+              { icon: '🌙', label: 'Tâm Linh', color: 'hover:border-purple-500/50 hover:shadow-[0_0_30px_rgba(168,85,247,0.3)] hover:text-purple-200' },
+              { icon: '⭐', label: 'Định Hướng', color: 'hover:border-yellow-500/50 hover:shadow-[0_0_30px_rgba(234,179,8,0.3)] hover:text-yellow-200' }
+            ].map((item, idx) => (
+              <div key={idx} className={`flex flex-col items-center justify-center bg-white/[0.03] backdrop-blur-xl border border-white/10 rounded-2xl p-5 w-32 transition-all duration-500 cursor-default group hover:-translate-y-3 ${item.color} relative overflow-hidden`}>
+                <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <span className="text-4xl mb-3 group-hover:scale-125 transition-transform duration-700 drop-shadow-[0_0_15px_rgba(255,255,255,0.5)] relative z-10">{item.icon}</span>
+                <span className="text-sm text-white/70 font-medium transition-colors relative z-10">{item.label}</span>
+              </div>
+            ))}
+          </div>
         </div>
 
-        {/* Error / Success banners */}
-        {error && (
-          <div className="bg-red-500/20 border border-red-500/50 text-red-200 p-3 rounded-lg text-sm mb-6 text-center">
-            {error}
+        {/* Right Side: Form */}
+        <div className="flex-1 w-full max-w-md lg:max-w-lg relative group/form">
+          
+          {/* Energy Shield Border Animation */}
+          <div className="absolute -inset-[2px] bg-gradient-to-r from-purple-500 via-yellow-400 to-pink-500 rounded-[2.5rem] opacity-0 group-hover/form:opacity-100 transition-opacity duration-1000 overflow-hidden pointer-events-none blur-[2px]">
+            <div className="absolute inset-[-50%] bg-[conic-gradient(from_0deg,transparent_0_340deg,white_360deg)] animate-spin-gradient"></div>
           </div>
-        )}
-        {success && (
-          <div className="bg-green-500/20 border border-green-500/50 text-green-200 p-3 rounded-lg text-sm mb-6 text-center">
-            {success}
-          </div>
-        )}
+          
+          {/* Form Container */}
+          <div className="bg-black/60 backdrop-blur-[40px] rounded-[2.5rem] border border-white/10 p-8 sm:p-10 shadow-[0_20px_50px_rgba(0,0,0,0.7)] relative overflow-hidden animate-mystic-pulse z-10 min-h-[500px] flex flex-col justify-center transition-all duration-500">
+            
+            {/* Form Inner Glow overlay */}
+            <div className="absolute inset-0 bg-gradient-to-br from-white/[0.05] to-transparent pointer-events-none"></div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {mode === 'register' && (
-            <div>
-              <label className="block text-sm font-medium text-white/80 mb-1">Họ và tên</label>
-              <input
-                id="auth-name"
-                type="text"
-                value={name}
-                onChange={e => setName(e.target.value)}
-                required
-                maxLength={100}
-                className={inputClass}
-                placeholder="Nhập họ tên của bạn"
-              />
-            </div>
-          )}
-
-          {mode !== 'verify' && (
-            <div>
-              <label className="block text-sm font-medium text-white/80 mb-1">Email</label>
-              <input
-                id="auth-email"
-                type="email"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                required
-                maxLength={255}
-                className={inputClass}
-                placeholder="Nhập địa chỉ email"
-              />
-            </div>
-          )}
-
-          {(mode === 'login' || mode === 'register') && (
-            <div className="space-y-4">
-              <div>
-                <div className="flex justify-between items-center mb-1">
-                  <label className="block text-sm font-medium text-white/80">Mật khẩu</label>
-                  {mode === 'login' && (
-                    <button
-                      type="button"
-                      onClick={() => setMode('forgot')}
-                      className="text-xs text-yellow-400 hover:text-yellow-300"
-                    >
-                      Quên mật khẩu?
-                    </button>
-                  )}
-                </div>
-                <input
-                  id="auth-password"
-                  type="password"
-                  value={password}
-                  onChange={e => setPassword(e.target.value)}
-                  required
-                  className={inputClass}
-                  placeholder="Nhập mật khẩu (Ít nhất 6 ký tự)"
-                />
+            {/* Header */}
+            <div className="text-center mb-12 relative z-10">
+              <div className="lg:hidden w-24 h-24 bg-white/5 border border-white/10 rounded-3xl mx-auto flex items-center justify-center text-5xl shadow-2xl mb-6 backdrop-blur-xl relative transition-all duration-500">
+                <div className="absolute inset-0 bg-yellow-400/20 blur-xl rounded-full animate-pulse"></div>
+                <span className="relative z-10 filter drop-shadow-[0_0_15px_rgba(250,204,21,0.6)]">{currentContent.icon}</span>
               </div>
-
-              {mode === 'register' && (
-                <div>
-                  <label className="block text-sm font-medium text-white/80 mb-1">Xác nhận mật khẩu</label>
-                  <input
-                    id="auth-confirm-password"
-                    type="password"
-                    value={confirmPassword}
-                    onChange={e => setConfirmPassword(e.target.value)}
-                    required
-                    className={inputClass}
-                    placeholder="Nhập lại mật khẩu"
-                  />
+              <h2 className="text-4xl font-extrabold tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-white to-white/70 mb-3 drop-shadow-md">
+                {mode === 'login' && 'Cánh Cửa Mở'}
+                {mode === 'register' && 'Khởi Trình Mới'}
+                {mode === 'forgot' && 'Tìm Lại Nguồn Sáng'}
+                {mode === 'verify' && 'Dấu Ấn Xác Thực'}
+              </h2>
+              <p className="text-white/60 text-base font-light">
+                {mode === 'login' && 'Bước qua màn đêm để tiếp tục hành trình'}
+                {mode === 'register' && 'Tạo liên kết linh hồn để nhận trải bài'}
+                {mode === 'forgot' && 'Nhập email để nhận mã khôi phục từ các vì sao'}
+                {mode === 'verify' && 'Điền 6 ký tự huyền bí từ hòm thư của bạn'}
+              </p>
+              
+              {!isSupabaseConfigured && (
+                <div className="mt-5 px-4 py-2 bg-yellow-500/10 border border-yellow-500/20 rounded-xl text-yellow-400 text-xs sm:text-sm inline-flex items-center gap-2 backdrop-blur-md shadow-[0_0_15px_rgba(234,179,8,0.1)]">
+                  <span className="animate-pulse drop-shadow-[0_0_5px_rgba(234,179,8,0.8)]">⚡</span> Demo: demo@chipstarot.com / 123456
                 </div>
               )}
             </div>
-          )}
 
-          {mode === 'verify' && (
-            <div>
-              <label className="block text-sm font-medium text-white/80 mb-1">Mã xác thực (OTP)</label>
-              <input
-                id="auth-otp"
-                type="text"
-                value={otp}
-                onChange={e => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                required
-                maxLength={6}
-                className={`${inputClass} text-center tracking-[0.5em] text-2xl`}
-                placeholder="••••••"
-              />
+            {/* Error / Success banners */}
+            <div className="relative z-10">
+              {error && (
+                <div className="bg-red-900/30 border border-red-500/50 text-red-200 p-4 rounded-xl text-sm mb-6 text-center animate-fade-in flex items-center justify-center gap-2 backdrop-blur-md shadow-[0_0_20px_rgba(239,68,68,0.2)]">
+                  <span className="drop-shadow-[0_0_5px_rgba(239,68,68,0.8)]">⚠️</span> {error}
+                </div>
+              )}
+              {success && (
+                <div className="bg-green-900/30 border border-green-500/50 text-green-200 p-4 rounded-xl text-sm mb-6 text-center animate-fade-in flex items-center justify-center gap-2 backdrop-blur-md shadow-[0_0_20px_rgba(34,197,94,0.2)]">
+                  <span className="drop-shadow-[0_0_5px_rgba(34,197,94,0.8)]">✨</span> {success}
+                </div>
+              )}
             </div>
-          )}
 
-          <button
-            id="auth-submit"
-            type="submit"
-            disabled={loading}
-            className="btn-3d-yellow w-full mt-6 flex justify-center items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
-          >
-            {loading ? (
-              <svg className="animate-spin h-5 w-5 text-purple-900" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-              </svg>
-            ) : null}
-            {loading
-              ? 'Đang xử lý...'
-              : mode === 'login' ? 'Đăng Nhập'
-              : mode === 'register' ? 'Đăng Ký'
-              : mode === 'forgot' ? 'Gửi Mã Khôi Phục'
-              : 'Xác Nhận'}
-          </button>
-        </form>
+            {/* Form */}
+            <form onSubmit={handleSubmit} className="space-y-6 relative z-10">
+              {mode === 'register' && (
+                <div className="space-y-2 group/input relative animate-fade-in" style={{ animationDelay: '0.1s' }}>
+                  <label className="block text-xs font-bold text-white/60 uppercase tracking-[0.2em] pl-1 group-focus-within/input:text-yellow-400 transition-colors duration-500">Họ và tên</label>
+                  <input
+                    id="auth-name"
+                    type="text"
+                    value={name}
+                    onChange={e => setName(e.target.value)}
+                    required
+                    maxLength={100}
+                    className={inputClass}
+                    placeholder="VD: Kẻ Lữ Hành"
+                  />
+                  <div className="absolute bottom-0 left-0 h-[2px] bg-gradient-to-r from-yellow-500 to-purple-500 w-0 group-focus-within/input:w-full transition-all duration-700 ease-out rounded-b-xl shadow-[0_0_10px_rgba(234,179,8,0.8)]"></div>
+                </div>
+              )}
 
-        {/* Footer links */}
-        <div className="mt-8 text-center text-sm text-white/60">
-          {mode === 'login' ? (
-            <p>
-              Chưa có tài khoản?{' '}
-              <button onClick={() => { setMode('register'); setError(''); }} className="text-yellow-400 font-bold hover:underline">
-                Đăng ký ngay
+              {mode !== 'verify' && (
+                <div className="space-y-2 group/input relative animate-fade-in" style={{ animationDelay: '0.2s' }}>
+                  <label className="block text-xs font-bold text-white/60 uppercase tracking-[0.2em] pl-1 group-focus-within/input:text-yellow-400 transition-colors duration-500">Email</label>
+                  <input
+                    id="auth-email"
+                    type="email"
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
+                    required
+                    maxLength={255}
+                    className={inputClass}
+                    placeholder="linhhon@vutru.com"
+                  />
+                  <div className="absolute bottom-0 left-0 h-[2px] bg-gradient-to-r from-yellow-500 to-purple-500 w-0 group-focus-within/input:w-full transition-all duration-700 ease-out rounded-b-xl shadow-[0_0_10px_rgba(234,179,8,0.8)]"></div>
+                </div>
+              )}
+
+              {(mode === 'login' || mode === 'register') && (
+                <div className="space-y-6">
+                  <div className="space-y-2 group/input relative animate-fade-in" style={{ animationDelay: '0.3s' }}>
+                    <div className="flex justify-between items-center pl-1">
+                      <label className="block text-xs font-bold text-white/60 uppercase tracking-[0.2em] group-focus-within/input:text-yellow-400 transition-colors duration-500">Mật khẩu</label>
+                      {mode === 'login' && (
+                        <button
+                          type="button"
+                          onClick={() => setMode('forgot')}
+                          className="text-xs font-medium text-yellow-400/70 hover:text-yellow-300 transition-all hover:drop-shadow-[0_0_8px_rgba(250,204,21,0.8)]"
+                        >
+                          Quên mật khẩu?
+                        </button>
+                      )}
+                    </div>
+                    <input
+                      id="auth-password"
+                      type="password"
+                      value={password}
+                      onChange={e => setPassword(e.target.value)}
+                      required
+                      className={inputClass}
+                      placeholder="••••••••"
+                    />
+                    <div className="absolute bottom-0 left-0 h-[2px] bg-gradient-to-r from-yellow-500 to-purple-500 w-0 group-focus-within/input:w-full transition-all duration-700 ease-out rounded-b-xl shadow-[0_0_10px_rgba(234,179,8,0.8)]"></div>
+                  </div>
+
+                  {mode === 'register' && (
+                    <div className="space-y-2 group/input relative animate-fade-in" style={{ animationDelay: '0.4s' }}>
+                      <label className="block text-xs font-bold text-white/60 uppercase tracking-[0.2em] pl-1 group-focus-within/input:text-yellow-400 transition-colors duration-500">Xác nhận chìa khóa</label>
+                      <input
+                        id="auth-confirm-password"
+                        type="password"
+                        value={confirmPassword}
+                        onChange={e => setConfirmPassword(e.target.value)}
+                        required
+                        className={inputClass}
+                        placeholder="••••••••"
+                      />
+                      <div className="absolute bottom-0 left-0 h-[2px] bg-gradient-to-r from-yellow-500 to-purple-500 w-0 group-focus-within/input:w-full transition-all duration-700 ease-out rounded-b-xl shadow-[0_0_10px_rgba(234,179,8,0.8)]"></div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {mode === 'verify' && (
+                <div className="space-y-2 group/input relative animate-fade-in">
+                  <label className="block text-xs font-bold text-white/60 uppercase tracking-[0.2em] pl-1 text-center group-focus-within/input:text-yellow-400 transition-colors duration-500">Mã Dấu Ấn (OTP)</label>
+                  <input
+                    id="auth-otp"
+                    type="text"
+                    value={otp}
+                    onChange={e => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                    required
+                    maxLength={6}
+                    className={`${inputClass} text-center tracking-[1em] text-4xl font-light h-24 shadow-inner bg-black/40`}
+                    placeholder="------"
+                  />
+                  <div className="absolute bottom-0 left-0 h-[2px] bg-gradient-to-r from-yellow-500 to-purple-500 w-0 group-focus-within/input:w-full transition-all duration-700 ease-out rounded-b-xl shadow-[0_0_10px_rgba(234,179,8,0.8)]"></div>
+                </div>
+              )}
+
+              <button
+                id="auth-submit"
+                type="submit"
+                disabled={loading}
+                className="w-full mt-10 py-4 px-6 bg-gradient-to-r from-yellow-500 via-yellow-400 to-yellow-600 hover:from-yellow-400 hover:to-yellow-500 text-yellow-950 text-lg font-bold rounded-xl shadow-[0_0_30px_rgba(234,179,8,0.4)] hover:shadow-[0_0_50px_rgba(234,179,8,0.7)] transition-all duration-500 transform hover:-translate-y-1 active:translate-y-0 flex justify-center items-center gap-3 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none relative overflow-hidden group/btn animate-fade-in"
+                style={{ animationDelay: mode === 'register' ? '0.5s' : '0.4s' }}
+              >
+                {/* Glowing light sweep over button */}
+                <div className="absolute inset-0 w-[200%] h-full bg-gradient-to-r from-transparent via-white/60 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000 ease-in-out"></div>
+                
+                {loading ? (
+                  <svg className="animate-spin h-6 w-6 text-yellow-950 relative z-10" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  </svg>
+                ) : null}
+                <span className="relative z-10 tracking-widest uppercase">
+                  {loading
+                    ? 'Đang kết nối...'
+                    : mode === 'login' ? 'Tiến Vào'
+                    : mode === 'register' ? 'Gia Nhập'
+                    : mode === 'forgot' ? 'Triệu Hồi Ánh Sáng'
+                    : 'Kích Hoạt Dấu Ấn'}
+                </span>
               </button>
-            </p>
-          ) : mode === 'register' ? (
-            <p>
-              Đã có tài khoản?{' '}
-              <button onClick={() => { setMode('login'); setError(''); }} className="text-yellow-400 font-bold hover:underline">
-                Đăng nhập
-              </button>
-            </p>
-          ) : (
-            <button
-              onClick={() => { setMode('login'); setError(''); setSuccess(''); }}
-              className="text-white/80 font-medium hover:text-white hover:underline"
-            >
-              ← Quay lại đăng nhập
-            </button>
-          )}
+            </form>
+
+            {/* Footer links */}
+            <div className="mt-10 pt-8 border-t border-white/10 text-center text-sm text-white/50 relative z-10 font-light animate-fade-in" style={{ animationDelay: '0.6s' }}>
+              {mode === 'login' ? (
+                <p>
+                  Chưa từng bước qua?{' '}
+                  <button onClick={() => { setMode('register'); setError(''); }} className="text-yellow-400 font-bold hover:text-yellow-300 hover:underline transition-all hover:drop-shadow-[0_0_8px_rgba(250,204,21,0.8)] tracking-wider">
+                    Bắt đầu hành trình
+                  </button>
+                </p>
+              ) : mode === 'register' ? (
+                <p>
+                  Đã là một lữ khách?{' '}
+                  <button onClick={() => { setMode('login'); setError(''); }} className="text-yellow-400 font-bold hover:text-yellow-300 hover:underline transition-all hover:drop-shadow-[0_0_8px_rgba(250,204,21,0.8)] tracking-wider">
+                    Quay về
+                  </button>
+                </p>
+              ) : (
+                <button
+                  onClick={() => { setMode('login'); setError(''); setSuccess(''); }}
+                  className="text-white/60 font-medium hover:text-white transition-all flex items-center justify-center gap-3 mx-auto hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.8)] tracking-widest uppercase text-xs"
+                >
+                  <span className="text-xl">←</span> Quay lại
+                </button>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </div>

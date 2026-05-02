@@ -1,8 +1,33 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, BarChart, Bar, Legend, PieChart, Pie, Cell } from 'recharts';
 
 export default function AdminPage({ setPage }: any) {
-  const [tab, setTab] = useState<'dashboard' | 'products' | 'orders' | 'users' | 'reports'>('dashboard');
+  const [tab, setTab] = useState<'dashboard' | 'products' | 'orders' | 'users' | 'reports' | 'cards' | 'nfcs' | 'blogs'>('dashboard');
+
+  const [tarotCards, setTarotCards] = useState<any[]>([]);
+  const [loadingCards, setLoadingCards] = useState(false);
+  const [editingCard, setEditingCard] = useState<any>(null);
+  const [viewingCard, setViewingCard] = useState<any>(null);
+  const [editingUser, setEditingUser] = useState<any>(null);
+  const [editingProduct, setEditingProduct] = useState<any>(null);
+  const [editingOrder, setEditingOrder] = useState<any>(null);
+  const [mockUsers, setMockUsers] = useState([
+    { id: 'US-001', name: 'Nguyễn Văn A', email: 'nva@chipstarot.com', role: 'Admin', status: 'active', joined: '15/01/2024', readings: 1250 },
+    { id: 'US-002', name: 'Trần Thị B', email: 'ttb_khachhang@gmail.com', role: 'Customer', status: 'active', joined: '20/04/2024', readings: 12 },
+    { id: 'US-003', name: 'Lê C', email: 'lec_spam@yahoo.com', role: 'Customer', status: 'banned', joined: '22/04/2024', readings: 0 },
+    { id: 'US-004', name: 'Phạm D', email: 'phamd123@gmail.com', role: 'Customer', status: 'unverified', joined: '25/04/2024', readings: 0 },
+  ]);
+
+  useEffect(() => {
+    setLoadingCards(true);
+    fetch('/tarot_database.json')
+      .then(r => r.json())
+      .then(d => { 
+        setTarotCards(d.cards || []); 
+        setLoadingCards(false); 
+      })
+      .catch(() => setLoadingCards(false));
+  }, []);
 
   const mockStats = [
     { label: 'Tổng Đơn Hàng', value: '128', icon: '📦', color: 'from-blue-400 to-blue-500' },
@@ -19,18 +44,24 @@ export default function AdminPage({ setPage }: any) {
   ];
 
   const mockProducts = [
-    { id: 1, name: 'Móc khóa NFC CHIPSTAROT', price: '199,000đ', stock: 45, status: 'active' },
-    { id: 2, name: 'Đá Thạch Anh Tím', price: '89,000đ', stock: 12, status: 'active' },
-    { id: 3, name: 'Đá Mắt Hổ', price: '79,000đ', stock: 0, status: 'out' },
-    { id: 4, name: 'Đá Thạch Anh Hồng', price: '85,000đ', stock: 8, status: 'active' },
+    { id: 1, name: 'Móc khóa NFC CHIPSTAROT', price: '199,000đ', stock: 45, status: 'active', image: '/nfc-keychain.jpg' },
+    { id: 2, name: 'Đá Thạch Anh Tím', price: '89,000đ', stock: 12, status: 'active', image: '/amethyst.jpg' },
+    { id: 3, name: 'Đá Mắt Hổ', price: '79,000đ', stock: 0, status: 'out', image: '/tiger-eye.jpg' },
+    { id: 4, name: 'Đá Thạch Anh Hồng', price: '85,000đ', stock: 8, status: 'active', image: '/rose-quartz.jpg' },
   ];
 
-  const mockUsers = [
-    { id: 'US-001', name: 'Nguyễn Văn A', email: 'nva@chipstarot.com', role: 'Admin', status: 'active', joined: '15/01/2024' },
-    { id: 'US-002', name: 'Trần Thị B', email: 'ttb_khachhang@gmail.com', role: 'Customer', status: 'active', joined: '20/04/2024' },
-    { id: 'US-003', name: 'Lê C', email: 'lec_spam@yahoo.com', role: 'Customer', status: 'banned', joined: '22/04/2024' },
-    { id: 'US-004', name: 'Phạm D', email: 'phamd123@gmail.com', role: 'Customer', status: 'unverified', joined: '25/04/2024' },
+  const mockNfcChips = [
+    { id: 'NFC-A10293', product: 'Móc khóa NFC CHIPSTAROT', owner: 'Lan Anh', status: 'activated', scans: 45, date: '12/03/2024' },
+    { id: 'NFC-B99212', product: 'Đá Thạch Anh Tím', owner: 'Minh Tuấn', status: 'unactivated', scans: 0, date: '-' },
+    { id: 'NFC-C77382', product: 'Đá Mắt Hổ', owner: 'Thu Hà', status: 'activated', scans: 12, date: '01/04/2024' },
   ];
+
+  const mockBlogs = [
+    { id: 1, title: 'Giải mã bí ẩn lá bài The Fool', author: 'Admin Tâm Linh', views: 1250, status: 'published', date: '25/04/2024' },
+    { id: 2, title: 'Cách thanh tẩy đá Thạch Anh đúng chuẩn', author: 'Admin Năng Lượng', views: 890, status: 'published', date: '20/04/2024' },
+    { id: 3, title: 'Dự báo năng lượng tuần mới (28/04 - 05/05)', author: 'Admin Tâm Linh', views: 0, status: 'draft', date: '28/04/2024' },
+  ];
+
 
   const mockReports = {
     system: [
@@ -79,9 +110,12 @@ export default function AdminPage({ setPage }: any) {
 
   const tabs = [
     { id: 'dashboard', label: '📊 Tổng quan' },
+    { id: 'users', label: '👥 Quản lý TK' },
+    { id: 'cards', label: '🎴 Quản lý Thẻ' },
     { id: 'products', label: '🛍️ Sản phẩm' },
     { id: 'orders', label: '📦 Đơn hàng' },
-    { id: 'users', label: '👥 Thành viên' },
+    { id: 'nfcs', label: '🏷️ Mã Chip NFC' },
+    { id: 'blogs', label: '✍️ Bài viết (Blog)' },
     { id: 'reports', label: '📈 Báo cáo' },
   ];
 
@@ -92,7 +126,7 @@ export default function AdminPage({ setPage }: any) {
           <img src="/chicken-mascot.png" alt="" className="w-8 h-8" />
           <span className="text-white font-bold text-lg">CHIPSTAROT <span className="text-yellow-400">Admin</span></span>
         </div>
-        <button onClick={() => setPage('home')} className="text-white/70 hover:text-white text-sm flex items-center gap-1">← Về trang người dùng</button>
+        <button onClick={() => setPage('home')} className="text-white/70 hover:text-white text-sm flex items-center gap-1 transition-colors">← Về trang người dùng</button>
       </div>
 
       <div className="flex">
@@ -100,30 +134,30 @@ export default function AdminPage({ setPage }: any) {
           <nav className="space-y-1 mt-4">
             {tabs.map(t => (
               <button key={t.id} onClick={() => setTab(t.id as any)}
-                className={`w-full text-left px-4 py-3 rounded-xl font-medium transition-all text-sm ${tab === t.id ? 'bg-yellow-500 text-white shadow-lg' : 'text-white/70 hover:bg-white/10 hover:text-white'}`}>
+                className={`w-full text-left px-4 py-3 rounded-xl font-medium transition-all text-sm ${tab === t.id ? 'bg-yellow-500 text-yellow-950 shadow-[0_0_15px_rgba(234,179,8,0.4)]' : 'text-white/70 hover:bg-white/10 hover:text-white'}`}>
                 {t.label}
               </button>
             ))}
           </nav>
         </aside>
 
-        <div className="md:hidden w-full fixed bottom-0 left-0 bg-purple-900/95 border-t border-white/10 flex z-40">
+        <div className="md:hidden w-full fixed bottom-0 left-0 bg-purple-900/95 border-t border-white/10 flex z-40 overflow-x-auto">
           {tabs.map(t => (
             <button key={t.id} onClick={() => setTab(t.id as any)}
-              className={`flex-1 py-3 text-xs font-medium ${tab === t.id ? 'text-yellow-400' : 'text-white/60'}`}>
-              {t.label.split(' ')[0]}
+              className={`flex-none px-4 py-4 text-xs font-medium whitespace-nowrap ${tab === t.id ? 'text-yellow-400 border-t-2 border-yellow-400' : 'text-white/60'}`}>
+              {t.label}
             </button>
           ))}
         </div>
 
-        <main className="flex-1 p-6 pb-24 md:pb-6">
+        <main className="flex-1 p-6 pb-24 md:pb-6 overflow-y-auto h-[calc(100vh-64px)]">
           {tab === 'dashboard' && (
-            <div>
+            <div className="animate-fade-in">
               <h1 className="text-2xl font-bold text-white mb-6">📊 Tổng Quan Hệ Thống</h1>
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
                 {mockStats.map(s => (
-                  <div key={s.label} className="bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/10">
-                    <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${s.color} flex items-center justify-center text-lg mb-3`}>{s.icon}</div>
+                  <div key={s.label} className="bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/10 hover:bg-white/20 transition-all cursor-default">
+                    <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${s.color} flex items-center justify-center text-lg mb-3 shadow-lg`}>{s.icon}</div>
                     <p className="text-2xl font-bold text-white">{s.value}</p>
                     <p className="text-white/60 text-sm mt-1">{s.label}</p>
                   </div>
@@ -139,7 +173,7 @@ export default function AdminPage({ setPage }: any) {
                       <th className="text-left py-2">Trạng thái</th>
                     </tr></thead>
                     <tbody>{mockOrders.map(o => (
-                      <tr key={o.id} className="border-b border-white/5 text-white/80">
+                      <tr key={o.id} className="border-b border-white/5 text-white/80 hover:bg-white/5 transition-colors">
                         <td className="py-3 pr-4 font-mono text-yellow-400">{o.id}</td>
                         <td className="py-3 pr-4">{o.customer}</td>
                         <td className="py-3 pr-4">{o.product}</td>
@@ -154,10 +188,10 @@ export default function AdminPage({ setPage }: any) {
           )}
 
           {tab === 'products' && (
-            <div>
+            <div className="animate-fade-in">
               <div className="flex items-center justify-between mb-6">
                 <h1 className="text-2xl font-bold text-white">🛍️ Quản Lý Sản Phẩm</h1>
-                <button className="btn-3d-yellow text-sm px-5 py-2">+ Thêm sản phẩm</button>
+                <button onClick={() => setEditingProduct({})} className="bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-400 hover:to-yellow-500 text-yellow-950 font-bold text-sm px-5 py-2 rounded-xl shadow-lg transition-all transform hover:-translate-y-1">+ Thêm sản phẩm</button>
               </div>
               <div className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/10 overflow-hidden">
                 <table className="w-full text-sm">
@@ -167,14 +201,19 @@ export default function AdminPage({ setPage }: any) {
                     <th className="text-left p-4">Thao tác</th>
                   </tr></thead>
                   <tbody>{mockProducts.map(p => (
-                    <tr key={p.id} className="border-t border-white/10 text-white/80">
-                      <td className="p-4 font-medium">{p.name}</td>
+                    <tr key={p.id} className="border-t border-white/10 text-white/80 hover:bg-white/5 transition-colors">
+                      <td className="p-4">
+                        <div className="flex items-center gap-3">
+                          <img src={p.image || '/logo-chipstarot.png'} alt="" className="w-10 h-10 object-cover rounded-lg bg-white/10 border border-white/20" onError={(e:any) => e.target.src='/logo-chipstarot.png'} />
+                          <span className="font-bold text-white">{p.name}</span>
+                        </div>
+                      </td>
                       <td className="p-4 text-yellow-400 font-semibold">{p.price}</td>
                       <td className="p-4"><span className={p.stock === 0 ? 'text-red-400' : p.stock < 10 ? 'text-yellow-400' : 'text-green-400'}>{p.stock === 0 ? 'Hết hàng' : `${p.stock} cái`}</span></td>
                       <td className="p-4"><span className={`px-2 py-1 rounded-full text-xs ${p.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>{p.status === 'active' ? 'Đang bán' : 'Hết hàng'}</span></td>
                       <td className="p-4">
                         <div className="flex gap-2">
-                          <button className="px-3 py-1 bg-yellow-500/20 hover:bg-yellow-500/40 text-yellow-300 rounded-lg text-xs transition-all">Sửa</button>
+                          <button onClick={() => setEditingProduct(p)} className="px-3 py-1 bg-yellow-500/20 hover:bg-yellow-500/40 text-yellow-300 rounded-lg text-xs transition-all">Sửa</button>
                           <button className="px-3 py-1 bg-red-500/20 hover:bg-red-500/40 text-red-300 rounded-lg text-xs transition-all">Ẩn</button>
                         </div>
                       </td>
@@ -186,11 +225,11 @@ export default function AdminPage({ setPage }: any) {
           )}
 
           {tab === 'orders' && (
-            <div>
+            <div className="animate-fade-in">
               <h1 className="text-2xl font-bold text-white mb-6">📦 Quản Lý Đơn Hàng</h1>
               <div className="flex gap-2 mb-6 flex-wrap">
                 {['Tất cả', 'Chờ xác nhận', 'Đang xử lý', 'Đang giao', 'Đã giao', 'Đã huỷ'].map(s => (
-                  <button key={s} className="px-4 py-2 rounded-full text-sm bg-white/10 text-white/70 hover:bg-yellow-500 hover:text-white transition-all">{s}</button>
+                  <button key={s} className="px-4 py-2 rounded-full text-sm bg-white/10 text-white/70 hover:bg-yellow-500 hover:text-yellow-950 hover:font-bold transition-all">{s}</button>
                 ))}
               </div>
               <div className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/10 overflow-x-auto">
@@ -202,7 +241,7 @@ export default function AdminPage({ setPage }: any) {
                     <th className="text-left p-4">Cập nhật</th>
                   </tr></thead>
                   <tbody>{mockOrders.map(o => (
-                    <tr key={o.id} className="border-t border-white/10 text-white/80">
+                    <tr key={o.id} className="border-t border-white/10 text-white/80 hover:bg-white/5 transition-colors">
                       <td className="p-4 font-mono text-yellow-400">{o.id}</td>
                       <td className="p-4">{o.customer}</td>
                       <td className="p-4">{o.product}</td>
@@ -210,13 +249,7 @@ export default function AdminPage({ setPage }: any) {
                       <td className="p-4 text-white/50">{o.date}</td>
                       <td className="p-4"><span className={`px-2 py-1 rounded-full text-xs font-medium ${statusBadge[o.status]}`}>{statusLabel[o.status]}</span></td>
                       <td className="p-4">
-                        <select className="bg-white/10 text-white/80 border border-white/20 rounded-lg px-2 py-1 text-xs focus:outline-none focus:border-yellow-400">
-                          <option value="pending">Chờ xác nhận</option>
-                          <option value="processing">Đang xử lý</option>
-                          <option value="shipped">Đang giao</option>
-                          <option value="delivered">Đã giao</option>
-                          <option value="cancelled">Huỷ</option>
-                        </select>
+                        <button onClick={() => setEditingOrder(o)} className="px-3 py-1 bg-yellow-500/10 hover:bg-yellow-500/30 border border-yellow-500/30 text-yellow-300 rounded-lg text-xs transition-all shadow-sm">Chi tiết & Cập nhật</button>
                       </td>
                     </tr>
                   ))}</tbody>
@@ -226,56 +259,220 @@ export default function AdminPage({ setPage }: any) {
           )}
 
           {tab === 'users' && (
-            <div>
+            <div className="animate-fade-in">
               <div className="flex items-center justify-between mb-6">
-                <h1 className="text-2xl font-bold text-white">👥 Quản Lý Thành Viên & Phân Quyền</h1>
-                <button className="btn-3d-yellow text-sm px-5 py-2">+ Thêm tài khoản</button>
+                <div>
+                  <h1 className="text-2xl font-bold text-white">👥 Quản Lý Tài Khoản</h1>
+                  <p className="text-white/60 text-sm mt-1">Quản lý người dùng, lữ khách và phân quyền hệ thống</p>
+                </div>
+                <button onClick={() => setEditingUser({})} className="bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-400 hover:to-yellow-500 text-yellow-950 font-bold text-sm px-5 py-2 rounded-xl shadow-[0_0_15px_rgba(234,179,8,0.3)] transition-all transform hover:-translate-y-1">+ Thêm tài khoản</button>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                {[{label:'Tổng tài khoản',v:'342',c:'from-purple-400 to-purple-600'},{label:'Admin/Nhân viên',v:'12',c:'from-blue-400 to-blue-600'},{label:'Bị khoá',v:'5',c:'from-red-400 to-red-600'}].map(s => (
-                  <div key={s.label} className={`bg-gradient-to-br ${s.c} rounded-2xl p-5 shadow-lg border border-white/10`}>
-                    <p className="text-3xl font-bold text-white">{s.v}</p>
-                    <p className="text-white/80 text-sm mt-1">{s.label}</p>
+                {[{label:'Tổng tài khoản',v:'342',c:'from-purple-500/80 to-purple-800/80', i:'👥'},{label:'Admin/Nhân viên',v:'12',c:'from-blue-500/80 to-blue-800/80', i:'🛡️'},{label:'Đang bị khoá',v:'5',c:'from-red-500/80 to-red-800/80', i:'🚫'}].map(s => (
+                  <div key={s.label} className={`bg-gradient-to-br ${s.c} backdrop-blur-md rounded-2xl p-5 shadow-lg border border-white/20 relative overflow-hidden group`}>
+                    <div className="absolute -right-4 -top-4 text-6xl opacity-20 group-hover:scale-110 transition-transform">{s.i}</div>
+                    <p className="text-4xl font-black text-white relative z-10">{s.v}</p>
+                    <p className="text-white/80 font-medium text-sm mt-1 relative z-10">{s.label}</p>
                   </div>
                 ))}
               </div>
-              <div className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/10 overflow-hidden">
+              <div className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/10 overflow-hidden shadow-2xl">
                 <table className="w-full text-sm">
                   <thead className="bg-white/5"><tr className="text-white/50">
-                    <th className="text-left p-4">ID / Ngày tham gia</th>
-                    <th className="text-left p-4">Thông tin (Tên & Email)</th>
-                    <th className="text-left p-4">Vai trò (Role)</th>
-                    <th className="text-left p-4">Trạng thái</th>
-                    <th className="text-left p-4">Thao tác</th>
+                    <th className="text-left p-4 font-semibold uppercase tracking-wider text-xs">ID / Ngày tham gia</th>
+                    <th className="text-left p-4 font-semibold uppercase tracking-wider text-xs">Thông tin Lữ khách</th>
+                    <th className="text-left p-4 font-semibold uppercase tracking-wider text-xs">Số lượt bốc</th>
+                    <th className="text-left p-4 font-semibold uppercase tracking-wider text-xs">Phân Quyền</th>
+                    <th className="text-left p-4 font-semibold uppercase tracking-wider text-xs">Trạng thái</th>
+                    <th className="text-left p-4 font-semibold uppercase tracking-wider text-xs">Thao tác</th>
                   </tr></thead>
                   <tbody>{mockUsers.map(u => (
-                    <tr key={u.id} className="border-t border-white/10 text-white/80">
+                    <tr key={u.id} className="border-t border-white/10 text-white/80 hover:bg-white/5 transition-colors">
                       <td className="p-4">
                         <p className="font-mono text-yellow-400 font-bold">{u.id}</p>
                         <p className="text-xs text-white/50">{u.joined}</p>
                       </td>
                       <td className="p-4">
-                        <p className="font-bold">{u.name}</p>
-                        <p className="text-xs text-white/60">{u.email}</p>
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-yellow-500 flex items-center justify-center text-white font-bold text-xs shadow-md">
+                            {u.name.charAt(0)}
+                          </div>
+                          <div>
+                            <p className="font-bold text-white">{u.name}</p>
+                            <p className="text-xs text-white/50">{u.email}</p>
+                          </div>
+                        </div>
                       </td>
                       <td className="p-4">
-                        <select className={`bg-white/10 border-white/20 rounded-lg px-2 py-1 text-xs focus:outline-none focus:border-yellow-400 ${u.role === 'Admin' ? 'text-purple-300 font-bold' : 'text-white/80'}`} defaultValue={u.role}>
-                          <option value="Admin">Admin</option>
-                          <option value="Customer">Khách hàng</option>
+                        <span className="bg-white/10 px-3 py-1 rounded-full font-mono text-yellow-300">{u.readings}</span>
+                      </td>
+                      <td className="p-4">
+                        <select className={`bg-white/5 border border-white/20 rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-yellow-400 focus:bg-purple-900 transition-colors ${u.role === 'Admin' ? 'text-purple-300 font-bold border-purple-500/50' : 'text-white/80'}`} defaultValue={u.role}>
+                          <option value="Admin" className="bg-purple-900">Admin</option>
+                          <option value="Customer" className="bg-purple-900">Khách hàng</option>
                         </select>
                       </td>
                       <td className="p-4">
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${u.status === 'active' ? 'bg-green-100 text-green-700' : u.status === 'banned' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-700'}`}>
+                        <span className={`px-3 py-1.5 rounded-full text-xs font-bold border ${u.status === 'active' ? 'border-green-500/50 text-green-400 bg-green-500/10' : u.status === 'banned' ? 'border-red-500/50 text-red-400 bg-red-500/10' : 'border-gray-500/50 text-gray-400 bg-gray-500/10'}`}>
                           {u.status === 'active' ? 'Hoạt động' : u.status === 'banned' ? 'Đã bị khoá' : 'Chưa xác minh'}
                         </span>
                       </td>
                       <td className="p-4">
                         <div className="flex gap-2">
-                          <button className="px-3 py-1 bg-yellow-500/20 hover:bg-yellow-500/40 text-yellow-300 rounded-lg text-xs transition-all">Sửa</button>
-                          <button className={`px-3 py-1 rounded-lg text-xs transition-all ${u.status === 'banned' ? 'bg-green-500/20 text-green-300' : 'bg-red-500/20 text-red-300'}`}>
+                          <button onClick={() => setEditingUser(u)} className="px-3 py-1 bg-yellow-500/10 hover:bg-yellow-500/30 border border-yellow-500/30 text-yellow-300 rounded-lg text-xs transition-all shadow-sm">Sửa</button>
+                          <button className={`px-3 py-1 rounded-lg text-xs transition-all border shadow-sm ${u.status === 'banned' ? 'bg-green-500/10 hover:bg-green-500/30 border-green-500/30 text-green-300' : 'bg-red-500/10 hover:bg-red-500/30 border-red-500/30 text-red-300'}`}>
                             {u.status === 'banned' ? 'Mở khoá' : 'Khoá'}
                           </button>
                         </div>
+                      </td>
+                    </tr>
+                  ))}</tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {tab === 'cards' && (
+            <div className="animate-fade-in">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h1 className="text-2xl font-bold text-white">🎴 Quản Lý Thẻ Tarot</h1>
+                  <p className="text-white/60 text-sm mt-1">Cập nhật ý nghĩa, hình ảnh và phân loại các lá bài trong bộ bài</p>
+                </div>
+                <button onClick={() => setEditingCard({})} className="bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-400 hover:to-yellow-500 text-yellow-950 font-bold text-sm px-5 py-2 rounded-xl shadow-[0_0_15px_rgba(234,179,8,0.3)] transition-all transform hover:-translate-y-1">+ Thêm Thẻ Mới</button>
+              </div>
+              <div className="flex gap-2 mb-6 flex-wrap">
+                {['Tất cả (78)', 'Major Arcana (22)', 'Minor Arcana (56)', 'Wands', 'Cups', 'Swords', 'Pentacles'].map((s, i) => (
+                  <button key={s} className={`px-4 py-2 rounded-full text-sm transition-all ${i === 0 ? 'bg-yellow-500 text-yellow-950 font-bold shadow-lg' : 'bg-white/10 text-white/70 hover:bg-white/20 hover:text-white'}`}>{s}</button>
+                ))}
+              </div>
+              <div className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/10 overflow-hidden shadow-2xl">
+                <table className="w-full text-sm">
+                  <thead className="bg-white/5"><tr className="text-white/50">
+                    <th className="text-left p-4 font-semibold uppercase tracking-wider text-xs">Mã Thẻ</th>
+                    <th className="text-left p-4 font-semibold uppercase tracking-wider text-xs">Tên Thẻ (Eng / VN)</th>
+                    <th className="text-left p-4 font-semibold uppercase tracking-wider text-xs">Phân loại</th>
+                    <th className="text-left p-4 font-semibold uppercase tracking-wider text-xs">Nguyên tố</th>
+                    <th className="text-left p-4 font-semibold uppercase tracking-wider text-xs">Trạng thái</th>
+                    <th className="text-left p-4 font-semibold uppercase tracking-wider text-xs">Thao tác</th>
+                  </tr></thead>
+                  <tbody>
+                    {loadingCards ? (
+                      <tr><td colSpan={6} className="p-8 text-center text-white/50">Đang tải dữ liệu bộ bài... 🔮</td></tr>
+                    ) : tarotCards.map((c, idx) => {
+                      const suit = c.name.split(' of ')[1];
+                      let element = 'Air';
+                      if (suit === 'Wands') element = 'Fire';
+                      if (suit === 'Cups') element = 'Water';
+                      if (suit === 'Pentacles') element = 'Earth';
+                      if (suit === 'Swords') element = 'Air';
+                      if (c.arcana === 'Major Arcana') element = 'Spirit';
+
+                      return (
+                      <tr key={c.id || idx} className="border-t border-white/10 text-white/80 hover:bg-white/5 transition-colors">
+                        <td className="p-4 font-mono text-yellow-400 font-bold">T{String(c.id || idx).padStart(2, '0')}</td>
+                        <td className="p-4">
+                          <div className="flex items-center gap-3">
+                            <img src={c.image || '/card-back.png'} className="w-10 h-14 object-cover rounded-md border border-white/20 shadow-lg" onError={e => (e.currentTarget.src = '/card-back.png')} alt="" />
+                            <div>
+                              <span className="font-bold text-white text-base block">{c.name}</span>
+                              <span className="text-xs text-white/50 line-clamp-1 w-48" title={c.meanings?.upright || c.meanings?.general}>{c.meanings?.upright || c.meanings?.general || 'Chưa cập nhật ý nghĩa'}</span>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="p-4">
+                          <span className="text-white/70 bg-white/5 px-2 py-1 rounded-md text-xs whitespace-nowrap">{c.arcana || 'Unknown'}</span>
+                        </td>
+                        <td className="p-4">
+                          <span className={`px-3 py-1 rounded-lg text-xs font-medium border whitespace-nowrap ${element === 'Fire' ? 'border-red-500/50 text-red-300 bg-red-500/10' : element === 'Water' ? 'border-blue-500/50 text-blue-300 bg-blue-500/10' : element === 'Earth' ? 'border-green-500/50 text-green-300 bg-green-500/10' : element === 'Spirit' ? 'border-purple-500/50 text-purple-300 bg-purple-500/10' : 'border-gray-400/50 text-gray-300 bg-gray-400/10'}`}>
+                            {element === 'Fire' ? '🔥 Fire' : element === 'Water' ? '💧 Water' : element === 'Earth' ? '🌍 Earth' : element === 'Spirit' ? '✨ Spirit' : '💨 Air'}
+                          </span>
+                        </td>
+                        <td className="p-4">
+                          <span className="px-3 py-1 rounded-full text-xs font-bold border border-green-500/50 text-green-400 bg-green-500/10 whitespace-nowrap">
+                            Đã xuất bản
+                          </span>
+                        </td>
+                        <td className="p-4">
+                          <div className="flex gap-2">
+                            <button onClick={() => setViewingCard(c)} className="px-3 py-1.5 bg-cyan-500/10 hover:bg-cyan-500/30 border border-cyan-500/30 text-cyan-300 rounded-lg text-xs transition-all shadow-sm whitespace-nowrap">Xem chi tiết</button>
+                            <button onClick={() => setEditingCard(c)} className="px-3 py-1.5 bg-yellow-500/10 hover:bg-yellow-500/30 border border-yellow-500/30 text-yellow-300 rounded-lg text-xs transition-all shadow-sm whitespace-nowrap">Sửa nội dung</button>
+                          </div>
+                        </td>
+                      </tr>
+                    )})}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {tab === 'nfcs' && (
+            <div className="animate-fade-in">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h1 className="text-2xl font-bold text-white">🏷️ Quản Lý Chip NFC</h1>
+                  <p className="text-white/60 text-sm mt-1">Theo dõi các lõi NFC vật lý được gắn vào sản phẩm tâm linh</p>
+                </div>
+                <button className="bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-400 hover:to-yellow-500 text-yellow-950 font-bold text-sm px-5 py-2 rounded-xl shadow-lg transition-all transform hover:-translate-y-1">+ Gắn Chip Mới</button>
+              </div>
+              <div className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/10 overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead className="bg-white/5"><tr className="text-white/50">
+                    <th className="text-left p-4">Mã Chip (NFC Tag ID)</th><th className="text-left p-4">Sản Phẩm Đính Kèm</th>
+                    <th className="text-left p-4">Chủ sở hữu</th><th className="text-left p-4">Lượt Quét</th>
+                    <th className="text-left p-4">Trạng thái</th><th className="text-left p-4">Thao tác</th>
+                  </tr></thead>
+                  <tbody>{mockNfcChips.map(n => (
+                    <tr key={n.id} className="border-t border-white/10 text-white/80 hover:bg-white/5 transition-colors">
+                      <td className="p-4 font-mono font-bold text-cyan-400">{n.id}</td>
+                      <td className="p-4">{n.product}</td>
+                      <td className="p-4 font-semibold">{n.owner}</td>
+                      <td className="p-4 font-mono">{n.scans}</td>
+                      <td className="p-4">
+                        <span className={`px-2 py-1 rounded-full text-xs font-bold border ${n.status === 'activated' ? 'border-green-500/50 text-green-400 bg-green-500/10' : 'border-gray-500/50 text-gray-400 bg-gray-500/10'}`}>
+                          {n.status === 'activated' ? 'Đã kích hoạt' : 'Chưa kích hoạt'}
+                        </span>
+                      </td>
+                      <td className="p-4">
+                        <button className="px-3 py-1 bg-yellow-500/10 hover:bg-yellow-500/30 border border-yellow-500/30 text-yellow-300 rounded-lg text-xs transition-all shadow-sm">Thu hồi / Sửa</button>
+                      </td>
+                    </tr>
+                  ))}</tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {tab === 'blogs' && (
+            <div className="animate-fade-in">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h1 className="text-2xl font-bold text-white">✍️ Nội Dung & Bài Viết</h1>
+                  <p className="text-white/60 text-sm mt-1">Viết blog chia sẻ kiến thức tâm linh, phong thủy, và Tarot</p>
+                </div>
+                <button className="bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-400 hover:to-yellow-500 text-yellow-950 font-bold text-sm px-5 py-2 rounded-xl shadow-lg transition-all transform hover:-translate-y-1">✍️ Viết Bài Mới</button>
+              </div>
+              <div className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/10 overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead className="bg-white/5"><tr className="text-white/50">
+                    <th className="text-left p-4">Tiêu đề bài viết</th><th className="text-left p-4">Tác giả</th>
+                    <th className="text-left p-4">Lượt xem</th><th className="text-left p-4">Ngày đăng</th>
+                    <th className="text-left p-4">Trạng thái</th><th className="text-left p-4">Thao tác</th>
+                  </tr></thead>
+                  <tbody>{mockBlogs.map(b => (
+                    <tr key={b.id} className="border-t border-white/10 text-white/80 hover:bg-white/5 transition-colors">
+                      <td className="p-4 font-bold text-white text-base">{b.title}</td>
+                      <td className="p-4">{b.author}</td>
+                      <td className="p-4 font-mono text-yellow-400">{b.views}</td>
+                      <td className="p-4">{b.date}</td>
+                      <td className="p-4">
+                        <span className={`px-2 py-1 rounded-full text-xs font-bold border ${b.status === 'published' ? 'border-green-500/50 text-green-400 bg-green-500/10' : 'border-yellow-500/50 text-yellow-400 bg-yellow-500/10'}`}>
+                          {b.status === 'published' ? 'Đã xuất bản' : 'Bản nháp'}
+                        </span>
+                      </td>
+                      <td className="p-4">
+                        <button className="px-3 py-1 bg-yellow-500/10 hover:bg-yellow-500/30 border border-yellow-500/30 text-yellow-300 rounded-lg text-xs transition-all shadow-sm">Chỉnh sửa</button>
                       </td>
                     </tr>
                   ))}</tbody>
@@ -396,6 +593,236 @@ export default function AdminPage({ setPage }: any) {
           )}
         </main>
       </div>
+
+      {/* EDIT CARD MODAL */}
+      {editingCard && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-purple-900 border border-yellow-500/30 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b border-white/10 flex justify-between items-center sticky top-0 bg-purple-900/90 backdrop-blur-md z-10">
+              <h2 className="text-xl font-bold text-white flex items-center gap-2">✨ Chỉnh sửa Thẻ Bài: <span className="text-yellow-400">{editingCard.name}</span></h2>
+              <button onClick={() => setEditingCard(null)} className="text-white/50 hover:text-white text-2xl">&times;</button>
+            </div>
+            <div className="p-6 space-y-4">
+              <div className="flex gap-6">
+                <div className="w-1/3">
+                  <label className="text-xs text-white/60 mb-1 block">Hình ảnh (URL)</label>
+                  <img src={editingCard.image || '/card-back.png'} className="w-full aspect-[2/3] object-cover rounded-xl border border-white/20 mb-2" onError={(e:any) => e.target.src='/card-back.png'} />
+                  <input type="text" className="w-full bg-white/5 border border-white/20 rounded-lg px-3 py-2 text-sm text-white focus:border-yellow-400 focus:outline-none" defaultValue={editingCard.image} />
+                </div>
+                <div className="w-2/3 space-y-4">
+                  <div>
+                    <label className="text-xs text-white/60 mb-1 block">Tên thẻ bài</label>
+                    <input type="text" className="w-full bg-white/5 border border-white/20 rounded-lg px-3 py-2 text-sm text-white focus:border-yellow-400 focus:outline-none" defaultValue={editingCard.name} />
+                  </div>
+                  <div>
+                    <label className="text-xs text-white/60 mb-1 block">Phân loại (Arcana)</label>
+                    <input type="text" className="w-full bg-white/5 border border-white/20 rounded-lg px-3 py-2 text-sm text-white focus:border-yellow-400 focus:outline-none" defaultValue={editingCard.arcana} />
+                  </div>
+                </div>
+              </div>
+              <div className="space-y-3 pt-4 border-t border-white/10">
+                <h3 className="text-yellow-400 font-bold text-sm">Ý Nghĩa Chi Tiết</h3>
+                <div>
+                  <label className="text-xs text-white/60 mb-1 block">Nghĩa Tổng Quan (General)</label>
+                  <textarea className="w-full bg-white/5 border border-white/20 rounded-lg px-3 py-2 text-sm text-white focus:border-yellow-400 focus:outline-none h-20" defaultValue={editingCard.meanings?.general} />
+                </div>
+                <div>
+                  <label className="text-xs text-white/60 mb-1 block">Nghĩa Xuôi (Upright)</label>
+                  <textarea className="w-full bg-white/5 border border-white/20 rounded-lg px-3 py-2 text-sm text-white focus:border-yellow-400 focus:outline-none h-20" defaultValue={editingCard.meanings?.upright} />
+                </div>
+                <div>
+                  <label className="text-xs text-white/60 mb-1 block">Nghĩa Ngược (Reversed)</label>
+                  <textarea className="w-full bg-white/5 border border-white/20 rounded-lg px-3 py-2 text-sm text-white focus:border-yellow-400 focus:outline-none h-20" defaultValue={editingCard.meanings?.reversed} />
+                </div>
+              </div>
+            </div>
+            <div className="p-6 border-t border-white/10 flex justify-end gap-3 sticky bottom-0 bg-purple-900/90 backdrop-blur-md">
+              <button onClick={() => setEditingCard(null)} className="px-5 py-2 rounded-xl text-sm font-medium text-white/70 hover:bg-white/10">Hủy</button>
+              <button onClick={() => { alert('Đã lưu dữ liệu thẻ bài!'); setEditingCard(null); }} className="px-5 py-2 rounded-xl text-sm font-bold bg-gradient-to-r from-yellow-500 to-yellow-600 text-yellow-950 hover:from-yellow-400 hover:to-yellow-500 shadow-lg">Lưu Thay Đổi</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* VIEW CARD MODAL */}
+      {viewingCard && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-purple-900 border border-cyan-500/30 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b border-white/10 flex justify-between items-center sticky top-0 bg-purple-900/90 backdrop-blur-md z-10">
+              <h2 className="text-xl font-bold text-white flex items-center gap-2">🔍 Chi tiết Thẻ Bài: <span className="text-cyan-400">{viewingCard.name}</span></h2>
+              <button onClick={() => setViewingCard(null)} className="text-white/50 hover:text-white text-2xl">&times;</button>
+            </div>
+            <div className="p-6 flex gap-6">
+              <div className="w-1/3">
+                <div className="rounded-xl overflow-hidden shadow-[0_0_20px_rgba(34,211,238,0.3)]">
+                  <img src={viewingCard.image || '/card-back.png'} className="w-full aspect-[2/3] object-cover" onError={(e:any) => e.target.src='/card-back.png'} />
+                </div>
+              </div>
+              <div className="w-2/3 space-y-4">
+                <div>
+                  <h3 className="text-sm font-bold text-white/60 mb-1">Tên thẻ</h3>
+                  <p className="text-lg font-bold text-white">{viewingCard.name}</p>
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-white/60 mb-1">Phân loại</h3>
+                  <p className="text-white bg-white/5 inline-block px-3 py-1 rounded-lg">{viewingCard.arcana || 'Không rõ'}</p>
+                </div>
+                
+                <div className="space-y-3 pt-4 border-t border-white/10">
+                  <div>
+                    <h3 className="text-sm font-bold text-cyan-400 mb-1">📖 Ý Nghĩa Tổng Quan</h3>
+                    <p className="text-sm text-white/80 leading-relaxed bg-white/5 p-3 rounded-lg">{viewingCard.meanings?.general || 'Chưa có thông tin.'}</p>
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-green-400 mb-1">⬆️ Ý Nghĩa Xuôi (Upright)</h3>
+                    <p className="text-sm text-white/80 leading-relaxed bg-white/5 p-3 rounded-lg">{viewingCard.meanings?.upright || 'Chưa có thông tin.'}</p>
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-red-400 mb-1">⬇️ Ý Nghĩa Ngược (Reversed)</h3>
+                    <p className="text-sm text-white/80 leading-relaxed bg-white/5 p-3 rounded-lg">{viewingCard.meanings?.reversed || 'Chưa có thông tin.'}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="p-6 border-t border-white/10 flex justify-end gap-3 sticky bottom-0 bg-purple-900/90 backdrop-blur-md">
+              <button onClick={() => setViewingCard(null)} className="px-5 py-2 rounded-xl text-sm font-bold bg-white/10 text-white hover:bg-white/20 transition-colors">Đóng</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* EDIT USER MODAL */}
+      {editingUser && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-purple-900 border border-yellow-500/30 rounded-2xl w-full max-w-md">
+            <div className="p-6 border-b border-white/10 flex justify-between items-center">
+              <h2 className="text-xl font-bold text-white">👤 Thông tin Lữ Khách</h2>
+              <button onClick={() => setEditingUser(null)} className="text-white/50 hover:text-white text-2xl">&times;</button>
+            </div>
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="text-xs text-white/60 mb-1 block">Tên lữ khách</label>
+                <input type="text" className="w-full bg-white/5 border border-white/20 rounded-lg px-3 py-2 text-sm text-white focus:border-yellow-400 focus:outline-none" defaultValue={editingUser.name} />
+              </div>
+              <div>
+                <label className="text-xs text-white/60 mb-1 block">Email</label>
+                <input type="email" className="w-full bg-white/5 border border-white/20 rounded-lg px-3 py-2 text-sm text-white focus:border-yellow-400 focus:outline-none" defaultValue={editingUser.email} />
+              </div>
+              <div className="flex gap-4">
+                <div className="flex-1">
+                  <label className="text-xs text-white/60 mb-1 block">Phân quyền</label>
+                  <select className="w-full bg-white/5 border border-white/20 rounded-lg px-3 py-2 text-sm text-white focus:border-yellow-400 focus:outline-none" defaultValue={editingUser.role}>
+                    <option value="Admin" className="bg-purple-900">Admin</option>
+                    <option value="Customer" className="bg-purple-900">Khách hàng</option>
+                  </select>
+                </div>
+                <div className="flex-1">
+                  <label className="text-xs text-white/60 mb-1 block">Trạng thái</label>
+                  <select className="w-full bg-white/5 border border-white/20 rounded-lg px-3 py-2 text-sm text-white focus:border-yellow-400 focus:outline-none" defaultValue={editingUser.status}>
+                    <option value="active" className="bg-purple-900">Hoạt động</option>
+                    <option value="banned" className="bg-purple-900">Khóa</option>
+                    <option value="unverified" className="bg-purple-900">Chưa xác minh</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label className="text-xs text-white/60 mb-1 block">Số lượt bốc bài (Readings)</label>
+                <input type="number" className="w-full bg-white/5 border border-white/20 rounded-lg px-3 py-2 text-sm text-white font-mono focus:border-yellow-400 focus:outline-none" defaultValue={editingUser.readings} />
+              </div>
+            </div>
+            <div className="p-6 border-t border-white/10 flex justify-end gap-3">
+              <button onClick={() => setEditingUser(null)} className="px-5 py-2 rounded-xl text-sm font-medium text-white/70 hover:bg-white/10">Hủy</button>
+              <button onClick={() => { alert('Đã cập nhật lữ khách!'); setEditingUser(null); }} className="px-5 py-2 rounded-xl text-sm font-bold bg-gradient-to-r from-yellow-500 to-yellow-600 text-yellow-950 hover:from-yellow-400 hover:to-yellow-500 shadow-lg">Lưu Thay Đổi</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* EDIT PRODUCT MODAL */}
+      {editingProduct && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-purple-900 border border-yellow-500/30 rounded-2xl w-full max-w-2xl">
+            <div className="p-6 border-b border-white/10 flex justify-between items-center">
+              <h2 className="text-xl font-bold text-white">🛍️ {editingProduct.id ? 'Sửa Sản Phẩm' : 'Thêm Sản Phẩm Mới'}</h2>
+              <button onClick={() => setEditingProduct(null)} className="text-white/50 hover:text-white text-2xl">&times;</button>
+            </div>
+            <div className="p-6 flex gap-6">
+              <div className="w-1/3">
+                <label className="text-xs text-white/60 mb-1 block">Hình ảnh sản phẩm</label>
+                <div className="aspect-square w-full bg-white/5 rounded-xl border border-white/20 mb-3 overflow-hidden flex items-center justify-center relative group">
+                  <img src={editingProduct.image || '/logo-chipstarot.png'} className="w-full h-full object-cover" onError={(e:any) => e.target.src='/logo-chipstarot.png'} />
+                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <span className="text-white text-xs font-bold bg-white/20 px-3 py-1 rounded-md cursor-pointer hover:bg-yellow-500/80 hover:text-yellow-950 transition-all">Tải ảnh lên 📸</span>
+                  </div>
+                </div>
+                <input type="text" className="w-full bg-white/5 border border-white/20 rounded-lg px-3 py-2 text-sm text-white focus:border-yellow-400 focus:outline-none" placeholder="Hoặc nhập URL ảnh..." defaultValue={editingProduct.image} />
+              </div>
+              <div className="w-2/3 space-y-4">
+                <div>
+                  <label className="text-xs text-white/60 mb-1 block">Tên sản phẩm</label>
+                  <input type="text" className="w-full bg-white/5 border border-white/20 rounded-lg px-3 py-2 text-sm text-white focus:border-yellow-400 focus:outline-none" defaultValue={editingProduct.name} />
+                </div>
+                <div className="flex gap-4">
+                  <div className="flex-1">
+                    <label className="text-xs text-white/60 mb-1 block">Giá (VNĐ)</label>
+                    <input type="text" className="w-full bg-white/5 border border-white/20 rounded-lg px-3 py-2 text-sm text-white focus:border-yellow-400 focus:outline-none" defaultValue={editingProduct.price} />
+                  </div>
+                  <div className="flex-1">
+                    <label className="text-xs text-white/60 mb-1 block">Tồn kho</label>
+                    <input type="number" className="w-full bg-white/5 border border-white/20 rounded-lg px-3 py-2 text-sm text-white focus:border-yellow-400 focus:outline-none" defaultValue={editingProduct.stock} />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-xs text-white/60 mb-1 block">Trạng thái</label>
+                  <select className="w-full bg-white/5 border border-white/20 rounded-lg px-3 py-2 text-sm text-white focus:border-yellow-400 focus:outline-none" defaultValue={editingProduct.status}>
+                    <option value="active" className="bg-purple-900">Đang bán</option>
+                    <option value="out" className="bg-purple-900">Hết hàng / Ẩn</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div className="p-6 border-t border-white/10 flex justify-end gap-3">
+              <button onClick={() => setEditingProduct(null)} className="px-5 py-2 rounded-xl text-sm font-medium text-white/70 hover:bg-white/10">Hủy</button>
+              <button onClick={() => { alert('Đã lưu sản phẩm!'); setEditingProduct(null); }} className="px-5 py-2 rounded-xl text-sm font-bold bg-gradient-to-r from-yellow-500 to-yellow-600 text-yellow-950 hover:from-yellow-400 hover:to-yellow-500 shadow-lg">Lưu Thay Đổi</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* EDIT ORDER MODAL */}
+      {editingOrder && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-purple-900 border border-yellow-500/30 rounded-2xl w-full max-w-md">
+            <div className="p-6 border-b border-white/10 flex justify-between items-center">
+              <h2 className="text-xl font-bold text-white">📦 Chi tiết Đơn: <span className="text-yellow-400">{editingOrder.id}</span></h2>
+              <button onClick={() => setEditingOrder(null)} className="text-white/50 hover:text-white text-2xl">&times;</button>
+            </div>
+            <div className="p-6 space-y-4">
+              <div className="bg-white/5 p-4 rounded-xl border border-white/10">
+                <p className="text-sm text-white/80 mb-2"><span className="text-white/50 w-24 inline-block">Khách hàng:</span> <span className="font-bold text-white">{editingOrder.customer}</span></p>
+                <p className="text-sm text-white/80 mb-2"><span className="text-white/50 w-24 inline-block">Sản phẩm:</span> {editingOrder.product}</p>
+                <p className="text-sm text-white/80 mb-2"><span className="text-white/50 w-24 inline-block">Tổng tiền:</span> <span className="font-bold text-green-400">{editingOrder.amount}</span></p>
+                <p className="text-sm text-white/80"><span className="text-white/50 w-24 inline-block">Ngày đặt:</span> {editingOrder.date}</p>
+              </div>
+              
+              <div>
+                <label className="text-xs text-white/60 mb-1 block">Cập nhật trạng thái giao hàng</label>
+                <select className="w-full bg-white/5 border border-white/20 rounded-lg px-3 py-3 text-sm text-white font-bold focus:border-yellow-400 focus:outline-none" defaultValue={editingOrder.status}>
+                  <option value="pending" className="bg-purple-900">Chờ xác nhận</option>
+                  <option value="processing" className="bg-purple-900">Đang xử lý đóng gói</option>
+                  <option value="shipped" className="bg-purple-900">Đang giao hàng (Shipped)</option>
+                  <option value="delivered" className="bg-purple-900">Đã giao thành công</option>
+                  <option value="cancelled" className="bg-purple-900">Đã Huỷ</option>
+                </select>
+              </div>
+            </div>
+            <div className="p-6 border-t border-white/10 flex justify-end gap-3">
+              <button onClick={() => setEditingOrder(null)} className="px-5 py-2 rounded-xl text-sm font-medium text-white/70 hover:bg-white/10">Đóng</button>
+              <button onClick={() => { alert('Đã cập nhật trạng thái đơn hàng!'); setEditingOrder(null); }} className="px-5 py-2 rounded-xl text-sm font-bold bg-gradient-to-r from-yellow-500 to-yellow-600 text-yellow-950 hover:from-yellow-400 hover:to-yellow-500 shadow-lg">Cập Nhật</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
