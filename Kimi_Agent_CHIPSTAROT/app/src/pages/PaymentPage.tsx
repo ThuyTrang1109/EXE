@@ -6,7 +6,7 @@ export default function PaymentPage() {
   const [searchParams] = useSearchParams();
   const method = searchParams.get('method') || 'momo';
   const totalStr = searchParams.get('total') || '0';
-  const orderId = searchParams.get('orderId') || `CS-${Date.now().toString(36).toUpperCase()}`;
+  const [orderId] = useState(() => searchParams.get('orderId') || `CS-${Date.now().toString(36).toUpperCase()}`);
   const total = parseInt(totalStr);
 
   const [timeLeft, setTimeLeft] = useState(15 * 60); // 15 phút
@@ -16,7 +16,10 @@ export default function PaymentPage() {
   // Countdown timer
   useEffect(() => {
     if (status !== 'waiting') return;
-    if (timeLeft <= 0) { setStatus('expired'); return; }
+    if (timeLeft <= 0) {
+      setTimeout(() => setStatus('expired'), 0);
+      return;
+    }
     const t = setInterval(() => setTimeLeft(p => p - 1), 1000);
     return () => clearInterval(t);
   }, [timeLeft, status]);

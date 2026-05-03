@@ -25,6 +25,7 @@ export default function ReadingPage({ user, consumeCredit }: any) {
   const [dobError, setDobError] = useState('');
   const [questionError, setQuestionError] = useState('');
   const [isFlyingUp, setIsFlyingUp] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (user?.name && step === 1) {
@@ -33,33 +34,103 @@ export default function ReadingPage({ user, consumeCredit }: any) {
     }
   }, [user, step]);
 
-  const handleNameSubmit = () => {
+  // ─── Helpers ─────────────────────────────────────────────────────────────
+
+  /** Kiểm tra chuỗi có phải toàn ký tự lặp lại không (vd: "aaaaaaa", "11111") */
+  const isRepetitive = (str: string): boolean => {
+    const unique = new Set(str.replace(/\s/g, '').split(''));
+    return unique.size <= 1 && str.replace(/\s/g, '').length > 0;
+  };
+
+  /** Kiểm tra câu hỏi có đủ từ có nghĩa không (ít nhất 3 từ >= 2 ký tự) */
+  const hasMeaningfulWords = (str: string): boolean => {
+    const words = str.trim().split(/\s+/).filter(w => w.length >= 2);
+    return words.length >= 3;
+  };
+
+  /** Danh sách từ/cụm từ bị cấm (rác, xúc phạm) */
+  const BANNED_PATTERNS = [
+    /^\s*test\s*$/i,
+    /^\s*abc\s*$/i,
+    /^\s*asdf\s*$/i,
+    /^[^a-zA-ZÀ-ỹ\d]{3,}$/, // toàn ký tự đặc biệt
+    /(.)\1{5,}/,             // ký tự lặp liên tiếp ≥ 6 lần (vd: "aaaaaaa")
+  ];
+
+  const containsBanned = (str: string): boolean =>
+    BANNED_PATTERNS.some(pattern => pattern.test(str));
+
+  // ─── Debounce Guard ───────────────────────────────────────────────────────
+  const withDebounce = (fn: () => void) => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    fn();
+    setTimeout(() => setIsSubmitting(false), 800);
+  };
+
+  // ─── Step 1: Validate Tên & Ngày sinh ────────────────────────────────────
+  const handleNameSubmit = () => withDebounce(() => {
     const trimmed = name.trim();
+
     if (trimmed.length < 2) {
       setNameError('Tên phải có ít nhất 2 ký tự.');
-      return;
-    }
-    if (!/^[\p{L}\s]+$/u.test(trimmed)) {
-      setNameError('Tên chỉ được chứa chữ cái và khoảng trắng.');
       return;
     }
     if (trimmed.length > 50) {
       setNameError('Tên quá dài (tối đa 50 ký tự).');
       return;
     }
-    setNameError('');
-    
-    if (!user && !dob) {
-      setDobError('Vui lòng nhập ngày sinh của bạn.');
+    if (!/^[\p{L}\s]+$/u.test(trimmed)) {
+      setNameError('Tên chỉ được chứa chữ cái và khoảng trắng (không nhập số hay ký tự đặc biệt).');
       return;
     }
+    if (isRepetitive(trimmed.replace(/\s/g, ''))) {
+      setNameError('Tên không hợp lệ. Vui lòng nhập tên thật của bạn.');
+      return;
+    }
+    setNameError('');
+
+    if (!user) {
+      if (!dob) {
+        setDobError('Vui lòng nhập ngày sinh của bạn.');
+        return;
+      }
+      const dobDate = new Date(dob);
+      const today = new Date();
+      const minDate = new Date();
+      minDate.setFullYear(today.getFullYear() - 100); // tối đa 100 tuổi
+      const maxDate = new Date();
+      maxDate.setFullYear(today.getFullYear() - 7);   // tối thiểu 7 tuổi
+
+      if (isNaN(dobDate.getTime())) {
+        setDobError('Ngày sinh không hợp lệ.');
+        return;
+      }
+      if (dobDate > today) {
+        setDobError('Ngày sinh không thể là ngày trong tương lai.');
+        return;
+      }
+      if (dobDate > maxDate) {
+        setDobError('Bạn cần ít nhất 7 tuổi để sử dụng dịch vụ này.');
+        return;
+      }
+      if (dobDate < minDate) {
+        setDobError('Ngày sinh không hợp lệ (vượt quá 100 năm).');
+        return;
+      }
+    }
     setDobError('');
-
     setStep(2);
-  };
+  });
 
-  const handleQuestionSubmit = () => {
+  // ─── Step 4: Validate Câu hỏi ────────────────────────────────────────────
+  const handleQuestionSubmit = () => withDebounce(() => {
     const trimmed = question.trim();
+
+    if (trimmed.length === 0) {
+      setQuestionError('Vui lòng nhập câu hỏi bạn muốn hỏi vũ trụ.');
+      return;
+    }
     if (trimmed.length < 10) {
       setQuestionError('Câu hỏi cần rõ ràng và chi tiết hơn (ít nhất 10 ký tự).');
       return;
@@ -68,9 +139,22 @@ export default function ReadingPage({ user, consumeCredit }: any) {
       setQuestionError('Câu hỏi quá dài (tối đa 300 ký tự).');
       return;
     }
+    if (isRepetitive(trimmed)) {
+      setQuestionError('Câu hỏi không hợp lệ. Hãy diễn đạt thật lòng điều bạn muốn biết.');
+      return;
+    }
+    if (containsBanned(trimmed)) {
+      setQuestionError('Câu hỏi chứa nội dung không hợp lệ. Vui lòng nhập câu hỏi có ý nghĩa.');
+      return;
+    }
+    if (!hasMeaningfulWords(trimmed)) {
+      setQuestionError('Câu hỏi cần có ít nhất 3 từ để vũ trụ có thể hiểu và giải đáp cho bạn.');
+      return;
+    }
+
     setQuestionError('');
     setStep(5);
-  };
+  });
 
   useEffect(() => {
     if (step === 6 && revealed && user && !creditUsed) {
@@ -199,10 +283,15 @@ export default function ReadingPage({ user, consumeCredit }: any) {
             </div>
             <button
               onClick={handleNameSubmit}
-              className="btn-3d-yellow mt-6"
+              disabled={isSubmitting}
+              className="btn-3d-yellow mt-6 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Tiếp tục →
+              {isSubmitting ? '⏳ Đang kiểm tra...' : 'Tiếp tục →'}
             </button>
+            <p className="text-yellow-400/80 text-xs mt-6 max-w-sm mx-auto flex items-start gap-1 text-left">
+              <span>⚠️</span>
+              <span>Lưu ý: Việc nhập sai thông tin có thể dẫn đến kết quả trải bài không chính xác do năng lượng không được kết nối đúng cách.</span>
+            </p>
           </div>
         )}
 
@@ -260,20 +349,46 @@ export default function ReadingPage({ user, consumeCredit }: any) {
                 </button>
               ))}
             </div>
-            <textarea
-              className={`w-full max-w-2xl mx-auto block px-5 py-4 rounded-2xl bg-white/10 border ${questionError ? 'border-red-400 focus:border-red-400' : 'border-white/30 focus:border-yellow-400'} text-white placeholder-white/40 focus:outline-none resize-none transition-colors`}
-              placeholder="Hoặc nhập câu hỏi của bạn..."
-              rows={3}
-              value={question}
-              onChange={e => { setQuestion(e.target.value); setQuestionError(''); }}
-            />
+            <div className="relative max-w-2xl mx-auto">
+              <textarea
+                className={`w-full block px-5 py-4 rounded-2xl bg-white/10 border ${
+                  questionError
+                    ? 'border-red-400 focus:border-red-400'
+                    : question.trim().length > 0 && question.trim().length < 10
+                      ? 'border-orange-400 focus:border-orange-400'
+                      : 'border-white/30 focus:border-yellow-400'
+                } text-white placeholder-white/40 focus:outline-none resize-none transition-colors pb-8`}
+                placeholder="Ví dụ: Tôi có nên thay đổi công việc trong năm nay không?"
+                rows={4}
+                maxLength={300}
+                value={question}
+                onChange={e => { setQuestion(e.target.value); setQuestionError(''); }}
+              />
+              {/* Character counter */}
+              <div className={`absolute bottom-3 right-4 text-xs font-mono ${
+                question.length > 270 ? 'text-red-400' : question.length > 200 ? 'text-orange-400' : 'text-white/40'
+              }`}>
+                {question.length}/300
+              </div>
+            </div>
+            {/* Hint text */}
+            <div className="max-w-2xl mx-auto text-left space-y-1 mt-2">
+              <p className="text-white/40 text-xs">
+                💡 Câu hỏi tốt: Cụ thể, rõ ràng, ít nhất 3 từ. Tránh nhập ký tự ngẫu nhiên hoặc nội dung không có nghĩa.
+              </p>
+              <p className="text-yellow-400/80 text-xs flex items-start gap-1">
+                <span>⚠️</span>
+                <span>Lưu ý: Đặt câu hỏi hời hợt hoặc cố tình nhập sai có thể khiến vũ trụ nhiễu sóng, dẫn đến kết quả luận giải sai lệch.</span>
+              </p>
+            </div>
             {questionError && <p className="text-red-400 text-sm mt-2 font-medium">{questionError}</p>}
             <div className="flex gap-4 justify-center mt-6">
-              <button 
+              <button
                 onClick={handleQuestionSubmit}
-                className="btn-3d-yellow"
+                disabled={isSubmitting}
+                className="btn-3d-yellow disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Tiếp tục →
+                {isSubmitting ? '⏳ Đang kiểm tra...' : 'Tiếp tục →'}
               </button>
             </div>
           </div>

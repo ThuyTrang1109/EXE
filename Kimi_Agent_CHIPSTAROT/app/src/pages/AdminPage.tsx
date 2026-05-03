@@ -5,14 +5,14 @@ export default function AdminPage({ setPage }: any) {
   const [tab, setTab] = useState<'dashboard' | 'products' | 'orders' | 'users' | 'reports' | 'cards' | 'nfcs' | 'blogs'>('dashboard');
 
   const [tarotCards, setTarotCards] = useState<any[]>([]);
-  const [loadingCards, setLoadingCards] = useState(false);
+  const [loadingCards, setLoadingCards] = useState(true);
   const [editingCard, setEditingCard] = useState<any>(null);
   const [viewingCard, setViewingCard] = useState<any>(null);
   const [editingUser, setEditingUser] = useState<any>(null);
   const [editingProduct, setEditingProduct] = useState<any>(null);
   const [editingOrder, setEditingOrder] = useState<any>(null);
   const [showReportModal, setShowReportModal] = useState(false);
-  const [mockUsers, setMockUsers] = useState([
+  const [mockUsers] = useState([
     { id: 'US-001', name: 'Nguyễn Văn A', email: 'nva@chipstarot.com', role: 'Admin', status: 'active', joined: '15/01/2024', readings: 1250 },
     { id: 'US-002', name: 'Trần Thị B', email: 'ttb_khachhang@gmail.com', role: 'Customer', status: 'active', joined: '20/04/2024', readings: 12 },
     { id: 'US-003', name: 'Lê C', email: 'lec_spam@yahoo.com', role: 'Customer', status: 'banned', joined: '22/04/2024', readings: 0 },
@@ -20,7 +20,6 @@ export default function AdminPage({ setPage }: any) {
   ]);
 
   useEffect(() => {
-    setLoadingCards(true);
     fetch('/tarot_database.json')
       .then(r => r.json())
       .then(d => { 
