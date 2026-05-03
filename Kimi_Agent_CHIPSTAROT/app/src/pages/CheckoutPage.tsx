@@ -5,7 +5,6 @@ import { VIETNAM_ADDRESS_DATA } from '../data/addressData';
 export default function CheckoutPage({ cart, total }: any) {
   const navigate = useNavigate();
   const [form, setForm] = useState({ name: '', phone: '', address: '', note: '', method: 'momo' });
-  const [step, setStep] = useState<'form' | 'success'>('form');
   const [error, setError] = useState('');
 
   // Address State
@@ -50,25 +49,11 @@ export default function CheckoutPage({ cart, total }: any) {
     }
 
     setError('');
-    setStep('success');
+    // Navigate sang trang Payment với thông tin đơn hàng
+    const orderId = `CS-${Date.now().toString(36).toUpperCase()}`;
+    navigate(`/payment?method=${form.method}&total=${total}&orderId=${orderId}`);
   };
 
-  if (step === 'success') return (
-    <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-purple-50 to-yellow-100 flex items-center justify-center py-12 px-4">
-      <div className="bg-white rounded-3xl shadow-2xl p-10 max-w-md w-full text-center">
-        <div className="text-7xl mb-4 animate-float">🎉</div>
-        <h2 className="text-2xl font-bold text-gray-800 mb-2">Đặt hàng thành công!</h2>
-        <p className="text-gray-500 mb-2">Cảm ơn <span className="font-bold text-yellow-600">{form.name}</span> đã tin tưởng CHIPSTAROT 💛</p>
-        <p className="text-sm text-gray-400 mb-6">Chúng tôi sẽ liên hệ qua SĐT <b>{form.phone}</b> để xác nhận đơn.</p>
-        <div className="bg-yellow-50 rounded-xl p-4 mb-6 text-left text-sm space-y-1">
-          <p><span className="font-semibold">📦 Giao tới:</span> {form.address}</p>
-          <p><span className="font-semibold">💳 Thanh toán:</span> {form.method === 'momo' ? 'MoMo' : form.method === 'vnpay' ? 'VNPay' : 'Tiền mặt (COD)'}</p>
-          <p><span className="font-semibold">💰 Tổng tiền:</span> <span className="text-red-500 font-bold">{total.toLocaleString()}đ</span></p>
-        </div>
-        <button onClick={() => navigate('/')} className="btn-3d-yellow w-full">🏠 Về Trang Chủ</button>
-      </div>
-    </div>
-  );
 
   const selectedProvData = VIETNAM_ADDRESS_DATA.find(p => p.name === province);
   const selectedDistData = selectedProvData?.districts.find(d => d.name === district);

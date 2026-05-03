@@ -1,0 +1,440 @@
+# 📋 BÁO CÁO TỔNG THỂ DỰ ÁN CHIPSTAROT
+> **Phiên bản:** v1.1 — Production-Ready Frontend  
+> **Ngày lập:** 03/05/2026  
+> **Trạng thái:** ✅ Frontend Hoàn Thiện — ⏳ Backend C# Chờ Triển Khai
+
+---
+
+## 1. TỔNG QUAN DỰ ÁN (EXECUTIVE SUMMARY)
+
+**CHIPSTAROT** là nền tảng **Phygital** (Physical + Digital) độc đáo tại Việt Nam, kết hợp giữa:
+- **Thương mại điện tử** (bán móc khóa đá phong thủy vật lý)
+- **Dịch vụ AI** (bốc bài Tarot online bằng Google Gemini)
+- **Công nghệ NFC** (quét chip để kích hoạt ưu đãi số từ sản phẩm vật lý)
+- **Game hóa** (Khu Vườn Phép Thuật — nuôi thú ảo kiếm phần thưởng)
+
+**Mô hình kinh doanh cốt lõi:**
+```
+Khách mua móc khóa NFC (79k-199k) 
+  → Quét chip → Nhận 3 lượt Tarot/ngày trong 6 tháng
+  → Hết hạn → Mua gói lượt số (29k-179k)
+  → Engagement → Game thú ảo → Giữ chân người dùng
+```
+
+---
+
+## 2. KIẾN TRÚC HỆ THỐNG (SYSTEM ARCHITECTURE)
+
+```
+┌─────────────────────────────────────────────────────┐
+│                  CHIPSTAROT PLATFORM                │
+├────────────────┬────────────────┬───────────────────┤
+│   FRONTEND     │    BACKEND     │    SERVICES       │
+│  React 19 +    │  ASP.NET Core  │  PostgreSQL       │
+│  Vite + TS     │  8 Web API     │  (NeonDB)         │
+│  TailwindCSS   │  JWT Auth      │  Google Gemini AI │
+│  GitHub Pages  │  Railway       │  NFC (NTAG213/215)│
+└────────────────┴────────────────┴───────────────────┘
+```
+
+**Stack công nghệ đầy đủ:**
+
+| Tầng | Công nghệ | Phiên bản |
+|------|-----------|-----------|
+| Frontend Framework | React | 19.2.0 |
+| Build Tool | Vite | 7.2.4 |
+| Language | TypeScript | ~5.9.3 |
+| Styling | Tailwind CSS | 3.4.19 |
+| Router | react-router-dom | 7.14.1 |
+| Charts | Recharts | 2.15.4 |
+| Form Validation | react-hook-form + zod | 7.70 / 4.3.5 |
+| UI Primitives | Radix UI | Latest |
+| Database Client | @supabase/supabase-js | 2.104.1 |
+| AI SDK | @google/generative-ai | 0.24.1 |
+| Icons | lucide-react | 0.562.0 |
+| Backend (kế hoạch) | ASP.NET Core | 8.0 |
+| Database | PostgreSQL | 15 (NeonDB) |
+| Deployment FE | GitHub Pages | — |
+| Deployment BE | Railway | — |
+
+---
+
+## 3. CẤU TRÚC THƯ MỤC FRONTEND
+
+```
+app/src/                        (29 files / 330.8 KB)
+├── App.tsx                     # Root — Router, Cart, NFC, Paywall
+├── App.css                     # Global styles + animations
+├── main.tsx                    # Entry point
+│
+├── components/
+│   ├── Header.tsx              # Nav, Credits badge, Admin guard
+│   ├── Footer.tsx              # Social links, contact, copyright
+│   └── NFCScannerOverlay.tsx   # NFC detection + fallback
+│
+├── lib/
+│   ├── AuthContext.tsx         # Auth state, daily credit reset
+│   ├── supabase.ts             # DB calls, pet sync, credit logic
+│   ├── gemini.ts               # Google Gemini AI integration
+│   └── utils.ts                # Helper utilities
+│
+├── data/
+│   ├── constants.ts            # PRODUCTS, TOPICS, CREDIT_PACKAGES
+│   └── addressData.ts          # Vietnam 3-level address data
+│
+├── hooks/
+│   └── use-mobile.ts           # Responsive hook
+│
+└── pages/
+    ├── HomePage.tsx            # Landing, hero, feature showcase
+    ├── AuthPage.tsx            # Login/Register + Demo mode
+    ├── ReadingPage.tsx         # Tarot reading flow (8 steps)
+    ├── CardsPage.tsx           # 78-card library + search/filter
+    ├── ShopPage.tsx            # Products + Credit packages tabs
+    ├── ProductDetailPage.tsx   # Detail page with NFC info
+    ├── CartPage.tsx            # Cart management
+    ├── CheckoutPage.tsx        # 3-level address, payment method
+    ├── ProfilePage.tsx         # User profile, tabs, NFC tab
+    ├── GamePage.tsx            # Magic Garden pet game
+    ├── BlogPage.tsx            # Blog with internal modal reader
+    ├── AboutPage.tsx           # About CHIPSTAROT
+    ├── AdminPage.tsx           # Full admin dashboard
+    └── NotFoundPage.tsx        # 404 page
+```
+
+---
+
+## 4. TRANG VÀ TÍNH NĂNG CHI TIẾT
+
+### 4.1 ReadingPage — Luồng Bốc Bài Tarot (8 bước)
+| Bước | Mô tả |
+|------|-------|
+| 1 | Nhập tên + ngày sinh (validation regex) |
+| 2 | Chọn chủ đề (9 chủ đề: Tình yêu, Hôn nhân, Sự nghiệp...) |
+| 3 | Câu hỏi phụ cá nhân hóa (5 lựa chọn/chủ đề) |
+| 4 | Nhập câu hỏi cụ thể (validate min 10 ký tự) |
+| 5 | Chọn số lá (1 hoặc 3 lá) |
+| 6 | Trộn bài animation → Chọn lá |
+| 7 | Reveal + gọi Gemini AI → Hiển thị kết quả |
+| 8 | Lưu vào lịch sử + cộng pet EXP |
+
+**AI Prompt:** Được tối ưu để cho phản hồi 350-500 từ, cá nhân hóa 100%, xưng "Vũ trụ", gọi tên khách hàng, kèm 3-4 hành động thực tế.
+
+### 4.2 AdminPage — Dashboard Quản Trị (8 tabs)
+| Tab | Tính năng |
+|-----|-----------|
+| 📊 Tổng quan | Stats cards, đơn hàng gần đây |
+| 👥 Quản lý TK | CRUD users, ban/unban, phân quyền |
+| 🎴 Quản lý Thẻ | 78 lá Tarot từ JSON, xem/sửa chi tiết |
+| 🛍️ Sản phẩm | Danh sách + ảnh + CRUD, modal sửa |
+| 📦 Đơn hàng | Filter theo trạng thái, cập nhật vận chuyển |
+| 🏷️ Chip NFC | Theo dõi chip: kích hoạt/thu hồi |
+| ✍️ Blog | Quản lý bài viết, trạng thái draft/published |
+| 📈 Báo cáo | **Biểu đồ doanh thu, Pie chart, Top bán chạy, Modal Báo cáo PDF** |
+
+### 4.3 ProfilePage — Hồ sơ Người dùng (4 tabs)
+- **Thông tin:** Avatar, tên, email, credits badge, nút Chỉnh sửa (modal auto-select input)
+- **Lịch sử bốc bài:** Cards + AI reading + ghi chú
+- **Đơn hàng:** Progress bar giao hàng, chi tiết đơn
+- **Thẻ NFC:** Kích hoạt chip, lịch sử quét
+
+### 4.4 GamePage — Khu Vườn Phép Thuật
+- Thú ảo Tamagotchi (5 cấp độ: Trứng → Tiên Nữ)
+- EXP tăng khi bốc bài, thức ăn mua bằng credits
+- Phần thưởng cấp độ lưu vào DB
+
+---
+
+## 5. CƠ SỞ DỮ LIỆU (schema.sql — 418 dòng)
+
+### 9 phân vùng, 22 bảng chính + Indexes:
+
+```
+PHÂN VÙNG 1 — TIỆN ÍCH & BẢO MẬT
+  ├── roles                    (Admin, Customer)
+  ├── otp_verifications        (OTP đăng ký/quên mật khẩu)
+  ├── subscription_plans       (Gói tháng/năm)
+  └── notifications            (Thông báo hệ thống)
+
+PHÂN VÙNG 2 — DANH TÍNH
+  ├── accounts                 (email, password_hash, role_id, status)
+  ├── customer_profiles        (credits, daily_allowance, pet_exp, pet_food...)
+  └── admin_profiles           (employee_id, department, admin_level)
+
+PHÂN VÙNG 3 — PREMIUM
+  └── user_subscriptions       (plan, start/end date, status)
+
+PHÂN VÙNG 4 — SẢN PHẨM & ĐÁNH GIÁ
+  ├── product_categories
+  ├── products                 (price, stock, image, nfc_credits_bonus...)
+  ├── product_reviews          (rating 1-5, comment)
+  └── nfc_chips                (tag_id, status: unactivated/activated/transferred)
+
+PHÂN VÙNG 5 — BÁN HÀNG & KHUYẾN MÃI
+  ├── vouchers                 (assigned_to_account — cá nhân hóa)
+  ├── hero_banners
+  ├── tarot_credit_packages    (cp_starter/cp_popular/cp_premium)
+  ├── credit_package_purchases (lịch sử mua gói lượt)
+  ├── carts + cart_items
+  ├── orders + order_items     (full shipping address 3 cấp)
+  └── payments                 (MoMo/VNPay/COD)
+
+PHÂN VÙNG 6 — TAROT & AI
+  ├── tarot_cards              (78 lá, arcana, element, meanings)
+  ├── tarot_readings           (topic, question, ai_response, rating)
+  └── reading_details          (card_id, position, reversed)
+
+PHÂN VÙNG 7 — NỘI DUNG
+  └── blog_posts               (title, slug, content, tags, status)
+
+PHÂN VÙNG 8 — PHÂN TÍCH
+  ├── order_status_history
+  ├── credit_transactions      (sổ cái cộng/trừ credits)
+  └── pet_game_logs            ⭐ MỚI — Chống cheat game thú ảo
+
+PHÂN VÙNG 9 — INDEXES (17 indexes tối ưu hiệu năng)
+```
+
+### Logic Credit quan trọng (customer_profiles):
+```sql
+credits           -- Lượt bốc bài hôm nay (reset mỗi ngày)
+daily_allowance   -- Định mức lượt/ngày từ gói đã mua
+last_reset_date   -- Ngày reset gần nhất
+credits_expires_at -- Hết hạn gói (NULL = chưa có gói)
+```
+
+---
+
+## 6. BUSINESS LOGIC CỐT LÕI
+
+### 6.1 Vòng đời Credit
+```
+Mua NFC Vật lý → Quét chip → daily_allowance=3, expires 6 tháng
+Mua Gói Số     → Thanh toán → daily_allowance=3/5/10, expires 30/90/365 ngày
+Mỗi ngày 00:00 → Backend reset credits = daily_allowance (nếu còn hạn)
+Bốc bài        → credits -= 1 (nếu credits > 0 và chưa hết hạn)
+Hết lượt/hạn   → Hiện Paywall → Redirect /shop
+```
+
+### 6.2 Xử lý NFC Phygital
+```
+Sản xuất: Ghi link https://chipstarot.com/?tagId=NFC-XXXX vào chip NTAG213
+Khách quét: URL tự mở → App đọc ?tagId= → NFCScannerOverlay bật
+Backend:   Kiểm tra tagId trong nfc_chips → Nếu unactivated → Kích hoạt
+           → Cộng daily_allowance=3, expires +6 tháng → status='activated'
+```
+
+### 6.3 Gemini AI Reading
+- Model: `gemini-flash-latest`
+- Prompt: Cá nhân hóa theo tên + chủ đề + ngữ cảnh + câu hỏi + lá bài
+- Fallback: Khi API lỗi → Trả về lời giải dự phòng (không crash)
+- **Bảo mật:** API Key phải chuyển về Backend C# để không lộ ra Client
+
+---
+
+## 7. CÁC GÓI SẢN PHẨM & DỊCH VỤ
+
+### Sản phẩm Vật lý (PRODUCTS — 6 sản phẩm)
+| Tên | Giá | Ưu đãi NFC |
+|-----|-----|-----------|
+| Móc khóa NFC CHIPSTAROT | 199,000đ (gốc 299k) | 3 lượt/ngày × 6 tháng |
+| Đá Thạch Anh Tím | 89,000đ (gốc 129k) | 3 lượt/ngày × 6 tháng |
+| Đá Mắt Hổ | 79,000đ (gốc 99k) | 3 lượt/ngày × 6 tháng |
+| Đá Thạch Anh Hồng | 85,000đ (gốc 109k) | 3 lượt/ngày × 6 tháng |
+| Đá Aventurine Xanh | 79,000đ (gốc 99k) | 3 lượt/ngày × 6 tháng |
+| Đá Thạch Anh Trắng | 69,000đ (gốc 89k) | 3 lượt/ngày × 6 tháng |
+
+### Gói Lượt Tarot Kỹ Thuật Số (CREDIT_PACKAGES)
+| Gói | Lượt/ngày | Thời hạn | Giá | Giá gốc |
+|-----|-----------|---------|-----|---------|
+| 🌙 Gói Khởi Đầu | 3 lượt | 30 ngày | 29,000đ | 39,000đ |
+| 🔮 Gói Phổ Biến ⭐ | 5 lượt | 90 ngày | 69,000đ | 99,000đ |
+| ✨ Gói Cao Cấp | 10 lượt | 365 ngày | 179,000đ | 290,000đ |
+
+---
+
+## 8. PHÂN TÍCH & BÁO CÁO ADMIN (Mock Data)
+
+| Chỉ số | Giá trị |
+|--------|---------|
+| Tổng Doanh Thu | 160,000,000 đ |
+| Tổng Đơn Hàng | 1,245 |
+| Lượt Xem Tarot | 45,892 |
+| Người Dùng Mới | 3,420 |
+| Tăng trưởng doanh thu | +24% so với quý trước |
+| Uptime API | 99.98% |
+| Tỷ lệ chuyển đổi NFC→Digital | 45% |
+
+**Top Sản phẩm bán chạy:**
+1. Móc khóa NFC CHIPSTAROT — 124 cái — 24.6M đ
+2. Đá Thạch Anh Tím — 85 cái — 7.5M đ
+3. Đá Thạch Anh Hồng — 62 cái — 5.2M đ
+
+**Top Gói Tarot được mua:**
+1. Gói Phổ Biến (90 ngày) — 312 đăng ký — 21.5M đ
+2. Gói Khởi Đầu (30 ngày) — 180 đăng ký — 5.2M đ
+3. Gói Cao Cấp (365 ngày) — 95 đăng ký — 17.0M đ
+
+---
+
+## 9. TRẠNG THÁI CÁC FILE (AUDIT 03/05/2026)
+
+| File | Trạng thái | Ghi chú |
+|------|-----------|---------|
+| App.tsx | ✅ Sạch | Router chuẩn, Paywall "3 lượt/ngày 6 tháng" |
+| Header.tsx | ✅ Sạch | Admin guard `role_id === 1` |
+| Footer.tsx | ✅ Sạch | Copyright 2026, Social links |
+| NFCScannerOverlay.tsx | ✅ Sạch | Real NFC + Fallback simulation |
+| AuthContext.tsx | ✅ Sạch | Daily credit reset logic |
+| supabase.ts | ✅ Sạch | syncPetProgress, consumeCredit |
+| gemini.ts | ✅ Sạch | Prompt tối ưu + Fallback |
+| constants.ts | ✅ Sạch | "6 tháng miễn phí" đồng nhất |
+| ReadingPage.tsx | ✅ Sạch | 8-step flow, validation |
+| ShopPage.tsx | ✅ Sạch | 2 tabs, credit packages |
+| ProductDetailPage.tsx | ✅ Sạch | "3 lượt/ngày trong 6 tháng" |
+| CartPage.tsx | ✅ Sạch | Optional chaining `oldPrice` |
+| CheckoutPage.tsx | ✅ Sạch | Validate SĐT VN, địa chỉ 3 cấp |
+| ProfilePage.tsx | ✅ Sạch | Edit modal, auto-select |
+| BlogPage.tsx | ✅ Sạch | Internal modal, 6 bài viết |
+| GamePage.tsx | ✅ Sạch | Thú ảo 5 cấp độ |
+| CardsPage.tsx | ✅ Sạch | 78 lá + search/filter |
+| AdminPage.tsx | ✅ Sạch | 8 tabs, ảnh `/products/`, Report Modal |
+| schema.sql | ✅ Sạch | v1.1 — pet_game_logs, voucher personalized |
+
+---
+
+## 10. LỘ TRÌNH TRIỂN KHAI (DEPLOYMENT ROADMAP)
+
+### Giai đoạn 1 — Backend C# (2-3 tuần)
+```
+├── dotnet new webapi -n ChipstarotAPI
+├── Cấu trúc: Controllers/ Services/ Models/ Middleware/
+├── Auth: JWT Bearer Token
+├── Database: Npgsql + EF Core → PostgreSQL NeonDB
+└── Endpoints cần tạo:
+    ├── POST /auth/register, /auth/login, /auth/refresh
+    ├── GET/PUT /user/profile
+    ├── POST /credits/nfc-scan (kích hoạt chip NFC)
+    ├── POST /credits/consume (trừ 1 lượt)
+    ├── POST /credits/purchase (mua gói)
+    ├── POST /tarot/ai-reading (gọi Gemini từ server)
+    ├── GET /products, /products/:id
+    ├── POST /orders (tạo đơn hàng)
+    └── GET /admin/* (thống kê, CRUD)
+```
+
+### Giai đoạn 2 — Deploy (1 tuần)
+```
+Frontend (GitHub Pages):
+  - npm run build → /dist
+  - gh-pages -d dist
+  - VITE_API_URL=https://api.chipstarot.railway.app
+
+Backend (Railway):
+  - Push code C# lên GitHub
+  - Railway auto-detect dotnet
+  - Env vars: ConnectionStrings, Jwt__Key, Gemini__ApiKey
+```
+
+### Giai đoạn 3 — Tích hợp Thanh Toán
+```
+- VNPAY: Tích hợp SDK, webhook xác nhận
+- MoMo: Partner API
+- Sau thanh toán: Backend tự động cộng credits
+```
+
+---
+
+## 11. BIẾN MÔI TRƯỜNG CẦN THIẾT
+
+### Frontend (.env)
+```
+VITE_API_URL=https://api.chipstarot.railway.app
+VITE_SUPABASE_URL=https://xxx.supabase.co        # Tạm thời
+VITE_SUPABASE_ANON_KEY=xxx                        # Tạm thời
+VITE_GEMINI_API_KEY=AIzaSy...                     # Xóa sau khi BE xong
+```
+
+### Backend (Railway env vars)
+```
+ConnectionStrings__Default=postgresql://...
+Jwt__Key=your-super-secret-256-bit-key
+Jwt__Issuer=chipstarot.com
+Gemini__ApiKey=AIzaSy...
+VNPAY__HashSecret=xxx
+MOMO__SecretKey=xxx
+```
+
+---
+
+## 12. HƯỚNG DẪN QUY TRÌNH SẢN XUẤT NFC
+
+### Chuẩn bị phần cứng
+- Chip: **NTAG213** hoặc **NTAG215** (3,000-5,000đ/chip)
+- Thiết bị ghi: **ACR122U USB NFC Reader** (~400-600k)
+
+### Quy trình ghi chip (1 sản phẩm)
+```
+1. Tạo mã NFC trong Admin → Tab "🏷️ Chip NFC" → "Gắn Chip Mới"
+   → Sinh mã: NFC-CS-XXXX (trạng thái: unactivated)
+2. Cắm ACR122U vào laptop
+3. Mở NFC Tools for Desktop → Write → URL
+   → Nhập: https://chipstarot.com/?tagId=NFC-CS-XXXX
+4. Đặt chip/móc khóa lên ACR122U → Bấm Write → Bíp!
+5. (Tùy chọn) Lock tag → Read-Only → Không ai sửa được
+6. Đóng gói → Giao cho khách
+```
+
+### Quy trình khách hàng kích hoạt
+```
+Khách nhận hàng → Bật màn hình điện thoại → Chạm vào móc khóa
+→ Trình duyệt tự mở chipstarot.com/?tagId=NFC-CS-XXXX
+→ NFCScannerOverlay hiện ra → Xác nhận → Cộng 3 lượt/ngày × 6 tháng
+→ Chip chuyển sang trạng thái "activated" trong hệ thống
+```
+
+---
+
+## 13. CHECKLIST KIỂM THỬ TRƯỚC KHI GO LIVE
+
+### Frontend ✅
+- [x] Tất cả 14 trang render không lỗi
+- [x] Luồng Auth (Đăng ký → Đăng nhập → Đăng xuất)
+- [x] Luồng Bốc bài (Chọn topic → AI trả lời → Trừ credit)
+- [x] Giỏ hàng persist qua reload (localStorage)
+- [x] Checkout validate SĐT + địa chỉ 3 cấp
+- [x] NFC Scanner overlay fallback hoạt động
+- [x] Admin guard: chỉ role_id=1 mới thấy Admin
+- [x] Responsive mobile (hamburger menu)
+- [x] Text đồng bộ "3 lượt/ngày trong 6 tháng" toàn bộ UI
+
+### Backend (cần kiểm tra sau khi deploy)
+- [ ] JWT Token hợp lệ 7 ngày, refresh token 30 ngày
+- [ ] Credit reset chạy mỗi ngày lúc 00:00 (Hosted Service)
+- [ ] NFC scan: 1 chip chỉ kích hoạt được 1 lần
+- [ ] Gemini API Key không bị lộ ở client
+- [ ] CORS chỉ allow domain GitHub Pages
+
+---
+
+## 14. KẾT LUẬN
+
+CHIPSTAROT là một dự án **sáng tạo, có tính khả thi cao** với mô hình Phygital độc đáo chưa có đối thủ cạnh tranh trực tiếp tại thị trường Việt Nam.
+
+**Điểm mạnh:**
+- Ý tưởng kết hợp NFC + Tarot AI = trải nghiệm "wow" ngay lần đầu dùng
+- Frontend hoàn chỉnh, UI/UX đẹp, animations mượt mà
+- Database schema chuyên nghiệp, đủ cho scale lớn
+- Business model rõ ràng: Phygital → Digital Subscription
+
+**Rủi ro cần quản lý:**
+- Gemini API Key phải bảo mật (chuyển về Backend)
+- Chi phí AI tăng khi user scale (cần rate limiting)
+- Quy trình ghi chip NFC cần tự động hóa khi đơn hàng > 100/ngày
+
+**Bước tiếp theo ngay lập tức:**
+1. `dotnet new webapi -n ChipstarotAPI` — Khởi tạo Backend
+2. Deploy lên Railway — Kết nối NeonDB
+3. Thay `supabase.ts` bằng `api.ts` gọi C# endpoints
+4. Tích hợp VNPAY/MoMo webhook
+5. Go Live! 🚀

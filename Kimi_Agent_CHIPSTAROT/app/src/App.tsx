@@ -22,6 +22,7 @@ import BlogPage from '@/pages/BlogPage';
 import ProductDetailPage from '@/pages/ProductDetailPage';
 import AboutPage from '@/pages/AboutPage';
 import NotFoundPage from '@/pages/NotFoundPage';
+import PaymentPage from '@/pages/PaymentPage';
 import NFCScannerOverlay from '@/components/NFCScannerOverlay';
 
 export default function App() {
@@ -132,6 +133,7 @@ export default function App() {
         <Route path="/product/:productId" element={<ProductDetailPage addToCart={addToCart} />} />
         <Route path="/cart" element={<CartPage cart={cart} updateQty={updateQty} removeFromCart={removeFromCart} total={cartTotal} />} />
         <Route path="/checkout" element={<CheckoutPage cart={cart} total={cartTotal} />} />
+        <Route path="/payment" element={<PaymentPage />} />
         <Route path="/game" element={<GamePage />} />
         <Route path="/blog" element={<BlogPage />} />
         <Route path="/about" element={<AboutPage />} />
