@@ -74,7 +74,7 @@ export default function ProductDetailPage({ addToCart }: ProductDetailPageProps)
                 <div className="flex items-center gap-3 p-4 bg-yellow-50 rounded-2xl border border-yellow-100">
                   <span className="text-2xl">✨</span>
                   <p className="text-sm text-yellow-800">
-                    <strong>Ưu đãi:</strong> Tặng kèm 10 lượt bốc bài Tarot miễn phí khi mua sản phẩm này!
+                    <strong>Ưu đãi:</strong> Tặng ngay 3 lượt bốc bài/ngày trong suốt 6 tháng khi sử dụng NFC trên sản phẩm này!
                   </p>
                 </div>
                 <div className="flex items-center gap-3 p-4 bg-purple-50 rounded-2xl border border-purple-100">

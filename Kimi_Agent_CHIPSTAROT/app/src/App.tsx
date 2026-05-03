@@ -124,8 +124,8 @@ export default function App() {
       />
 
       <Routes>
-        <Route path="/" element={<HomePage setPage={(p: any) => navigate(p === 'home' ? '/' : `/${p}`)} user={user} />} />
-        <Route path="/home" element={<HomePage setPage={(p: any) => navigate(p === 'home' ? '/' : `/${p}`)} user={user} />} />
+        <Route path="/" element={<HomePage setPage={(p: any) => navigate(p === 'home' ? '/' : `/${p}`)} />} />
+        <Route path="/home" element={<HomePage setPage={(p: any) => navigate(p === 'home' ? '/' : `/${p}`)} />} />
         <Route path="/reading" element={<ReadingPage user={user} consumeCredit={handleConsumeCredit} />} />
         <Route path="/cards" element={<CardsPage />} />
         <Route path="/shop" element={<ShopPage addToCart={addToCart} viewProduct={viewProduct} />} />
@@ -191,7 +191,7 @@ export default function App() {
               className="w-full bg-gradient-to-r from-yellow-400 to-amber-400 text-white font-bold py-4 rounded-2xl mb-4 hover:opacity-90 transition-all active:scale-95"
             >
               📿 Mua Móc Khóa NFC
-              <p className="text-xs text-yellow-900 font-normal mt-0.5">Tặng kèm 10 lượt — quét chip khi nhận hàng</p>
+              <p className="text-xs text-yellow-900 font-normal mt-0.5">Tặng 3 lượt/ngày trong 6 tháng — quét chip khi nhận hàng</p>
             </button>
 
             <button onClick={() => setShowPaywall(false)} className="text-gray-400 hover:text-gray-600 text-sm">

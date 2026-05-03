@@ -26,7 +26,7 @@ export default function CartPage({ cart, updateQty, removeFromCart, total }: any
                 <h3 className="font-bold text-gray-800">{item.name}</h3>
                 <div className="flex items-center gap-2 mt-2">
                   <span className="text-lg font-bold text-red-500">{item.price.toLocaleString()}đ</span>
-                  <span className="text-gray-400 line-through text-sm">{item.oldPrice.toLocaleString()}đ</span>
+                  {item.oldPrice && <span className="text-gray-400 line-through text-sm">{item.oldPrice.toLocaleString()}đ</span>}
                 </div>
                 <div className="flex items-center gap-3 mt-2">
                   <button onClick={() => updateQty(item.id, item.qty - 1)} className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center">-</button>

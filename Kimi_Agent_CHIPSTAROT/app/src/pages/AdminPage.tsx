@@ -11,6 +11,7 @@ export default function AdminPage({ setPage }: any) {
   const [editingUser, setEditingUser] = useState<any>(null);
   const [editingProduct, setEditingProduct] = useState<any>(null);
   const [editingOrder, setEditingOrder] = useState<any>(null);
+  const [showReportModal, setShowReportModal] = useState(false);
   const [mockUsers, setMockUsers] = useState([
     { id: 'US-001', name: 'Nguyễn Văn A', email: 'nva@chipstarot.com', role: 'Admin', status: 'active', joined: '15/01/2024', readings: 1250 },
     { id: 'US-002', name: 'Trần Thị B', email: 'ttb_khachhang@gmail.com', role: 'Customer', status: 'active', joined: '20/04/2024', readings: 12 },
@@ -44,10 +45,10 @@ export default function AdminPage({ setPage }: any) {
   ];
 
   const mockProducts = [
-    { id: 1, name: 'Móc khóa NFC CHIPSTAROT', price: '199,000đ', stock: 45, status: 'active', image: '/nfc-keychain.jpg' },
-    { id: 2, name: 'Đá Thạch Anh Tím', price: '89,000đ', stock: 12, status: 'active', image: '/amethyst.jpg' },
-    { id: 3, name: 'Đá Mắt Hổ', price: '79,000đ', stock: 0, status: 'out', image: '/tiger-eye.jpg' },
-    { id: 4, name: 'Đá Thạch Anh Hồng', price: '85,000đ', stock: 8, status: 'active', image: '/rose-quartz.jpg' },
+    { id: 1, name: 'Móc khóa NFC CHIPSTAROT', price: '199,000đ', stock: 45, status: 'active', image: '/products/nfc-chick.jpg' },
+    { id: 2, name: 'Đá Thạch Anh Tím', price: '89,000đ', stock: 12, status: 'active', image: '/products/amethyst.jpg' },
+    { id: 3, name: 'Đá Mắt Hổ', price: '79,000đ', stock: 0, status: 'out', image: '/products/tiger-eye.jpg' },
+    { id: 4, name: 'Đá Thạch Anh Hồng', price: '85,000đ', stock: 8, status: 'active', image: '/products/rose-quartz.jpg' },
   ];
 
   const mockNfcChips = [
@@ -96,6 +97,18 @@ export default function AdminPage({ setPage }: any) {
     { name: 'Đang giao', value: 150, color: '#60a5fa' },
     { name: 'Đang xử lý', value: 80, color: '#facc15' },
     { name: 'Đã huỷ', value: 20, color: '#f87171' },
+  ];
+
+  const topProductsData = [
+    { name: 'Móc khóa NFC CHIPSTAROT', sales: 124, revenue: '24.6M', color: 'text-yellow-400' },
+    { name: 'Đá Thạch Anh Tím', sales: 85, revenue: '7.5M', color: 'text-purple-400' },
+    { name: 'Đá Thạch Anh Hồng', sales: 62, revenue: '5.2M', color: 'text-pink-400' },
+  ];
+
+  const topPackagesData = [
+    { name: 'Gói Phổ Biến (90 ngày)', sales: 312, revenue: '21.5M', icon: '🔮' },
+    { name: 'Gói Khởi Đầu (30 ngày)', sales: 180, revenue: '5.2M', icon: '🌙' },
+    { name: 'Gói Cao Cấp (365 ngày)', sales: 95, revenue: '17.0M', icon: '✨' },
   ];
 
   const statusBadge: Record<string, string> = {
@@ -204,7 +217,7 @@ export default function AdminPage({ setPage }: any) {
                     <tr key={p.id} className="border-t border-white/10 text-white/80 hover:bg-white/5 transition-colors">
                       <td className="p-4">
                         <div className="flex items-center gap-3">
-                          <img src={p.image || '/logo-chipstarot.png'} alt="" className="w-10 h-10 object-cover rounded-lg bg-white/10 border border-white/20" onError={(e:any) => e.target.src='/logo-chipstarot.png'} />
+                          <img src={p.image || '/chicken-mascot.png'} alt="" className="w-10 h-10 object-cover rounded-lg bg-white/10 border border-white/20" onError={(e:any) => e.target.src='/chicken-mascot.png'} />
                           <span className="font-bold text-white">{p.name}</span>
                         </div>
                       </td>
@@ -484,14 +497,19 @@ export default function AdminPage({ setPage }: any) {
           {tab === 'reports' && (
             <div className="space-y-6">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-                <h1 className="text-2xl font-bold text-white">📈 Phân Tích & Báo Cáo Chuyên Sâu</h1>
+                <div>
+                  <h1 className="text-2xl font-bold text-white mb-1">📈 Phân Tích & Báo Cáo Chuyên Sâu</h1>
+                  <p className="text-yellow-400 font-bold text-lg">Tổng Doanh Thu Hệ Thống: 160,000,000 đ</p>
+                </div>
                 <div className="flex gap-2">
                   <select className="bg-white/10 text-white/80 border border-white/20 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-yellow-400">
                     <option value="7">7 ngày qua</option>
                     <option value="30">30 ngày qua</option>
                     <option value="180">6 tháng qua</option>
+                    <option value="all">Toàn thời gian</option>
                   </select>
-                  <button className="btn-3d-yellow text-sm px-5 py-2">📥 Xuất file Excel</button>
+                  <button onClick={() => alert('Đang xuất file Excel...')} className="bg-green-600 hover:bg-green-500 text-white font-bold text-sm px-4 py-2 rounded-xl transition-colors shadow-lg">📥 Xuất Excel</button>
+                  <button onClick={() => setShowReportModal(true)} className="bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-400 hover:to-yellow-500 text-yellow-950 font-bold text-sm px-4 py-2 rounded-xl transition-all shadow-lg">📄 Báo Cáo Tổng Thể</button>
                 </div>
               </div>
 
@@ -538,6 +556,44 @@ export default function AdminPage({ setPage }: any) {
                         <Legend layout="horizontal" verticalAlign="bottom" align="center" wrapperStyle={{ fontSize: '12px', color: '#fff' }} />
                       </PieChart>
                     </ResponsiveContainer>
+                  </div>
+                </div>
+              </div>
+
+              {/* Hàng 1.5: Sản phẩm bán chạy & Gói cước */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/10">
+                  <h2 className="text-white font-bold mb-4 flex items-center gap-2">🛍️ Top Sản Phẩm Vật Lý Bán Chạy</h2>
+                  <div className="space-y-4">
+                    {topProductsData.map((p, idx) => (
+                      <div key={idx} className="flex justify-between items-center bg-white/5 p-4 rounded-xl border border-white/5 hover:bg-white/10 transition-colors">
+                        <div className="flex items-center gap-3">
+                          <div className={`w-8 h-8 rounded-full bg-white/10 flex items-center justify-center font-bold ${p.color}`}>#{idx + 1}</div>
+                          <div>
+                            <p className="text-white font-bold text-sm">{p.name}</p>
+                            <p className="text-white/50 text-xs">Đã bán: {p.sales}</p>
+                          </div>
+                        </div>
+                        <span className="text-green-400 font-bold">{p.revenue}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/10">
+                  <h2 className="text-white font-bold mb-4 flex items-center gap-2">🔮 Top Gói Lượt Tarot Được Mua Nhất</h2>
+                  <div className="space-y-4">
+                    {topPackagesData.map((p, idx) => (
+                      <div key={idx} className="flex justify-between items-center bg-white/5 p-4 rounded-xl border border-white/5 hover:bg-white/10 transition-colors">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-full bg-purple-500/20 text-purple-300 flex items-center justify-center font-bold">{p.icon}</div>
+                          <div>
+                            <p className="text-white font-bold text-sm">{p.name}</p>
+                            <p className="text-white/50 text-xs">Lượt đăng ký: {p.sales}</p>
+                          </div>
+                        </div>
+                        <span className="text-yellow-400 font-bold">{p.revenue}</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
@@ -750,7 +806,7 @@ export default function AdminPage({ setPage }: any) {
               <div className="w-1/3">
                 <label className="text-xs text-white/60 mb-1 block">Hình ảnh sản phẩm</label>
                 <div className="aspect-square w-full bg-white/5 rounded-xl border border-white/20 mb-3 overflow-hidden flex items-center justify-center relative group">
-                  <img src={editingProduct.image || '/logo-chipstarot.png'} className="w-full h-full object-cover" onError={(e:any) => e.target.src='/logo-chipstarot.png'} />
+                  <img src={editingProduct.image || '/chicken-mascot.png'} className="w-full h-full object-cover" onError={(e:any) => e.target.src='/chicken-mascot.png'} />
                   <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                     <span className="text-white text-xs font-bold bg-white/20 px-3 py-1 rounded-md cursor-pointer hover:bg-yellow-500/80 hover:text-yellow-950 transition-all">Tải ảnh lên 📸</span>
                   </div>
@@ -823,6 +879,92 @@ export default function AdminPage({ setPage }: any) {
           </div>
         </div>
       )}
+
+      {/* SYSTEM REPORT MODAL */}
+      {showReportModal && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden shadow-2xl flex flex-col">
+            <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+              <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">📄 Báo Cáo Tổng Thể Hệ Thống</h2>
+              <button onClick={() => setShowReportModal(false)} className="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+            </div>
+            
+            <div className="p-8 flex-1 overflow-y-auto bg-white" id="report-preview-content">
+              {/* Report Header */}
+              <div className="text-center mb-10 border-b-2 border-gray-100 pb-8">
+                <h1 className="text-4xl font-black text-purple-800 mb-2">CHIPSTAROT</h1>
+                <p className="text-xl text-gray-500 uppercase tracking-widest font-bold">Báo Cáo Hiệu Suất & Doanh Thu</p>
+                <p className="text-gray-400 mt-2">Kỳ báo cáo: Quý 2 / 2026 | Ngày xuất: {new Date().toLocaleDateString('vi-VN')}</p>
+              </div>
+
+              {/* KPI Summary */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-10">
+                <div className="bg-purple-50 p-6 rounded-2xl text-center">
+                  <p className="text-purple-600 font-bold mb-1">Tổng Doanh Thu</p>
+                  <p className="text-2xl font-black text-purple-900">160.0M đ</p>
+                  <p className="text-green-500 text-sm font-bold mt-1">↑ 24% so với quý trước</p>
+                </div>
+                <div className="bg-blue-50 p-6 rounded-2xl text-center">
+                  <p className="text-blue-600 font-bold mb-1">Đơn Hàng (Sản Phẩm)</p>
+                  <p className="text-2xl font-black text-blue-900">1,245</p>
+                  <p className="text-green-500 text-sm font-bold mt-1">↑ 12% so với quý trước</p>
+                </div>
+                <div className="bg-yellow-50 p-6 rounded-2xl text-center">
+                  <p className="text-yellow-600 font-bold mb-1">Lượt Xem Tarot</p>
+                  <p className="text-2xl font-black text-yellow-900">45,892</p>
+                  <p className="text-green-500 text-sm font-bold mt-1">↑ 89% so với quý trước</p>
+                </div>
+                <div className="bg-green-50 p-6 rounded-2xl text-center">
+                  <p className="text-green-600 font-bold mb-1">Người Dùng Mới</p>
+                  <p className="text-2xl font-black text-green-900">3,420</p>
+                  <p className="text-green-500 text-sm font-bold mt-1">↑ 34% so với quý trước</p>
+                </div>
+              </div>
+
+              {/* Detailed Breakdown */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                <div>
+                  <h3 className="text-lg font-bold text-gray-800 mb-4 border-l-4 border-yellow-500 pl-3">Sản phẩm vật lý bán chạy</h3>
+                  <table className="w-full text-sm">
+                    <thead><tr className="bg-gray-50 text-gray-500"><th className="p-3 text-left">Tên SP</th><th className="p-3 text-right">SL Bán</th><th className="p-3 text-right">Doanh thu</th></tr></thead>
+                    <tbody>
+                      {topProductsData.map((p, i) => (
+                        <tr key={i} className="border-b border-gray-100"><td className="p-3 font-bold text-gray-700">{p.name}</td><td className="p-3 text-right">{p.sales}</td><td className="p-3 text-right text-green-600 font-bold">{p.revenue}</td></tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-gray-800 mb-4 border-l-4 border-purple-500 pl-3">Gói lượt Tarot được mua nhiều</h3>
+                  <table className="w-full text-sm">
+                    <thead><tr className="bg-gray-50 text-gray-500"><th className="p-3 text-left">Tên Gói</th><th className="p-3 text-right">Lượt ĐK</th><th className="p-3 text-right">Doanh thu</th></tr></thead>
+                    <tbody>
+                      {topPackagesData.map((p, i) => (
+                        <tr key={i} className="border-b border-gray-100"><td className="p-3 font-bold text-gray-700">{p.name}</td><td className="p-3 text-right">{p.sales}</td><td className="p-3 text-right text-green-600 font-bold">{p.revenue}</td></tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div className="bg-gray-50 p-6 rounded-2xl border border-gray-100">
+                <h3 className="text-lg font-bold text-gray-800 mb-2">Đánh Giá Từ Hệ Thống AI</h3>
+                <p className="text-gray-600 text-sm leading-relaxed">
+                  Tỷ lệ chuyển đổi từ việc mua móc khóa vật lý (NFC) sang khách hàng nạp thêm thẻ tín dụng kĩ thuật số đạt mức <strong>45%</strong>. Năng lực xử lý của API Tarot ổn định ở mức 99.98% uptime. Đề xuất đẩy mạnh các gói Khởi đầu (30 ngày) cho tệp khách hàng mua đá Thạch Anh Tím.
+                </p>
+              </div>
+            </div>
+
+            <div className="p-6 border-t border-gray-100 bg-gray-50 flex justify-end gap-4">
+              <button onClick={() => setShowReportModal(false)} className="px-6 py-3 rounded-xl text-sm font-bold text-gray-600 hover:bg-gray-200 transition-colors">Đóng Preview</button>
+              <button onClick={() => { alert('Đã tải xuống file CHIPSTAROT_Report_Q2.pdf thành công!'); setShowReportModal(false); }} className="px-6 py-3 rounded-xl text-sm font-bold bg-purple-600 hover:bg-purple-700 text-white shadow-lg transition-colors flex items-center gap-2">
+                📥 Tải xuống PDF
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

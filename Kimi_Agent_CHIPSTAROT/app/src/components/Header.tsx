@@ -64,7 +64,9 @@ export default function Header({ user, credits, creditsExpired, expiryLabel, log
             {user ? (
               <div className="hidden md:flex items-center gap-3">
                 <button onClick={() => navigate('/profile')} className="text-sm font-medium text-blue-600 hover:text-blue-800 bg-blue-100 px-3 py-1 rounded-full">👤 Hồ sơ</button>
-                <button onClick={() => navigate('/admin')} className="text-sm font-medium text-purple-600 hover:text-purple-800 bg-purple-100 px-3 py-1 rounded-full">Admin</button>
+                {user?.role_id === 1 && (
+                  <button onClick={() => navigate('/admin')} className="text-sm font-medium text-purple-600 hover:text-purple-800 bg-purple-100 px-3 py-1 rounded-full">Admin</button>
+                )}
                 <div className="relative group">
                   <span className={`px-3 py-1 rounded-full text-sm font-medium cursor-help flex items-center gap-1 ${
                     creditsExpired ? 'bg-red-100 text-red-700' :
@@ -102,7 +104,9 @@ export default function Header({ user, credits, creditsExpired, expiryLabel, log
             {user && (
               <>
                 <button onClick={() => handleNav('/profile')} className="block w-full text-left px-4 py-3 text-blue-600 hover:bg-blue-50 rounded-lg font-medium">👤 Hồ sơ của tôi</button>
-                <button onClick={() => handleNav('/admin')} className="block w-full text-left px-4 py-3 text-purple-600 hover:bg-purple-50 rounded-lg font-medium">⚙️ Admin Dashboard</button>
+                {user?.role_id === 1 && (
+                  <button onClick={() => handleNav('/admin')} className="block w-full text-left px-4 py-3 text-purple-600 hover:bg-purple-50 rounded-lg font-medium">⚙️ Admin Dashboard</button>
+                )}
               </>
             )}
             {!user && <button onClick={() => handleNav('/auth')} className="block w-full text-left px-4 py-3 text-yellow-600 hover:bg-yellow-50 rounded-lg">Đăng nhập</button>}

@@ -1,4 +1,4 @@
-﻿// Tất cả dữ liệu tĩnh của ứng dụng
+// Tất cả dữ liệu tĩnh của ứng dụng
 
 export const TAROT_DB = {
   cards: [] as any[]
@@ -176,12 +176,12 @@ export const SUGGESTED_QUESTIONS: Record<string, string[]> = {
 };
 
 export const PRODUCTS = [
-  { id: 1, name: "Móc khóa NFC CHIPSTAROT", desc: "Chạm vào điện thoại để xem bài Tarot mỗi ngày. Tặng kèm 10 lượt bốc bài!", price: 199000, oldPrice: 299000, image: "/products/nfc-chick.jpg", rating: 4.9, reviews: 128, tag: "Bán chạy", tagColor: "bg-red-500", nfcCredits: 3, nfcExpiryMonths: 6 },
-  { id: 2, name: "Móc khóa Đá Thạch Anh Tím", desc: "Đá thạch anh tím tự nhiên, mang lại bình an và may mắn. Tặng kèm 10 lượt bốc bài!", price: 89000, oldPrice: 129000, image: "/products/amethyst.jpg", rating: 4.8, reviews: 86, tag: "Mới", tagColor: "bg-green-500", nfcCredits: 3, nfcExpiryMonths: 6 },
-  { id: 3, name: "Móc khóa Đá Mắt Hổ", desc: "Đá mắt hổ mang lại sự tự tin và bảo vệ. Tặng kèm 10 lượt bốc bài!", price: 79000, oldPrice: 99000, image: "/products/tiger-eye.jpg", rating: 4.7, reviews: 52, tag: "", tagColor: "", nfcCredits: 3, nfcExpiryMonths: 6 },
-  { id: 4, name: "Móc khóa Đá Thạch Anh Hồng", desc: "Đá thạch anh hồng mang lại tình yêu và sự hòa hợp. Tặng kèm 10 lượt bốc bài!", price: 85000, oldPrice: 109000, image: "/products/rose-quartz.jpg", rating: 4.9, reviews: 34, tag: "", tagColor: "", nfcCredits: 3, nfcExpiryMonths: 6 },
-  { id: 5, name: "Móc khóa Đá Aventurine Xanh", desc: "Đá aventurine xanh mang lại may mắn và thịnh vượng. Tặng kèm 10 lượt bốc bài!", price: 79000, oldPrice: 99000, image: "/products/green-stone.jpg", rating: 4.7, reviews: 45, tag: "Mới", tagColor: "bg-green-500", nfcCredits: 3, nfcExpiryMonths: 6 },
-  { id: 6, name: "Móc khóa Đá Thạch Anh Trắng", desc: "Đá thạch anh trắng trong suốt, khuếch đại năng lượng tích cực. Tặng kèm 10 lượt bốc bài!", price: 69000, oldPrice: 89000, image: "/products/clear-quartz.jpg", rating: 4.8, reviews: 67, tag: "", tagColor: "", nfcCredits: 3, nfcExpiryMonths: 6 },
+  { id: 1, name: "Móc khóa NFC CHIPSTAROT", desc: "Chạm vào điện thoại để xem bài Tarot mỗi ngày. Tặng kèm 6 tháng bốc Tarot miễn phí!", price: 199000, oldPrice: 299000, image: "/products/nfc-chick.jpg", rating: 4.9, reviews: 128, tag: "Bán chạy", tagColor: "bg-red-500", nfcCredits: 3, nfcExpiryMonths: 6 },
+  { id: 2, name: "Móc khóa Đá Thạch Anh Tím", desc: "Đá thạch anh tím tự nhiên, mang lại bình an và may mắn. Tặng kèm 6 tháng bốc Tarot miễn phí!", price: 89000, oldPrice: 129000, image: "/products/amethyst.jpg", rating: 4.8, reviews: 86, tag: "Mới", tagColor: "bg-green-500", nfcCredits: 3, nfcExpiryMonths: 6 },
+  { id: 3, name: "Móc khóa Đá Mắt Hổ", desc: "Đá mắt hổ mang lại sự tự tin và bảo vệ. Tặng kèm 6 tháng bốc Tarot miễn phí!", price: 79000, oldPrice: 99000, image: "/products/tiger-eye.jpg", rating: 4.7, reviews: 52, tag: "", tagColor: "", nfcCredits: 3, nfcExpiryMonths: 6 },
+  { id: 4, name: "Móc khóa Đá Thạch Anh Hồng", desc: "Đá thạch anh hồng mang lại tình yêu và sự hòa hợp. Tặng kèm 6 tháng bốc Tarot miễn phí!", price: 85000, oldPrice: 109000, image: "/products/rose-quartz.jpg", rating: 4.9, reviews: 34, tag: "", tagColor: "", nfcCredits: 3, nfcExpiryMonths: 6 },
+  { id: 5, name: "Móc khóa Đá Aventurine Xanh", desc: "Đá aventurine xanh mang lại may mắn và thịnh vượng. Tặng kèm 6 tháng bốc Tarot miễn phí!", price: 79000, oldPrice: 99000, image: "/products/green-stone.jpg", rating: 4.7, reviews: 45, tag: "Mới", tagColor: "bg-green-500", nfcCredits: 3, nfcExpiryMonths: 6 },
+  { id: 6, name: "Móc khóa Đá Thạch Anh Trắng", desc: "Đá thạch anh trắng trong suốt, khuếch đại năng lượng tích cực. Tặng kèm 6 tháng bốc Tarot miễn phí!", price: 69000, oldPrice: 89000, image: "/products/clear-quartz.jpg", rating: 4.8, reviews: 67, tag: "", tagColor: "", nfcCredits: 3, nfcExpiryMonths: 6 },
 ];
 
 // ─── Gói Mua Lượt Tarot (Digital Credit Packages) ───

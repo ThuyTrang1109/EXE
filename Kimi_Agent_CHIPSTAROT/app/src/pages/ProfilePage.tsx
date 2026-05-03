@@ -7,7 +7,20 @@ export default function ProfilePage({ user, onScanClick }: any) {
   const { credits, expiryLabel, creditsExpiresAt } = useAuth();
   const [activeTab, setActiveTab] = useState<'history' | 'orders' | 'nfc'>('history');
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
-// ... existing mock data ...
+  const [editingProfile, setEditingProfile] = useState(false);
+  const [editName, setEditName] = useState(user?.name || '');
+  const [editPhone, setEditPhone] = useState(user?.phone_number || '');
+  const [savingProfile, setSavingProfile] = useState(false);
+
+  const handleSaveProfile = async () => {
+    if (!editName.trim()) return;
+    setSavingProfile(true);
+    // TODO: gọi API BE để update profile
+    // await apiUpdateProfile({ full_name: editName, phone_number: editPhone });
+    await new Promise(r => setTimeout(r, 800)); // simulate
+    setSavingProfile(false);
+    setEditingProfile(false);
+  };
 
   const mockHistory = [
     { 
@@ -67,8 +80,8 @@ export default function ProfilePage({ user, onScanClick }: any) {
   ];
 
   const mockNFC = [
-    { id: 'CHIP-TR-001', product: 'Móc khóa NFC CHIPSTAROT', activatedAt: '25/04/2024', creditsAdded: 10, icon: '🐣' },
-    { id: 'CHIP-AM-042', product: 'Móc khóa Đá Thạch Anh Tím', activatedAt: '20/04/2024', creditsAdded: 10, icon: '💎' }
+    { id: 'CHIP-TR-001', product: 'Móc khóa NFC CHIPSTAROT', activatedAt: '25/04/2024', creditsAdded: 3, icon: '🐣' },
+    { id: 'CHIP-AM-042', product: 'Móc khóa Đá Thạch Anh Tím', activatedAt: '20/04/2024', creditsAdded: 3, icon: '💎' }
   ];
 
   if (!user) {
@@ -87,6 +100,40 @@ export default function ProfilePage({ user, onScanClick }: any) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-purple-50 to-yellow-100 py-12 px-4">
       <div className="max-w-4xl mx-auto">
+
+        {/* Edit Profile Modal */}
+        {editingProfile && (
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setEditingProfile(false)}>
+            <div className="bg-white rounded-3xl max-w-md w-full shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
+              <div className="bg-gradient-to-r from-purple-600 to-indigo-600 p-6 text-white flex justify-between items-center">
+                <h3 className="text-xl font-bold">✏️ Chỉnh sửa hồ sơ</h3>
+                <button onClick={() => setEditingProfile(false)} className="w-8 h-8 flex items-center justify-center bg-white/20 rounded-full hover:bg-white/40">✕</button>
+              </div>
+              <div className="p-6 space-y-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Họ và tên</label>
+                  <input type="text" value={editName} onChange={e => setEditName(e.target.value)} onFocus={e => e.target.select()}
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-100" />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Số điện thoại</label>
+                  <input type="tel" value={editPhone} onChange={e => setEditPhone(e.target.value)} onFocus={e => e.target.select()}
+                    placeholder="0867 774 023"
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-100" />
+                </div>
+                <div className="flex gap-3 pt-2">
+                  <button onClick={handleSaveProfile} disabled={savingProfile}
+                    className="flex-1 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-bold transition-colors disabled:opacity-60">
+                    {savingProfile ? '⏳ Đang lưu...' : '💾 Lưu thay đổi'}
+                  </button>
+                  <button onClick={() => setEditingProfile(false)}
+                    className="flex-1 py-3 bg-gray-100 text-gray-600 rounded-xl font-bold hover:bg-gray-200 transition-colors">Huỷ</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="bg-white rounded-3xl shadow-2xl overflow-hidden mb-8 border border-white/20">
           <div className="bg-gradient-to-r from-purple-600 via-purple-700 to-indigo-800 p-8 text-white flex flex-col md:flex-row items-start gap-6 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl" />
@@ -99,6 +146,10 @@ export default function ProfilePage({ user, onScanClick }: any) {
                   <div className="flex flex-wrap justify-center md:justify-start gap-2">
                     <span className="px-3 py-1 bg-yellow-400 text-purple-900 rounded-full text-[10px] font-bold uppercase tracking-wider shadow-sm">Thành viên CHIPSTAROT</span>
                     <span className="px-3 py-1 bg-purple-500/30 text-white rounded-full text-[10px] font-bold uppercase tracking-wider backdrop-blur-sm border border-white/20">Hạng Đồng</span>
+                    <button onClick={() => { setEditName(user?.name || ''); setEditPhone(user?.phone_number || ''); setEditingProfile(true); }}
+                      className="px-3 py-1 bg-white/20 hover:bg-white/30 text-white rounded-full text-[10px] font-bold uppercase tracking-wider backdrop-blur-sm border border-white/20 transition-all">
+                      ✏️ Chỉnh sửa
+                    </button>
                   </div>
                 </div>
                 
@@ -246,7 +297,7 @@ export default function ProfilePage({ user, onScanClick }: any) {
                   <div className="absolute -right-10 -bottom-10 w-48 h-48 bg-white/20 rounded-full blur-3xl" />
                   <div className="relative z-10">
                     <h3 className="text-2xl font-bold mb-2">Kích hoạt Thẻ NFC mới</h3>
-                    <p className="text-white/80 text-sm mb-6 max-w-md">Chạm móc khóa CHIPSTAROT của bạn vào điện thoại để nhận thêm 10 lượt bốc bài và mở khóa ưu đãi thành viên.</p>
+                    <p className="text-white/80 text-sm mb-6 max-w-md">Chạm móc khóa CHIPSTAROT của bạn vào điện thoại để nhận ngay 3 lượt bốc bài/ngày trong suốt 6 tháng miễn phí.</p>
                     <button onClick={onScanClick} className="bg-white text-orange-600 px-8 py-3 rounded-2xl font-bold hover:scale-105 transition-all shadow-lg flex items-center gap-2">
                       <span className="text-xl">📱</span> Chạm để quét ngay
                     </button>

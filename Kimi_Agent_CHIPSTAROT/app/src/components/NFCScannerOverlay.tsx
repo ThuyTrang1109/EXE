@@ -21,7 +21,7 @@ export default function NFCScannerOverlay({ onSuccess, onClose }: NFCScannerOver
             detectedTagId = event.serialNumber as string | undefined;
             console.log('NFC Tag detected!', detectedTagId);
             setStatus('success');
-            setTimeout(() => onSuccess(10, detectedTagId), 1500);
+            setTimeout(() => onSuccess(3, detectedTagId), 1500);
           };
         }
       } catch (error) {
@@ -37,7 +37,7 @@ export default function NFCScannerOverlay({ onSuccess, onClose }: NFCScannerOver
         // Generate a pseudo-unique tag ID for demo tracking
         const simTagId = `SIM-${Date.now().toString(36).toUpperCase()}`;
         setStatus('success');
-        setTimeout(() => onSuccess(10, simTagId), 1500);
+        setTimeout(() => onSuccess(3, simTagId), 1500);
       }
     }, 3500);
 

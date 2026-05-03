@@ -169,7 +169,8 @@ CREATE TABLE vouchers (
     start_date TIMESTAMP WITH TIME ZONE,
     end_date TIMESTAMP WITH TIME ZONE,
     usage_limit INT DEFAULT 100,
-    used_count INT DEFAULT 0
+    used_count INT DEFAULT 0,
+    assigned_to_account UUID REFERENCES accounts(id) -- NULL = Public voucher, có ID = Voucher cá nhân hóa
 );
 
 -- Banner trang chủ
@@ -378,6 +379,18 @@ CREATE TABLE credit_transactions (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Lịch sử hoạt động thú ảo (Chống cheat game)
+CREATE TABLE pet_game_logs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    account_id UUID REFERENCES accounts(id) ON DELETE CASCADE,
+    action_type VARCHAR(50) NOT NULL,             -- 'feed', 'gain_exp_from_reading', 'claim_reward'
+    amount INT NOT NULL,                          -- Số lượng exp/food thay đổi
+    current_exp INT NOT NULL,
+    current_food INT NOT NULL,
+    reference_id VARCHAR(100),                    -- ID bài reading hoặc id reward
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
 -- ==========================================
 -- 9. INDEX TỐI ƯU HIỆU NĂNG (PERFORMANCE INDEXES)
 -- ==========================================
@@ -400,3 +413,5 @@ CREATE INDEX idx_notifications_account ON notifications(account_id, is_read);
 CREATE INDEX idx_credit_transactions_account ON credit_transactions(account_id);
 CREATE INDEX idx_blog_posts_slug ON blog_posts(slug);
 CREATE INDEX idx_blog_posts_status ON blog_posts(status);
+CREATE INDEX idx_pet_game_logs_account ON pet_game_logs(account_id);
+CREATE INDEX idx_vouchers_account ON vouchers(assigned_to_account);
