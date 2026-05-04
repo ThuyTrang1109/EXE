@@ -415,3 +415,22 @@ CREATE INDEX idx_blog_posts_slug ON blog_posts(slug);
 CREATE INDEX idx_blog_posts_status ON blog_posts(status);
 CREATE INDEX idx_pet_game_logs_account ON pet_game_logs(account_id);
 CREATE INDEX idx_vouchers_account ON vouchers(assigned_to_account);
+
+-- ==========================================
+-- 10. PHÂN VÙNG CẤU HÌNH HỆ THỐNG (SYSTEM SETTINGS)
+-- ==========================================
+
+CREATE TABLE system_settings (
+    setting_key VARCHAR(50) PRIMARY KEY,
+    setting_value TEXT NOT NULL,
+    description TEXT,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_by UUID REFERENCES accounts(id)
+);
+
+-- Dữ liệu khởi tạo (Seed Data)
+INSERT INTO system_settings (setting_key, setting_value, description) VALUES 
+('GEMINI_API_KEY', '', 'Google Gemini API Key dùng cho toàn hệ thống'),
+('PET_CREDIT_COST', '10', 'Số Credit bị trừ khi bốc 1 quẻ Tarot'),
+('PET_EXP_PER_TURN', '20', 'Số EXP thú cưng nhận được mỗi lần bốc bài'),
+('MAINTENANCE_MODE', 'false', 'Bật/Tắt chế độ bảo trì hệ thống (true/false)');

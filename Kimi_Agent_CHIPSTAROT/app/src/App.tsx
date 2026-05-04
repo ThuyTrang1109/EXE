@@ -137,7 +137,20 @@ export default function App() {
         <Route path="/game" element={<GamePage />} />
         <Route path="/blog" element={<BlogPage />} />
         <Route path="/about" element={<AboutPage />} />
-        <Route path="/admin" element={<AdminPage setPage={(p: any) => navigate(p === 'home' ? '/' : `/${p}`)} />} />
+        <Route path="/admin" element={
+          user?.role_id === 1
+            ? <AdminPage setPage={(p: any) => navigate(p === 'home' ? '/' : `/${p}`)} />
+            : <div className="min-h-screen bg-gradient-to-br from-purple-900 via-purple-800 to-yellow-900 flex items-center justify-center p-6">
+                <div className="text-center text-white">
+                  <div className="text-7xl mb-6">🚫</div>
+                  <h1 className="text-3xl font-bold mb-3">Truy cập bị từ chối</h1>
+                  <p className="text-purple-200 mb-8">{user ? 'Tài khoản của bạn không có quyền Admin.' : 'Vui lòng đăng nhập bằng tài khoản Admin.'}</p>
+                  <button onClick={() => navigate(user ? '/' : '/auth')} className="bg-yellow-500 hover:bg-yellow-400 text-yellow-950 font-bold px-8 py-3 rounded-xl transition-all">
+                    {user ? '← Về trang chủ' : '→ Đăng nhập'}
+                  </button>
+                </div>
+              </div>
+        } />
         <Route path="/profile" element={<ProfilePage user={user} onScanClick={() => setShowScanner(true)} />} />
         <Route path="/auth" element={<AuthPage />} />
         <Route path="*" element={<NotFoundPage />} />

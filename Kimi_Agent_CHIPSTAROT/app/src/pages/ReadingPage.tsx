@@ -236,6 +236,41 @@ export default function ReadingPage({ user, consumeCredit }: any) {
 
   const POSITIONS = ['✨ Thông điệp', '⬅️ Quá khứ', '🎯 Hiện tại', '🔮 Tương lai'];
 
+  // Component render Markdown cơ bản & Hiệu ứng gõ phím
+  const [displayedText, setDisplayedText] = useState('');
+  useEffect(() => {
+    if (aiReading) {
+      let i = 0;
+      setDisplayedText('');
+      const interval = setInterval(() => {
+        setDisplayedText(prev => prev + aiReading.charAt(i));
+        i++;
+        if (i >= aiReading.length) clearInterval(interval);
+      }, 15); // Tốc độ gõ phím
+      return () => clearInterval(interval);
+    }
+  }, [aiReading]);
+
+  const renderFormattedText = (text: string) => {
+    return text.split('\n').map((line, i) => {
+      if (!line.trim()) return <br key={i} />;
+      const parts = line.split(/(\*\*.*?\*\*)/g);
+      return (
+        <p key={i} className="mb-2">
+          {parts.map((part, j) => {
+            if (part.startsWith('**') && part.endsWith('**')) {
+              return <strong key={j} className="text-yellow-400 font-bold tracking-wide">{part.slice(2, -2)}</strong>;
+            }
+            if (part.startsWith('*') && part.endsWith('*')) {
+              return <em key={j} className="text-purple-300 italic">{part.slice(1, -1)}</em>;
+            }
+            return part;
+          })}
+        </p>
+      );
+    });
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-purple-800 to-yellow-900 py-12 px-4">
       <div className="max-w-4xl mx-auto">
@@ -537,8 +572,11 @@ export default function ReadingPage({ user, consumeCredit }: any) {
                       <p className="text-purple-200 text-sm animate-pulse">Vũ trụ đang kết nối và luận giải thông điệp cho bạn...</p>
                     </div>
                   ) : aiReading ? (
-                    <div className="text-white/90 leading-relaxed whitespace-pre-line text-base font-medium">
-                      {aiReading}
+                    <div className="text-white/90 leading-relaxed text-base font-medium animate-fade-in">
+                      {renderFormattedText(displayedText)}
+                      {displayedText.length < aiReading.length && (
+                        <span className="inline-block w-2 h-4 bg-yellow-400 ml-1 animate-pulse"></span>
+                      )}
                     </div>
                   ) : (
                     <p className="text-white/60 text-sm italic">Nhập API Key trong file .env để nhận thông điệp từ AI.</p>

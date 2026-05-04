@@ -1,8 +1,94 @@
 import { useState, useEffect } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, BarChart, Bar, Legend, PieChart, Pie, Cell } from 'recharts';
+import { getActiveGeminiKey, setAdminGeminiKey, clearAdminGeminiKey } from '../lib/gemini';
 
 export default function AdminPage({ setPage }: any) {
-  const [tab, setTab] = useState<'dashboard' | 'products' | 'orders' | 'users' | 'reports' | 'cards' | 'nfcs' | 'blogs'>('dashboard');
+  const [tab, setTab] = useState<'dashboard' | 'products' | 'orders' | 'users' | 'reports' | 'cards' | 'nfcs' | 'blogs' | 'settings'>('dashboard');
+
+  // ── Settings state ──────────────────────────────────────────────────────
+  const [geminiKeyInput, setGeminiKeyInput] = useState('');
+  const [showKey, setShowKey] = useState(false);
+  const [keyStatus, setKeyStatus] = useState<'none' | 'saved' | 'testing' | 'valid' | 'invalid'>('none');
+  const [keyTestMsg, setKeyTestMsg] = useState('');
+
+  // Khi vào tab settings, đọc key hiện tại để hiển thị
+  useEffect(() => {
+    if (tab === 'settings') {
+      const current = getActiveGeminiKey();
+      setGeminiKeyInput(current || '');
+      setKeyStatus(current && current.startsWith('AIzaSy') ? 'saved' : 'none');
+      setKeyTestMsg('');
+    }
+  }, [tab]);
+
+  const handleSaveGeminiKey = () => {
+    const trimmed = geminiKeyInput.trim();
+    if (!trimmed.startsWith('AIzaSy') || trimmed.length < 30) {
+      setKeyStatus('invalid');
+      setKeyTestMsg('❌ Key không đúng định dạng. Gemini API Key bắt đầu bằng "AIzaSy" và dài ít nhất 30 ký tự.');
+      return;
+    }
+    setAdminGeminiKey(trimmed);
+    setKeyStatus('saved');
+    setKeyTestMsg('✅ Đã lưu thành công! Key đang được áp dụng cho toàn bộ tính năng AI.');
+  };
+
+  const handleClearGeminiKey = () => {
+    clearAdminGeminiKey();
+    setGeminiKeyInput('');
+    setKeyStatus('none');
+    setKeyTestMsg('🗑️ Đã xoá API Key. Hệ thống sẽ dùng key từ file .env (nếu có).');
+  };
+
+  const handleTestGeminiKey = async () => {
+    const keyToTest = geminiKeyInput.trim();
+    if (!keyToTest.startsWith('AIzaSy') || keyToTest.length < 30) {
+      setKeyStatus('invalid');
+      setKeyTestMsg('❌ Key không đúng định dạng. Phải bắt đầu bằng "AIzaSy".');
+      return;
+    }
+    setKeyStatus('testing');
+    setKeyTestMsg('⏳ Đang kiểm tra kết nối với Gemini API...');
+    try {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${keyToTest}`;
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ contents: [{ parts: [{ text: 'Hello' }] }] }),
+      });
+      const data = await res.json();
+      const errMsg: string = data?.error?.message || '';
+      const errCode: number = data?.error?.code || res.status;
+
+      if (res.ok && data?.candidates?.[0]?.content) {
+        // ✅ Thành công → tự động lưu luôn
+        setAdminGeminiKey(keyToTest);
+        setKeyStatus('valid');
+        setKeyTestMsg('✅ Key hợp lệ & đã được lưu tự động! Tính năng AI sẵn sàng hoạt động.');
+      } else if (errCode === 429 || errMsg.toLowerCase().includes('quota')) {
+        // ⚠️ Key đúng nhưng hết quota → vẫn lưu, thông báo rõ
+        setAdminGeminiKey(keyToTest);
+        setKeyStatus('saved');
+        setKeyTestMsg(
+          '⚠️ Key hợp lệ nhưng đang bị giới hạn quota (429). Key đã được lưu.\n' +
+          'Hệ thống AI sẽ tự hoạt động khi quota phục hồi (thường sau vài phút đến 1 ngày).\n' +
+          'Để kiểm tra: vào ai.dev/rate-limit hoặc tạo key mới từ project khác.'
+        );
+      } else if (errCode === 403 || errMsg.includes('reported as leaked') || errMsg.includes('API_KEY_INVALID')) {
+        setKeyStatus('invalid');
+        setKeyTestMsg('❌ Key bị khóa (403). Key này đã bị báo cáo rò rỉ hoặc bị vô hiệu hóa. Hãy tạo key mới.');
+      } else if (errCode === 400 || errMsg.includes('API key not valid')) {
+        setKeyStatus('invalid');
+        setKeyTestMsg('❌ Key không hợp lệ (400). Vui lòng copy lại key từ Google AI Studio.');
+      } else {
+        setKeyStatus('invalid');
+        setKeyTestMsg(`❌ Lỗi từ Google: ${errMsg || `HTTP ${errCode}`}`);
+      }
+    } catch {
+      setKeyStatus('invalid');
+      setKeyTestMsg('❌ Không thể kết nối mạng. Kiểm tra internet và thử lại.');
+    }
+  };
 
   const [tarotCards, setTarotCards] = useState<any[]>([]);
   const [loadingCards, setLoadingCards] = useState(true);
@@ -129,6 +215,7 @@ export default function AdminPage({ setPage }: any) {
     { id: 'nfcs', label: '🏷️ Mã Chip NFC' },
     { id: 'blogs', label: '✍️ Bài viết (Blog)' },
     { id: 'reports', label: '📈 Báo cáo' },
+    { id: 'settings', label: '⚙️ Cài đặt' },
   ];
 
   return (
@@ -641,6 +728,244 @@ export default function AdminPage({ setPage }: any) {
                   <div className="mt-6 pt-4 border-t border-white/10 flex justify-between items-center">
                     <span className="text-sm text-white/60">Phiên bản Database: Supabase PG-15</span>
                     <button className="text-sm text-blue-400 hover:text-blue-300 font-medium">Kiểm tra Logs →</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── SETTINGS TAB ── */}
+          {tab === 'settings' && (
+            <div className="animate-fade-in max-w-3xl space-y-6">
+              {/* Header */}
+              <div>
+                <h1 className="text-2xl font-bold text-white mb-1">⚙️ Cài Đặt Hệ Thống</h1>
+                <p className="text-white/50 text-sm">Quản lý cấu hình API AI và các tích hợp dịch vụ.</p>
+              </div>
+
+              {/* Active Key Status Banner */}
+              {(() => {
+                const activeKey = getActiveGeminiKey();
+                const isFromAdmin = !!localStorage.getItem('chipstarot_admin_gemini_key');
+                if (!activeKey) return (
+                  <div className="flex items-center gap-4 bg-red-500/10 border border-red-500/30 rounded-2xl p-4">
+                    <span className="text-2xl flex-shrink-0">🚫</span>
+                    <div>
+                      <p className="text-red-300 font-bold text-sm">Chưa có API Key — AI đang tắt</p>
+                      <p className="text-red-200/60 text-xs mt-0.5">Nhập Gemini API Key bên dưới để bật tính năng luận giải Tarot bằng AI.</p>
+                    </div>
+                  </div>
+                );
+                return (
+                  <div className="flex items-center gap-4 bg-green-500/10 border border-green-500/30 rounded-2xl p-4">
+                    <span className="text-2xl flex-shrink-0">✅</span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-green-300 font-bold text-sm">AI đang hoạt động — {isFromAdmin ? 'Key do Admin cài đặt' : 'Key từ file .env'}</p>
+                      <p className="text-green-200/60 text-xs font-mono mt-0.5">{activeKey.slice(0, 10)}••••••••••••{activeKey.slice(-4)}</p>
+                    </div>
+                    <span className="text-green-400 text-xs font-bold bg-green-500/20 px-2.5 py-1 rounded-lg flex-shrink-0">gemini-2.5-flash-lite</span>
+                  </div>
+                );
+              })()}
+
+              {/* Gemini API Key Card */}
+              <div className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/10 overflow-hidden shadow-xl">
+                {/* Card Header */}
+                <div className="p-5 border-b border-white/10 flex items-center justify-between bg-gradient-to-r from-blue-600/10 to-purple-600/10">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-xl shadow-lg">✨</div>
+                    <div>
+                      <h2 className="text-white font-bold">Google Gemini API Key</h2>
+                      <p className="text-white/40 text-xs">Model: gemini-2.5-flash-lite • Cấp độ miễn phí (Free Tier)</p>
+                    </div>
+                  </div>
+                  <span className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-all ${
+                    keyStatus === 'valid'   ? 'border-green-500/60 text-green-400 bg-green-500/15'   :
+                    keyStatus === 'saved'   ? 'border-blue-500/60  text-blue-400  bg-blue-500/15'    :
+                    keyStatus === 'testing' ? 'border-yellow-500/60 text-yellow-400 bg-yellow-500/15 animate-pulse' :
+                    keyStatus === 'invalid' ? 'border-red-500/60   text-red-400   bg-red-500/15'     :
+                                             'border-gray-500/50   text-gray-400  bg-gray-500/10'
+                  }`}>
+                    {keyStatus === 'valid'   ? '✅ Đã xác minh' :
+                     keyStatus === 'saved'   ? '🔑 Đã lưu'     :
+                     keyStatus === 'testing' ? '⏳ Đang test...' :
+                     keyStatus === 'invalid' ? '❌ Lỗi'         : '⚠️ Chưa cài'}
+                  </span>
+                </div>
+
+                <div className="p-6 space-y-5">
+                  {/* Guide */}
+                  <div className="bg-blue-500/8 border border-blue-500/20 rounded-xl p-4 space-y-2">
+                    <p className="font-bold text-blue-300 text-sm">📌 Hướng dẫn lấy key miễn phí (1 phút):</p>
+                    <ol className="list-decimal list-inside space-y-1 text-blue-200/80 text-sm">
+                      <li>Vào <a href="https://aistudio.google.com/apikey" target="_blank" rel="noreferrer" className="text-blue-300 underline hover:text-white transition-colors">aistudio.google.com/apikey</a></li>
+                      <li>Đăng nhập Google → chọn project → nhấn <strong className="text-blue-200">"Create API Key"</strong></li>
+                      <li>Copy key (bắt đầu bằng <code className="bg-blue-900/40 px-1.5 py-0.5 rounded text-blue-300 text-xs">AIzaSy...</code>) → dán vào ô bên dưới</li>
+                      <li>Nhấn <strong className="text-yellow-300">"💡 Test & Lưu"</strong> — hệ thống tự kiểm tra và lưu trong 1 bước</li>
+                    </ol>
+                  </div>
+
+                  {/* Input */}
+                  <div>
+                    <label className="text-xs text-white/50 font-semibold uppercase tracking-widest mb-2 block">Gemini API Key</label>
+                    <div className="relative">
+                      <input
+                        id="gemini-key-input"
+                        type={showKey ? 'text' : 'password'}
+                        value={geminiKeyInput}
+                        onChange={e => { setGeminiKeyInput(e.target.value); setKeyStatus('none'); setKeyTestMsg(''); }}
+                        onKeyDown={e => { if (e.key === 'Enter') handleTestGeminiKey(); }}
+                        placeholder="AIzaSy.........................................."
+                        autoComplete="off"
+                        spellCheck={false}
+                        className="w-full bg-black/30 border border-white/15 rounded-xl px-4 py-3.5 pr-12 text-white font-mono text-sm focus:border-yellow-400 focus:outline-none focus:ring-2 focus:ring-yellow-400/20 transition-all placeholder-white/20"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowKey(v => !v)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/80 transition-colors p-1"
+                        title={showKey ? 'Ẩn key' : 'Hiện key'}
+                      >
+                        {showKey ? '🙈' : '👁️'}
+                      </button>
+                    </div>
+                    {geminiKeyInput && !geminiKeyInput.trim().startsWith('AIzaSy') && (
+                      <p className="text-red-400 text-xs mt-1.5 flex items-center gap-1">
+                        <span>⚠️</span> Key phải bắt đầu bằng "AIzaSy"
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Action buttons */}
+                  <div className="flex flex-wrap gap-3">
+                    {/* PRIMARY: Test & Lưu 1 bước */}
+                    <button
+                      onClick={handleTestGeminiKey}
+                      disabled={keyStatus === 'testing' || !geminiKeyInput.trim()}
+                      className="flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-400 hover:to-yellow-500 text-yellow-950 shadow-lg transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                    >
+                      {keyStatus === 'testing'
+                        ? <span className="inline-block w-4 h-4 border-2 border-yellow-900/60 border-t-yellow-950 rounded-full animate-spin"/>
+                        : '💡'}
+                      {keyStatus === 'testing' ? 'Đang kiểm tra...' : 'Test & Lưu'}
+                    </button>
+
+                    {/* SECONDARY: Lưu không test */}
+                    <button
+                      onClick={handleSaveGeminiKey}
+                      disabled={!geminiKeyInput.trim() || keyStatus === 'testing'}
+                      className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold bg-white/10 hover:bg-white/20 text-white border border-white/20 hover:border-white/40 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                    >
+                      💾 Lưu (bỏ qua test)
+                    </button>
+
+                    {/* DELETE */}
+                    {localStorage.getItem('chipstarot_admin_gemini_key') && (
+                      <button
+                        onClick={handleClearGeminiKey}
+                        className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold bg-red-500/10 hover:bg-red-500/25 text-red-300 border border-red-500/30 hover:border-red-500/60 transition-all"
+                      >
+                        🗑️ Xoá Key
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Result message */}
+                  {keyTestMsg && (
+                    <div className={`rounded-xl px-4 py-4 text-sm leading-relaxed whitespace-pre-line ${
+                      keyStatus === 'valid'
+                        ? 'bg-green-500/10 border border-green-500/25 text-green-300'
+                        : keyStatus === 'saved'
+                        ? 'bg-blue-500/10 border border-blue-500/25 text-blue-300'
+                        : keyStatus === 'invalid'
+                        ? 'bg-red-500/10 border border-red-500/25 text-red-300'
+                        : 'bg-yellow-500/10 border border-yellow-500/25 text-yellow-300'
+                    }`}>
+                      {keyTestMsg}
+                      {/* Extra help for quota error */}
+                      {keyStatus === 'saved' && keyTestMsg.includes('429') && (
+                        <div className="mt-3 pt-3 border-t border-white/10 text-xs space-y-1 opacity-80">
+                          <p className="font-bold uppercase tracking-wider">Cách khắc phục lỗi Quota nhanh:</p>
+                          <p>• Chờ 1-2 phút rồi thử bốc bài lại (giới hạn theo phút)</p>
+                          <p>• Kiểm tra usage tại: <a href="https://ai.dev/rate-limit" target="_blank" rel="noreferrer" className="underline hover:opacity-100">ai.dev/rate-limit</a></p>
+                          <p>• Tạo API Key mới từ project khác trong AI Studio</p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Security note */}
+                  <div className="bg-white/5 border border-white/10 rounded-xl p-4 text-xs text-white/50 leading-relaxed">
+                    <p className="font-semibold text-white/70 mb-1">🔒 Bảo mật:</p>
+                    <p>Key được lưu trong <code className="bg-white/10 px-1 rounded">localStorage</code> của trình duyệt này. Không chia sẻ màn hình Admin với người khác. Theo lộ trình Backend C#, key sẽ được chuyển sang lưu trữ an toàn trên Server.</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Model Info Card */}
+              <div className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/10 p-5">
+                <h2 className="text-white font-bold mb-4 flex items-center gap-2">🤖 Thông tin Model AI đang dùng</h2>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  {[
+                    { label: 'Model',     value: 'gemini-2.5-flash-lite',  color: 'text-purple-300' },
+                    { label: 'Provider',  value: 'Google DeepMind',         color: 'text-blue-300'   },
+                    { label: 'Free Tier', value: '15 req/phút',             color: 'text-green-300'  },
+                    { label: 'Chức năng', value: 'Luận giải Tarot AI',      color: 'text-yellow-300' },
+                  ].map(item => (
+                    <div key={item.label} className="bg-white/5 rounded-xl p-3.5 border border-white/5">
+                      <p className="text-white/40 text-xs mb-1">{item.label}</p>
+                      <p className={`font-bold text-xs font-mono ${item.color}`}>{item.value}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Advanced System Settings (Mockup for future Backend) */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Pet Game & Credit Settings */}
+                <div className="bg-white/5 backdrop-blur-md rounded-2xl border border-white/10 p-6 space-y-4">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-8 h-8 rounded-lg bg-orange-500/20 text-orange-400 flex items-center justify-center text-lg">🐾</div>
+                    <h2 className="text-white font-bold">Cấu Hình Trò Chơi (Pet)</h2>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center bg-white/5 p-3 rounded-xl border border-white/5">
+                      <span className="text-white/70 text-sm">Chi phí 1 lượt bốc bài (Credit)</span>
+                      <input type="number" defaultValue={10} className="w-20 bg-black/30 border border-white/10 rounded-lg px-2 py-1 text-white text-center text-sm focus:border-yellow-400 focus:outline-none" />
+                    </div>
+                    <div className="flex justify-between items-center bg-white/5 p-3 rounded-xl border border-white/5">
+                      <span className="text-white/70 text-sm">EXP thú cưng nhận được (mỗi lượt)</span>
+                      <input type="number" defaultValue={20} className="w-20 bg-black/30 border border-white/10 rounded-lg px-2 py-1 text-white text-center text-sm focus:border-yellow-400 focus:outline-none" />
+                    </div>
+                  </div>
+                  <button className="w-full mt-2 py-2.5 rounded-xl text-sm font-bold bg-white/10 hover:bg-white/20 text-white transition-all">Lưu Cấu Hình Pet</button>
+                </div>
+
+                {/* System Maintenance */}
+                <div className="bg-white/5 backdrop-blur-md rounded-2xl border border-white/10 p-6 space-y-4">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-8 h-8 rounded-lg bg-red-500/20 text-red-400 flex items-center justify-center text-lg">🛡️</div>
+                    <h2 className="text-white font-bold">Bảo Trì Hệ Thống</h2>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center bg-white/5 p-3 rounded-xl border border-white/5">
+                      <div>
+                        <span className="text-white/90 text-sm font-medium block">Chế độ bảo trì</span>
+                        <span className="text-white/40 text-xs">Chặn người dùng truy cập web</span>
+                      </div>
+                      <button className="relative w-11 h-6 bg-white/10 rounded-full transition-colors focus:outline-none">
+                        <div className="absolute left-1 top-1 w-4 h-4 bg-white/40 rounded-full transition-transform"></div>
+                      </button>
+                    </div>
+                    <div className="flex justify-between items-center bg-white/5 p-3 rounded-xl border border-white/5">
+                      <div>
+                        <span className="text-white/90 text-sm font-medium block">Xoá Cache (Redis)</span>
+                        <span className="text-white/40 text-xs">Làm mới dữ liệu bài Tarot</span>
+                      </div>
+                      <button className="px-3 py-1 bg-red-500/20 hover:bg-red-500/40 text-red-300 rounded-lg text-xs font-bold transition-all">Clear</button>
+                    </div>
                   </div>
                 </div>
               </div>

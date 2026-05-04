@@ -1,5 +1,31 @@
-// Lấy API Key từ file .env (Vite)
-const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+const ADMIN_KEY_STORAGE = 'chipstarot_admin_gemini_key';
+
+/** Lấy Gemini API Key: ưu tiên key do Admin cài đặt (localStorage), fallback về .env */
+export function getActiveGeminiKey(): string {
+  const adminKey = localStorage.getItem(ADMIN_KEY_STORAGE) || '';
+  // Nếu admin đã nhập key, ưu tiên dùng key này (nếu đúng định dạng)
+  if (adminKey && adminKey.startsWith('AIzaSy') && adminKey.length > 20) return adminKey;
+
+  // Key bị leak cũ (cần chặn để tránh lỗi 403/404 từ Google)
+  const LEAKED_KEY = 'AIzaSyD4Mypc8zmpdxmi0dzLUMZq5Q9tqcFKio0';
+  const envKey = import.meta.env.VITE_GEMINI_API_KEY || '';
+
+  if (envKey && envKey !== LEAKED_KEY && envKey.startsWith('AIzaSy')) {
+    return envKey;
+  }
+
+  return '';
+}
+
+/** Admin lưu key mới vào localStorage */
+export function setAdminGeminiKey(key: string): void {
+  localStorage.setItem(ADMIN_KEY_STORAGE, key.trim());
+}
+
+/** Admin xoá key đã lưu (quay về dùng .env) */
+export function clearAdminGeminiKey(): void {
+  localStorage.removeItem(ADMIN_KEY_STORAGE);
+}
 
 export async function generateTarotReading(
   name: string,
@@ -8,8 +34,9 @@ export async function generateTarotReading(
   question: string,
   cards: Array<{ name: string; reversed: boolean }>
 ): Promise<string> {
-  if (!apiKey || apiKey === 'your_gemini_api_key_here' || !apiKey.startsWith('AIzaSy')) {
-    return `[Hệ thống] Vui lòng cấu hình VITE_GEMINI_API_KEY hợp lệ trong file .env để sử dụng tính năng luận giải bằng AI.`;
+  const apiKey = getActiveGeminiKey();
+  if (!apiKey || !apiKey.startsWith('AIzaSy')) {
+    return `[Hệ thống] Chưa có API Key hợp lệ. Vui lòng vào trang Admin → Cài đặt → nhập Gemini API Key để bật tính năng AI.`;
   }
 
   const cardDetails = cards
@@ -42,8 +69,8 @@ ${cardDetails}
 `;
 
   try {
-    // Sử dụng REST API của Gemini (v1beta)
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey}`;
+    // Cập nhật lên Gemini 2.5 Flash Lite (Đèn pin 2.5) theo cấu hình tài khoản Google AI Studio 2026
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${apiKey}`;
     
     const response = await fetch(url, {
       method: 'POST',

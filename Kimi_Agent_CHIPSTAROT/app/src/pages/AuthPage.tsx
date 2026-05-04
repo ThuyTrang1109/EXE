@@ -59,7 +59,14 @@ export default function AuthPage() {
         if (err) {
           setError(err);
         } else {
-          navigate('/');
+          // Redirect Admin → /admin, Customer → /
+          const saved = localStorage.getItem('chipstarot_demo_user');
+          const savedUser = saved ? JSON.parse(saved) : null;
+          if (savedUser?.role_id === 1) {
+            navigate('/admin');
+          } else {
+            navigate('/');
+          }
         }
 
       } else if (mode === 'register') {
@@ -295,9 +302,31 @@ export default function AuthPage() {
                 {mode === 'verify' && 'Điền 6 ký tự huyền bí từ hòm thư của bạn'}
               </p>
               
-              {!isSupabaseConfigured && (
-                <div className="mt-5 px-4 py-2 bg-yellow-500/10 border border-yellow-500/20 rounded-xl text-yellow-400 text-xs sm:text-sm inline-flex items-center gap-2 backdrop-blur-md shadow-[0_0_15px_rgba(234,179,8,0.1)]">
-                  <span className="animate-pulse drop-shadow-[0_0_5px_rgba(234,179,8,0.8)]">⚡</span> Demo: demo@chipstarot.com / 123456
+              {!isSupabaseConfigured && mode === 'login' && (
+                <div className="mt-5 space-y-2">
+                  <p className="text-white/40 text-xs uppercase tracking-widest text-center">Tài khoản demo</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => { setEmail('admin@chipstarot.com'); setPassword('admin123'); setError(''); }}
+                      className="flex flex-col items-center gap-1 px-3 py-3 bg-purple-500/10 hover:bg-purple-500/25 border border-purple-500/30 hover:border-purple-400/60 rounded-xl text-xs transition-all group"
+                    >
+                      <span className="text-lg">👑</span>
+                      <span className="text-purple-300 font-bold">Admin</span>
+                      <span className="text-white/40 font-mono text-[10px]">admin@chipstarot.com</span>
+                      <span className="text-xs text-purple-400/80 mt-1 group-hover:text-purple-300 transition-colors">→ Click để điền</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { setEmail('demo@chipstarot.com'); setPassword('123456'); setError(''); }}
+                      className="flex flex-col items-center gap-1 px-3 py-3 bg-yellow-500/10 hover:bg-yellow-500/25 border border-yellow-500/30 hover:border-yellow-400/60 rounded-xl text-xs transition-all group"
+                    >
+                      <span className="text-lg">👤</span>
+                      <span className="text-yellow-300 font-bold">Customer</span>
+                      <span className="text-white/40 font-mono text-[10px]">demo@chipstarot.com</span>
+                      <span className="text-xs text-yellow-400/80 mt-1 group-hover:text-yellow-300 transition-colors">→ Click để điền</span>
+                    </button>
+                  </div>
                 </div>
               )}
             </div>

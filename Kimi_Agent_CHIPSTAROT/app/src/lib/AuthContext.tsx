@@ -109,9 +109,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // ── Login ──
   const login = useCallback(async (email: string, password: string): Promise<string | null> => {
     if (!isSupabaseConfigured) {
+      // ── Demo Admin account ──
+      if (email === 'admin@chipstarot.com' && password === 'admin123') {
+        const adminUser: AppUser = {
+          id: 'demo-admin',
+          email,
+          name: 'Admin CHIPSTAROT',
+          credits: 999,
+          credits_expires_at: null,
+          daily_allowance: 999,
+          last_reset_date: new Date().toISOString().split('T')[0],
+          role_id: 1,
+          avatar_url: null,
+        };
+        syncFromProfile(adminUser);
+        localStorage.setItem('chipstarot_demo_user', JSON.stringify(adminUser));
+        return null;
+      }
+      // ── Demo Customer account ──
       if (email === 'demo@chipstarot.com' && password === '123456') {
         const expiresAt = new Date();
-        expiresAt.setDate(expiresAt.getDate() + 90); // demo: 90 ngày
+        expiresAt.setDate(expiresAt.getDate() + 90);
         const todayStr = new Date().toISOString().split('T')[0];
         const demoUser: AppUser = {
           id: 'demo-user', email, name: 'Tarot Lover',
@@ -123,7 +141,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         localStorage.setItem('chipstarot_demo_user', JSON.stringify(demoUser));
         return null;
       }
-      return 'Email hoặc mật khẩu không chính xác! (Demo: demo@chipstarot.com / 123456)';
+      return 'Email hoặc mật khẩu không chính xác!\n\n👑 Admin: admin@chipstarot.com / admin123\n👤 Customer: demo@chipstarot.com / 123456';
     }
 
     const { error } = await supabase.auth.signInWithPassword({ email, password });
