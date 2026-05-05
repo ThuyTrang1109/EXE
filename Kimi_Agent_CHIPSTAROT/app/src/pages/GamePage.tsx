@@ -29,8 +29,10 @@ export default function GamePage() {
   const [isFeeding, setIsFeeding] = useState(false);
   const [showRewardModal, setShowRewardModal] = useState(false);
   const [currentReward, setCurrentReward] = useState<any>(null);
+  const [copyMsg, setCopyMsg] = useState(''); // [FIX] Thay thế alert() bằng in-UI feedback
 
-  // Sync between DB and LocalStorage on mount
+  // [FIX] Chỉ chạy khi user thay đổi (mount / login) — không để `food` và `claimedLevels` vào deps
+  // vì mỗi lần cho ăn sẽ trigger sync lại líễu gây ra "sync loop" vô hạn.
   useEffect(() => {
     if (user) {
       const dbExp = user.pet_exp || 0;
@@ -39,18 +41,23 @@ export default function GamePage() {
       const localExp = parseInt(localStorage.getItem('chipstarot_chicken_exp') || '0');
       
       if (dbExp > localExp) {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        setExp(dbExp);
-        setFood(dbFood);
-        setClaimedLevels(dbClaimed);
+        // DB mới hơn → ưu tiên DB
+        setTimeout(() => {
+          setExp(dbExp);
+          setFood(dbFood);
+          setClaimedLevels(dbClaimed);
+        }, 0);
         localStorage.setItem('chipstarot_chicken_exp', dbExp.toString());
         localStorage.setItem('chipstarot_chicken_food', dbFood.toString());
         localStorage.setItem('chipstarot_chicken_claimed', JSON.stringify(dbClaimed));
-      } else if (localExp > dbExp || localExp > 0) {
-        syncPetProgress(user.id, localExp, food, claimedLevels);
+      } else if (localExp > dbExp && localExp > 0) {
+        // Local mới hơn → đẩy lên DB (dùng giá trị local hiện tại từ localStorage)
+        const localFood = parseInt(localStorage.getItem('chipstarot_chicken_food') || '0');
+        const localClaimed: number[] = JSON.parse(localStorage.getItem('chipstarot_chicken_claimed') || '[]');
+        syncPetProgress(user.id, localExp, localFood, localClaimed);
       }
     }
-  }, [user, food, claimedLevels]);
+  }, [user]); // Chỉ chạy khi user thay đổi, không phụ thuộc vào food/claimedLevels
 
   const saveState = (newExp: number, newFood: number, newClaimed?: number[]) => {
     localStorage.setItem('chipstarot_chicken_exp', newExp.toString());
@@ -80,10 +87,10 @@ export default function GamePage() {
   const hasUnclaimedReward = currentInfo.level > 0 && !claimedLevels.includes(currentInfo.level);
 
   const handleFeed = () => {
-    if (food <= 0) return;
+    if (food <= 0 || isFeeding) return; // [FIX] Guard chống double-click: kiểm tra `isFeeding` trước khi cho ăn
 
     setIsFeeding(true);
-    setTimeout(() => setIsFeeding(false), 500);
+    setTimeout(() => setIsFeeding(false), 800); // Tăng lên 800ms để chắc hơn
 
     const newExp = exp + 10;
     saveState(newExp, food - 1);
@@ -246,12 +253,14 @@ export default function GamePage() {
               <div className="flex gap-3">
                 <button
                   onClick={() => {
-                    navigator.clipboard.writeText(currentReward.code);
-                    alert(`Đã copy mã: ${currentReward.code}`);
+                    navigator.clipboard.writeText(currentReward.code).then(() => {
+                      setCopyMsg(`✅ Đã copy mã: ${currentReward.code}`);
+                      setTimeout(() => setCopyMsg(''), 2000);
+                    });
                   }}
                   className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-3 rounded-xl transition-colors"
                 >
-                  Copy Mã
+                  {copyMsg || 'Copy Mã'}
                 </button>
                 <button
                   onClick={() => {

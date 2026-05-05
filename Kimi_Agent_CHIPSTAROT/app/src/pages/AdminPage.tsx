@@ -16,9 +16,11 @@ export default function AdminPage({ setPage }: any) {
   useEffect(() => {
     if (tab === 'settings') {
       const current = getActiveGeminiKey();
-      setGeminiKeyInput(current || '');
-      setKeyStatus(current && current.startsWith('AIzaSy') ? 'saved' : 'none');
-      setKeyTestMsg('');
+      setTimeout(() => {
+        setGeminiKeyInput(current || '');
+        setKeyStatus(current && current.startsWith('AIzaSy') ? 'saved' : 'none');
+        setKeyTestMsg('');
+      }, 0);
     }
   }, [tab]);
 
@@ -97,7 +99,7 @@ export default function AdminPage({ setPage }: any) {
   const [viewingCard, setViewingCard] = useState<any>(null);
   const [editingUser, setEditingUser] = useState<any>(null);
   const [editingProduct, setEditingProduct] = useState<any>(null);
-  const [editingPackage, setEditingPackage] = useState<any>(null);
+  const [, setEditingPackage] = useState<any>(null);
   const [editingOrder, setEditingOrder] = useState<any>(null);
   const [showReportModal, setShowReportModal] = useState(false);
   const [mockUsers] = useState([

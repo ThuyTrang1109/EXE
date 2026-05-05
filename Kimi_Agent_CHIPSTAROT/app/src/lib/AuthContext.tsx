@@ -62,11 +62,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setCreditsExpiresAt(profile.credits_expires_at ?? null);
   };
 
+  // ── Refresh credits from DB ──
+  const refreshCredits = useCallback(async () => {
+    if (!user || !isSupabaseConfigured) return;
+    const profile = await fetchUserProfile(user.id);
+    if (profile) syncFromProfile(profile);
+  }, [user]);
+
   // ── Bootstrap: check existing Supabase session on mount ──
   useEffect(() => {
     if (!isSupabaseConfigured) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setLoading(false);
+      setTimeout(() => setLoading(false), 0);
       return;
     }
 
@@ -105,6 +111,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     return () => subscription.unsubscribe();
   }, []);
+
+  // [FIX #5] Auto-refresh credits khi user quay lại tab (Page Visibility API)
+  // Giải quyết vấn đề user mở app từ sáng, giữ đến 0h sang ngày mới — lượt không tự reset
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && user) {
+        const todayStr = new Date().toISOString().split('T')[0];
+        // Nếu đang là ngày mới so với last_reset_date → refresh là tự ngày mới sẽ được reset bởi fetchUserProfile
+        if (user.last_reset_date && user.last_reset_date !== todayStr) {
+          refreshCredits();
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [user, refreshCredits]);
 
   // ── Login ──
   const login = useCallback(async (email: string, password: string): Promise<string | null> => {
@@ -300,12 +323,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return true;
   }, [user, credits]);
 
-  // ── Refresh credits from DB ──
-  const refreshCredits = useCallback(async () => {
-    if (!user || !isSupabaseConfigured) return;
-    const profile = await fetchUserProfile(user.id);
-    if (profile) syncFromProfile(profile);
-  }, [user]);
 
   // ── Demo mode: restore session from localStorage on mount ──
   useEffect(() => {
@@ -323,8 +340,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             localStorage.setItem('chipstarot_demo_user', JSON.stringify(demoUser));
           }
 
-          // eslint-disable-next-line react-hooks/set-state-in-effect
-          syncFromProfile(demoUser);
+          setTimeout(() => syncFromProfile(demoUser), 0);
         } catch {
           localStorage.removeItem('chipstarot_demo_user');
         }

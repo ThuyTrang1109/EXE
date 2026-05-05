@@ -26,6 +26,7 @@ export default function ReadingPage({ user, consumeCredit }: any) {
   const [questionError, setQuestionError] = useState('');
   const [isFlyingUp, setIsFlyingUp] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isConsuming, setIsConsuming] = useState(false); // [FIX] Guard chống consume 2 lần
 
   useEffect(() => {
     if (user?.name && step === 1) {
@@ -156,13 +157,23 @@ export default function ReadingPage({ user, consumeCredit }: any) {
     setStep(5);
   });
 
+  // [FIX] Credit được tiêu TRUỚC khi lật bài (step 6 + revealed)
+  // Guard `isConsuming` đảm bảo chỉ gọi consumeCredit đúng 1 lần dù useEffect chạy nhiều lần.
   useEffect(() => {
-    if (step === 6 && revealed && user && !creditUsed) {
+    if (step === 6 && revealed && user && !creditUsed && !isConsuming) {
+      setIsConsuming(true);
       consumeCredit().then((success: boolean) => {
-        if (success) setCreditUsed(true);
+        if (success) {
+          setCreditUsed(true);
+        } else {
+          // Không còn credit / hết hạn → ẩn kết quả, hiện paywall (App.tsx xử lý)
+          setRevealed(false);
+          setSelected([]);
+        }
+        setIsConsuming(false);
       });
     }
-  }, [step, revealed, user, creditUsed, consumeCredit]);
+  }, [step, revealed, user, creditUsed, isConsuming, consumeCredit]);
 
   const shuffle = () => {
     const cards = [...TAROT_DB.cards];
@@ -198,13 +209,12 @@ export default function ReadingPage({ user, consumeCredit }: any) {
                 pickedCards
               );
               setAiReading(aiResult);
-              // Add food for tamagotchi game
-              const currentFood = parseInt(localStorage.getItem('chipstarot_chicken_food') || '0');
-              const newFood = currentFood + 1;
+              // [FIX] Sync Pet: đọc từ user state thay vì localStorage để tránh stale data
+              const newFood = (user?.pet_food ?? parseInt(localStorage.getItem('chipstarot_chicken_food') || '0')) + 1;
               localStorage.setItem('chipstarot_chicken_food', newFood.toString());
               if (user) {
-                const exp = parseInt(localStorage.getItem('chipstarot_chicken_exp') || '0');
-                const claimed = JSON.parse(localStorage.getItem('chipstarot_chicken_claimed') || '[]');
+                const exp = user.pet_exp ?? parseInt(localStorage.getItem('chipstarot_chicken_exp') || '0');
+                const claimed = user.pet_claimed_levels ?? JSON.parse(localStorage.getItem('chipstarot_chicken_claimed') || '[]');
                 syncPetProgress(user.id, exp, newFood, claimed);
               }
             } catch (err) {
@@ -228,6 +238,7 @@ export default function ReadingPage({ user, consumeCredit }: any) {
     setQuestion('');
     setCardCount(0); setShuffled([]); setSelected([]); setRevealed(false); setResult([]);
     setCreditUsed(false); setAiReading(''); setLoadingAI(false); setIsShuffling(false); setIsFlyingUp(false);
+    setIsConsuming(false); // [FIX] Reset guard khi bắt đầu lại
   };
 
   const currentTopic = TOPICS.find(t => t.id === topic);

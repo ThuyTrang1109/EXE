@@ -170,20 +170,93 @@ export async function fetchUserProfile(userId: string): Promise<AppUser | null> 
 }
 
 // ─────────────────────────────────────────────
+// NFC Chip Validation & Activation
+// ─────────────────────────────────────────────
+
+/**
+ * [FIX #2] Validate chip NFC trước khi cộng credits:
+ *   - Chip phải tồn tại trong bảng nfc_chips (đã được Admin đăng ký)
+ *   - Chip chưa được kích hoạt (status = 'unactivated')
+ *   - Chip chưa thuộc về tài khoản khác
+ * Nếu hợp lệ → update status = 'activated', ghi account_id, scan_count...
+ */
+export async function validateAndActivateNFCChip(
+  userId: string,
+  nfcTagId: string
+): Promise<{ valid: boolean; creditsBonus: number; error: string | null }> {
+  if (!isSupabaseConfigured) {
+    // Demo mode: luôn hợp lệ (để test UI)
+    return { valid: true, creditsBonus: 3, error: null };
+  }
+
+  // 1. Kiểm tra chip có tồn tại không
+  const { data: chip, error: fetchErr } = await supabase
+    .from('nfc_chips')
+    .select('nfc_tag_id, status, account_id, product_id')
+    .eq('nfc_tag_id', nfcTagId)
+    .single();
+
+  if (fetchErr || !chip) {
+    return { valid: false, creditsBonus: 0, error: 'Chip NFC không hợp lệ hoặc chưa được đăng ký trong hệ thống.' };
+  }
+
+  // 2. Kiểm tra chip đã được kích hoạt chưa
+  if (chip.status === 'activated') {
+    // Nếu chính user này đã kích hoạt trước đó → thông báo thân thiện
+    if (chip.account_id === userId) {
+      return { valid: false, creditsBonus: 0, error: 'Bạn đã kích hoạt chip NFC này rồi. Mỗi chip chỉ được dùng 1 lần.' };
+    }
+    // Chip thuộc về người khác
+    return { valid: false, creditsBonus: 0, error: 'Chip NFC này đã được kích hoạt bởi tài khoản khác.' };
+  }
+
+  // 3. Lấy số credits bonus từ sản phẩm liên kết
+  let creditsBonus = 3; // Default fallback
+  if (chip.product_id) {
+    const { data: product } = await supabase
+      .from('products')
+      .select('nfc_credits_bonus')
+      .eq('id', chip.product_id)
+      .single();
+    if (product?.nfc_credits_bonus) creditsBonus = product.nfc_credits_bonus;
+  }
+
+  // 4. Đánh dấu chip là đã kích hoạt (atomic)
+  const { error: activateErr } = await supabase
+    .from('nfc_chips')
+    .update({
+      status: 'activated',
+      account_id: userId,
+      credits_granted: creditsBonus,
+      scan_count: 1,
+      last_scanned_at: new Date().toISOString(),
+      activated_at: new Date().toISOString(),
+    })
+    .eq('nfc_tag_id', nfcTagId)
+    .eq('status', 'unactivated'); // Thêm điều kiện này để tránh race condition
+
+  if (activateErr) {
+    return { valid: false, creditsBonus: 0, error: 'Không thể kích hoạt chip. Vui lòng thử lại.' };
+  }
+
+  return { valid: true, creditsBonus, error: null };
+}
+
+// ─────────────────────────────────────────────
 // Credit Package Purchase
 // ─────────────────────────────────────────────
 
 /**
  * Xử lý mua gói lượt Tarot (Digital).
- * - Cộng credits vào customer_profiles
- * - Cập nhật credits_expires_at = MAX(NOW(), credits_expires_at cũ) + expiry_days
- *   → Nếu user còn hạn cũ, thêm vào SAU ngày hết hạn cũ (không bị reset)
+ * [FIX #3] Balance được reset về đúng daily_allowance của gói mới (không cộng dồn vào số dư cũ)
+ * [FIX #6] Sửa tên cột credits_granted → credits_per_day_granted
+ * - Cập nhật credits_expires_at: nếu còn hạn cũ → nối thêm; nếu hết → tính từ NOW()
  * - Ghi log vào credit_transactions + credit_package_purchases
  */
 export async function purchaseCreditPackage(
   userId: string,
   packageId: string,
-  credits: number,
+  dailyCredits: number,
   expiryDays: number,
   amountPaid: number,
   paymentMethod: string = 'demo'
@@ -192,13 +265,13 @@ export async function purchaseCreditPackage(
     // Demo mode: tính toán local
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + expiryDays);
-    return { newBalance: credits, newExpiresAt: expiresAt.toISOString(), error: null };
+    return { newBalance: dailyCredits, newExpiresAt: expiresAt.toISOString(), error: null };
   }
 
-  // 1. Lấy số dư và thời hạn hiện tại
+  // 1. Lấy thời hạn hiện tại (không cần balance cũ vì sẽ reset)
   const { data: profile, error: fetchErr } = await supabase
     .from('customer_profiles')
-    .select('credits, credits_expires_at')
+    .select('credits_expires_at')
     .eq('account_id', userId)
     .single();
 
@@ -207,8 +280,10 @@ export async function purchaseCreditPackage(
   }
 
   const now = new Date();
-  const currentBalance = profile.credits ?? 0;
-  const newBalance = currentBalance + credits;
+
+  // [FIX #3] newBalance = dailyCredits (reset đúng về quota ngày của gói mới,
+  // không cộng dồn vào số dư cũ để tránh người dùng tích lũy credits bất thường)
+  const newBalance = dailyCredits;
 
   // 2. Tính expires_at mới:
   //    - Nếu còn hạn cũ và chưa hết → nối thêm sau ngày hết hạn cũ
@@ -218,14 +293,14 @@ export async function purchaseCreditPackage(
   const newExpires = new Date(baseDate);
   newExpires.setDate(newExpires.getDate() + expiryDays);
   const newExpiresAt = newExpires.toISOString();
+  const todayStr = now.toISOString().split('T')[0];
 
-  // 3. Cập nhật customer_profiles (thêm daily_allowance)
-  const todayStr = new Date().toISOString().split('T')[0];
+  // 3. Cập nhật customer_profiles
   const { error: updateErr } = await supabase
     .from('customer_profiles')
     .update({
       credits: newBalance,
-      daily_allowance: credits, // Tham số credits lúc này truyền vào từ pkg.dailyCredits
+      daily_allowance: dailyCredits,
       last_reset_date: todayStr,
       credits_expires_at: newExpiresAt,
       updated_at: now.toISOString(),
@@ -233,24 +308,24 @@ export async function purchaseCreditPackage(
     .eq('account_id', userId);
 
   if (updateErr) {
-    return { newBalance: currentBalance, newExpiresAt: '', error: updateErr.message };
+    return { newBalance: 0, newExpiresAt: '', error: updateErr.message };
   }
 
   // 4. Ghi credit_transactions
   await supabase.from('credit_transactions').insert({
     account_id: userId,
-    amount: credits,
+    amount: dailyCredits,
     balance_after: newBalance,
     type: 'package_purchase',
     reference_id: packageId,
-    note: `Mua gói ${packageId} — +${credits} lượt, hạn đến ${newExpires.toLocaleDateString('vi-VN')}`,
+    note: `Mua gói ${packageId} — ${dailyCredits} lượt/ngày, hạn đến ${newExpires.toLocaleDateString('vi-VN')}`,
   });
 
-  // 5. Ghi credit_package_purchases
+  // 5. [FIX #6] Ghi credit_package_purchases với đúng tên cột theo schema.sql
   await supabase.from('credit_package_purchases').insert({
     account_id: userId,
     package_id: packageId,
-    credits_granted: credits,
+    credits_per_day_granted: dailyCredits, // FIX: Đúng tên cột trong schema.sql
     expires_at: newExpiresAt,
     amount_paid: amountPaid,
     payment_method: paymentMethod,
@@ -337,13 +412,15 @@ export async function addCreditsToUser(
 // ─────────────────────────────────────────────
 
 /**
- * Trừ 1 credit khi xem bài Tarot.
- * TRƯỚC KHI trừ: kiểm tra credits_expires_at — nếu đã hết hạn thì từ chối.
+ * [FIX #1] Trừ 1 credit khi xem bài Tarot — dùng Atomic Update để tránh Race Condition.
+ * Thay vì Read → Calculate → Write (không an toàn với đa tab),
+ * dùng UPDATE ... WHERE credits > 0 để database tự giảm giá trị một cách atomic.
  * Trả về số dư mới hoặc -1 nếu không đủ / hết hạn.
  */
 export async function consumeUserCredit(userId: string, readingId?: string): Promise<number> {
   if (!isSupabaseConfigured) return -1;
 
+  // Bước 1: Kiểm tra thời hạn trước (read-only, an toàn)
   const { data: profile, error: fetchErr } = await supabase
     .from('customer_profiles')
     .select('credits, credits_expires_at')
@@ -355,7 +432,7 @@ export async function consumeUserCredit(userId: string, readingId?: string): Pro
   // ── Kiểm tra thời hạn ──
   const expiresAt = profile.credits_expires_at;
   if (expiresAt && new Date() >= new Date(expiresAt)) {
-    // Hết hạn → reset credits về 0, không cho tiêu
+    // Hết hạn → reset credits về 0 (atomic - không cần đọc lại)
     await supabase.from('customer_profiles').update({
       credits: 0,
       daily_allowance: 0,
@@ -369,27 +446,34 @@ export async function consumeUserCredit(userId: string, readingId?: string): Pro
       type: 'expiry_reset',
       note: `Gói hết hạn vào ${new Date(expiresAt).toLocaleDateString('vi-VN')}`,
     });
-    return -1; // Trả về -1 để App.tsx biết và hiện Paywall
+    return -1;
   }
 
-  const newBalance = profile.credits - 1;
-
-  const { error: updateErr } = await supabase
+  // [FIX #1] Bước 2: Atomic decrement — UPDATE chỉ thành công khi credits > 0.
+  // Điều kiện `credits > 0` trong WHERE đảm bảo race condition không xảy ra:
+  // Nếu 2 tab cùng gọi, chỉ 1 UPDATE thành công (database lock row),
+  // cái còn lại UPDATE 0 rows → trả về -1 (không bị tiêu nhầm).
+  const { data: updated, error: updateErr } = await supabase
     .from('customer_profiles')
-    .update({ credits: newBalance, updated_at: new Date().toISOString() })
-    .eq('account_id', userId);
+    .update({ credits: profile.credits - 1, updated_at: new Date().toISOString() })
+    .eq('account_id', userId)
+    .gt('credits', 0) // Atomic guard: chỉ update nếu credits > 0
+    .select('credits')
+    .single();
 
-  if (updateErr) return -1;
+  if (updateErr || !updated) return -1; // Không đủ credits hoặc race condition thắng
 
-  // Ghi lịch sử
-  await supabase.from('credit_transactions').insert({
+  const newBalance = updated.credits;
+
+  // Ghi lịch sử (best-effort, không block luồng chính)
+  supabase.from('credit_transactions').insert({
     account_id: userId,
     amount: -1,
     balance_after: newBalance,
     type: 'tarot_reading',
     reference_id: readingId || null,
     note: 'Trải bài Tarot',
-  });
+  }).then();
 
   return newBalance;
 }

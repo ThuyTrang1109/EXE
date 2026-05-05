@@ -221,6 +221,7 @@ export default function App() {
         <NFCScannerOverlay
           onSuccess={handleScanSuccess}
           onClose={() => setShowScanner(false)}
+          userId={user?.id}
         />
       )}
     </div>
