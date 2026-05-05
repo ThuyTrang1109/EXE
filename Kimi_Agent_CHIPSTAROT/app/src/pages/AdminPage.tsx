@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, BarChart, Bar, Legend, PieChart, Pie, Cell } from 'recharts';
 import { getActiveGeminiKey, setAdminGeminiKey, clearAdminGeminiKey } from '../lib/gemini';
+import { CREDIT_PACKAGES } from '../data/constants';
 
 export default function AdminPage({ setPage }: any) {
-  const [tab, setTab] = useState<'dashboard' | 'products' | 'orders' | 'users' | 'reports' | 'cards' | 'nfcs' | 'blogs' | 'settings'>('dashboard');
+  const [tab, setTab] = useState<'dashboard' | 'products' | 'packages' | 'orders' | 'users' | 'reports' | 'cards' | 'nfcs' | 'blogs' | 'settings'>('dashboard');
 
   // ── Settings state ──────────────────────────────────────────────────────
   const [geminiKeyInput, setGeminiKeyInput] = useState('');
@@ -96,6 +97,7 @@ export default function AdminPage({ setPage }: any) {
   const [viewingCard, setViewingCard] = useState<any>(null);
   const [editingUser, setEditingUser] = useState<any>(null);
   const [editingProduct, setEditingProduct] = useState<any>(null);
+  const [editingPackage, setEditingPackage] = useState<any>(null);
   const [editingOrder, setEditingOrder] = useState<any>(null);
   const [showReportModal, setShowReportModal] = useState(false);
   const [mockUsers] = useState([
@@ -211,6 +213,7 @@ export default function AdminPage({ setPage }: any) {
     { id: 'users', label: '👥 Quản lý TK' },
     { id: 'cards', label: '🎴 Quản lý Thẻ' },
     { id: 'products', label: '🛍️ Sản phẩm' },
+    { id: 'packages', label: '⚡ Gói Tarot' },
     { id: 'orders', label: '📦 Đơn hàng' },
     { id: 'nfcs', label: '🏷️ Mã Chip NFC' },
     { id: 'blogs', label: '✍️ Bài viết (Blog)' },
@@ -313,6 +316,52 @@ export default function AdminPage({ setPage }: any) {
                       <td className="p-4">
                         <div className="flex gap-2">
                           <button onClick={() => setEditingProduct(p)} className="px-3 py-1 bg-yellow-500/20 hover:bg-yellow-500/40 text-yellow-300 rounded-lg text-xs transition-all">Sửa</button>
+                          <button className="px-3 py-1 bg-red-500/20 hover:bg-red-500/40 text-red-300 rounded-lg text-xs transition-all">Ẩn</button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}</tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {tab === 'packages' && (
+            <div className="animate-fade-in">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h1 className="text-2xl font-bold text-white">⚡ Quản Lý Gói Lượt Tarot</h1>
+                  <p className="text-white/60 text-sm mt-1">Quản lý các gói nạp lượt bốc bài (credits) cho người dùng</p>
+                </div>
+                <button onClick={() => setEditingPackage({})} className="bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-400 hover:to-yellow-500 text-yellow-950 font-bold text-sm px-5 py-2 rounded-xl shadow-lg transition-all transform hover:-translate-y-1">+ Thêm gói mới</button>
+              </div>
+              <div className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/10 overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead className="bg-white/5"><tr className="text-white/50">
+                    <th className="text-left p-4">Tên gói</th><th className="text-left p-4">Lượt / ngày</th>
+                    <th className="text-left p-4">Thời hạn</th><th className="text-left p-4">Giá bán</th>
+                    <th className="text-left p-4">Thao tác</th>
+                  </tr></thead>
+                  <tbody>{CREDIT_PACKAGES.map((pkg: any) => (
+                    <tr key={pkg.id} className="border-t border-white/10 text-white/80 hover:bg-white/5 transition-colors">
+                      <td className="p-4">
+                        <div className="flex items-center gap-3">
+                          <div className="text-2xl">{pkg.icon}</div>
+                          <div>
+                            <span className="font-bold text-white block">{pkg.name}</span>
+                            <span className="text-xs text-white/50">{pkg.desc}</span>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="p-4 text-purple-400 font-bold">{pkg.dailyCredits} lượt</td>
+                      <td className="p-4 text-yellow-400">{pkg.expiryLabel}</td>
+                      <td className="p-4">
+                        <span className="text-red-400 font-bold mr-2">{pkg.price.toLocaleString()}đ</span>
+                        <span className="line-through text-white/30 text-xs">{pkg.oldPrice.toLocaleString()}đ</span>
+                      </td>
+                      <td className="p-4">
+                        <div className="flex gap-2">
+                          <button onClick={() => setEditingPackage(pkg)} className="px-3 py-1 bg-yellow-500/20 hover:bg-yellow-500/40 text-yellow-300 rounded-lg text-xs transition-all">Sửa</button>
                           <button className="px-3 py-1 bg-red-500/20 hover:bg-red-500/40 text-red-300 rounded-lg text-xs transition-all">Ẩn</button>
                         </div>
                       </td>
