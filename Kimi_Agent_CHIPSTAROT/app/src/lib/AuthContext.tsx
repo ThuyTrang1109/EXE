@@ -7,6 +7,7 @@ import {
 } from '@/lib/supabase';
 import type { AppUser } from '@/lib/supabase';
 import { CREDIT_PACKAGES } from '@/data/constants';
+import { api } from '@/lib/api';
 
 // ─────────────────────────────────────────────
 // Context Types
@@ -33,6 +34,7 @@ interface AuthContextValue {
   buyPackage: (packageId: string) => Promise<{ success: boolean; message: string }>;
   consumeCredit: () => Promise<boolean>;
   refreshCredits: () => Promise<void>;
+  updateUserSession: (updates: Partial<AppUser>) => void;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -59,57 +61,71 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const syncFromProfile = (profile: AppUser) => {
     setUser(profile);
     setCredits(profile.credits);
-    setCreditsExpiresAt(profile.credits_expires_at ?? null);
+    setCreditsExpiresAt(profile.creditsExpiresAt ?? null);
   };
 
   // ── Refresh credits from DB ──
   const refreshCredits = useCallback(async () => {
-    if (!user || !isSupabaseConfigured) return;
-    const profile = await fetchUserProfile(user.id);
-    if (profile) syncFromProfile(profile);
+    if (!user) return;
+    try {
+      const res = await api.getProfile();
+      if (res.success) {
+        // Map backend DTO to AppUser
+        const p = res.data;
+        const mappedUser: AppUser = {
+          id: p.accountId,
+          email: p.email,
+          name: p.fullName || 'Người dùng',
+          credits: p.credits,
+          creditsExpiresAt: p.creditsExpiresAt,
+          dailyAllowance: p.dailyAllowance,
+          lastResetDate: p.lastResetDate,
+          phoneNumber: p.phoneNumber,
+          province: p.province, district: p.district, ward: p.ward, streetAddress: p.streetAddress,
+          dateOfBirth: p.dateOfBirth, gender: p.gender, zodiacSign: p.zodiacSign, lifePathNumber: p.lifePathNumber,
+          roleId: p.roleId, role: p.roleName, permissions: p.permissions || [],
+          avatarUrl: p.avatarUrl,
+          petExp: p.petExp, petFood: p.petFood, petType: p.petType, petName: p.petName,
+          petStatus: p.petStatus, petClaimedLevels: JSON.stringify(p.petClaimedLevels || [])
+        };
+        syncFromProfile(mappedUser);
+      }
+    } catch (err) { console.error("Refresh failed", err); }
   }, [user]);
 
-  // ── Bootstrap: check existing Supabase session on mount ──
+  // ── Bootstrap: Check existing token on mount ──
   useEffect(() => {
-    if (!isSupabaseConfigured) {
-      setTimeout(() => setLoading(false), 0);
-      return;
-    }
-
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (session?.user) {
-        const profile = await fetchUserProfile(session.user.id);
-        if (profile) {
-          syncFromProfile(profile);
-        } else {
-          setUser({
-            id: session.user.id,
-            email: session.user.email || '',
-            name: session.user.email?.split('@')[0] || 'Người dùng',
-            credits: 0,
-            credits_expires_at: null,
-            daily_allowance: 0,
-            last_reset_date: null,
-            role_id: 2,
-            avatar_url: null,
-          });
+    const bootstrap = async () => {
+      const token = localStorage.getItem('chipstarot_token');
+      if (token) {
+        try {
+          const res = await api.getMe();
+          if (res.success) {
+            const p = res.data;
+            const mappedUser: AppUser = {
+              id: p.accountId, email: p.email, name: p.fullName || 'Người dùng',
+              credits: p.credits, creditsExpiresAt: p.creditsExpiresAt,
+              dailyAllowance: p.dailyAllowance, lastResetDate: p.lastResetDate,
+              phoneNumber: p.phoneNumber,
+              province: p.province, district: p.district, ward: p.ward, streetAddress: p.streetAddress,
+              dateOfBirth: p.dateOfBirth, gender: p.gender, zodiacSign: p.zodiacSign, lifePathNumber: p.lifePathNumber,
+              roleId: p.roleId, role: p.roleName, permissions: p.permissions || [],
+              avatarUrl: p.avatarUrl,
+              petExp: p.petExp, petFood: p.petFood, petType: p.petType, petName: p.petName,
+              petStatus: p.petStatus, petClaimedLevels: JSON.stringify(p.petClaimedLevels || [])
+            };
+            syncFromProfile(mappedUser);
+          } else {
+            localStorage.removeItem('chipstarot_token');
+          }
+        } catch (err) {
+          console.error("Bootstrap failed", err);
+          localStorage.removeItem('chipstarot_token');
         }
       }
       setLoading(false);
-    });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_IN' && session?.user) {
-        const profile = await fetchUserProfile(session.user.id);
-        if (profile) syncFromProfile(profile);
-      } else if (event === 'SIGNED_OUT') {
-        setUser(null);
-        setCredits(0);
-        setCreditsExpiresAt(null);
-      }
-    });
-
-    return () => subscription.unsubscribe();
+    };
+    bootstrap();
   }, []);
 
   // [FIX #5] Auto-refresh credits khi user quay lại tab (Page Visibility API)
@@ -119,7 +135,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (document.visibilityState === 'visible' && user) {
         const todayStr = new Date().toISOString().split('T')[0];
         // Nếu đang là ngày mới so với last_reset_date → refresh là tự ngày mới sẽ được reset bởi fetchUserProfile
-        if (user.last_reset_date && user.last_reset_date !== todayStr) {
+        if (user.lastResetDate && user.lastResetDate !== todayStr) {
           refreshCredits();
         }
       }
@@ -130,83 +146,126 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [user, refreshCredits]);
 
   // ── Login ──
+  // ── Login ──
   const login = useCallback(async (email: string, password: string): Promise<string | null> => {
+    // ── Local Demo Fallback (If no Supabase and specific demo emails) ──
     if (!isSupabaseConfigured) {
-      // ── Demo Admin account ──
-      if (email === 'admin@chipstarot.com' && password === 'admin123') {
-        const adminUser: AppUser = {
-          id: 'demo-admin',
-          email,
-          name: 'Admin CHIPSTAROT',
-          credits: 999,
-          credits_expires_at: null,
-          daily_allowance: 999,
-          last_reset_date: new Date().toISOString().split('T')[0],
-          role_id: 1,
-          avatar_url: null,
+      const demoAccounts: Record<string, any> = {
+        'admin@chipstarot.com': { pass: 'admin123', role: 'admin', name: 'Thầy Tarot (Admin)', id: 'demo-admin' },
+        'staff@chipstarot.com': { pass: 'staff123', role: 'staff', name: 'Nhân Viên Cửa Hàng', id: 'demo-staff' },
+        'editor@chipstarot.com': { pass: 'editor123', role: 'editor', name: 'Biên Tập Viên', id: 'demo-editor' },
+        'demo@chipstarot.com': { pass: '123456', role: 'customer', name: 'Lữ Khách Demo', id: 'demo-user' },
+      };
+
+      const demo = demoAccounts[email.toLowerCase()];
+      if (demo && demo.pass === password) {
+        const mockUser: AppUser = {
+          id: demo.id,
+          email: email.toLowerCase(),
+          name: demo.name,
+          credits: 10,
+          creditsExpiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+          dailyAllowance: 3,
+          lastResetDate: new Date().toISOString().split('T')[0],
+          phoneNumber: '0987654321',
+          province: 'Hồ Chí Minh', district: 'Quận 1', ward: 'Bến Nghé', streetAddress: '123 Đồng Khởi',
+          dateOfBirth: '1995-01-01', gender: 'male', zodiacSign: 'Ma Kết', lifePathNumber: 7,
+          roleId: demo.role === 'admin' ? 2 : (demo.role === 'staff' ? 4 : 3),
+          role: demo.role,
+          permissions: demo.role === 'admin' 
+            ? ['dashboard.view', 'users.view', 'users.manage', 'cards.view', 'cards.manage', 'products.view', 'products.manage', 'packages.view', 'packages.manage', 'orders.view', 'orders.manage', 'nfc.view', 'nfc.manage', 'content.view', 'content.manage', 'reports.view', 'settings.manage', 'rbac.manage']
+            : (demo.role === 'staff' ? ['dashboard.view', 'orders.view', 'orders.manage', 'products.view', 'nfc.view'] : (demo.role === 'editor' ? ['cards.view', 'cards.manage', 'content.view', 'content.manage'] : [])),
+          avatarUrl: null,
+          petExp: 150, petFood: 5, petType: 'chicken_classic', petName: 'Chíp Chíp',
+          petStatus: 'hatched', petClaimedLevels: '[]'
         };
-        syncFromProfile(adminUser);
-        localStorage.setItem('chipstarot_demo_user', JSON.stringify(adminUser));
-        return null;
+        
+        syncFromProfile(mockUser);
+        localStorage.setItem('chipstarot_demo_user', JSON.stringify(mockUser));
+        return null; // Success
       }
-      // ── Demo Customer account ──
-      if (email === 'demo@chipstarot.com' && password === '123456') {
-        const expiresAt = new Date();
-        expiresAt.setDate(expiresAt.getDate() + 90);
-        const todayStr = new Date().toISOString().split('T')[0];
-        const demoUser: AppUser = {
-          id: 'demo-user', email, name: 'Tarot Lover',
-          credits: 3, credits_expires_at: expiresAt.toISOString(),
-          daily_allowance: 3, last_reset_date: todayStr,
-          role_id: 2, avatar_url: null,
-        };
-        syncFromProfile(demoUser);
-        localStorage.setItem('chipstarot_demo_user', JSON.stringify(demoUser));
-        return null;
-      }
-      return 'Email hoặc mật khẩu không chính xác!\n\n👑 Admin: admin@chipstarot.com / admin123\n👤 Customer: demo@chipstarot.com / 123456';
     }
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) {
-      if (error.message.includes('Invalid login credentials')) return 'Email hoặc mật khẩu không chính xác!';
-      if (error.message.includes('Email not confirmed')) return 'Vui lòng xác thực email trước khi đăng nhập!';
-      return error.message;
+    try {
+      const res = await api.login({ email, password });
+      if (res.success) {
+        localStorage.setItem('chipstarot_token', res.data.token);
+        // Sau khi login thành công, bootstrap sẽ tự chạy hoặc mình gọi fetch profile ở đây
+        const profileRes = await api.getMe();
+        if (profileRes.success) {
+          const p = profileRes.data;
+          const mappedUser: AppUser = {
+            id: p.accountId, email: p.email, name: p.fullName || 'Người dùng',
+            credits: p.credits, creditsExpiresAt: p.creditsExpiresAt,
+            dailyAllowance: p.dailyAllowance, lastResetDate: p.lastResetDate,
+            phoneNumber: p.phoneNumber,
+            province: p.province, district: p.district, ward: p.ward, streetAddress: p.streetAddress,
+            dateOfBirth: p.dateOfBirth, gender: p.gender, zodiacSign: p.zodiacSign, lifePathNumber: p.lifePathNumber,
+            roleId: p.roleId, role: p.roleName, permissions: p.permissions || [],
+            avatarUrl: p.avatarUrl,
+            petExp: p.petExp, petFood: p.petFood, petType: p.petType, petName: p.petName,
+            petStatus: p.petStatus, petClaimedLevels: JSON.stringify(p.petClaimedLevels || [])
+          };
+          syncFromProfile(mappedUser);
+        }
+        return null;
+      }
+      return res.message || 'Đăng nhập thất bại';
+    } catch (err) {
+      return (err as any).message || 'Lỗi kết nối máy chủ';
     }
-    return null;
-  }, []);
+  }, [isSupabaseConfigured, syncFromProfile]);
 
   // ── Register ──
   const register = useCallback(async (email: string, password: string, name: string): Promise<string | null> => {
-    if (!isSupabaseConfigured) return null;
-
-    const { data, error } = await supabase.auth.signUp({
-      email, password,
-      options: { data: { full_name: name } },
-    });
-
-    if (error) return error.message;
-
-    if (data.user) {
-      await supabase.from('customer_profiles').insert({
-        account_id: data.user.id,
-        full_name: name,
-        credits: 0,
-        daily_allowance: 0,
-        credits_expires_at: null,
-      });
+    if (!isSupabaseConfigured) {
+      // Demo mode: cho phép đăng ký bất kỳ email nào (trừ demo emails đã có)
+      const mockUser: AppUser = {
+        id: `demo-${Date.now()}`,
+        email: email.toLowerCase(),
+        name: name,
+        credits: 3,
+        creditsExpiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+        dailyAllowance: 1,
+        lastResetDate: new Date().toISOString().split('T')[0],
+        phoneNumber: '',
+        province: '', district: '', ward: '', streetAddress: '',
+        dateOfBirth: '', gender: 'other', zodiacSign: 'Unknown', lifePathNumber: 0,
+        roleId: 3,
+        role: 'customer',
+        permissions: [],
+        avatarUrl: null,
+        petExp: 0, petFood: 0, petType: 'egg', petName: 'Chưa đặt tên',
+        petStatus: 'egg', petClaimedLevels: '[]'
+      };
+      
+      // Tự động đăng nhập sau khi đăng ký thành công trong demo mode
+      syncFromProfile(mockUser);
+      localStorage.setItem('chipstarot_demo_user', JSON.stringify(mockUser));
+      return null;
     }
 
-    return null;
-  }, []);
+    try {
+      const res = await api.register({ email, password, fullName: name });
+      if (res.success) return null;
+      return res.message || 'Đăng ký thất bại';
+    } catch (err) {
+      return (err as any).message || 'Lỗi kết nối máy chủ';
+    }
+  }, [isSupabaseConfigured, syncFromProfile]);
 
   // ── Logout ──
   const logout = useCallback(async () => {
-    if (!isSupabaseConfigured) {
-      localStorage.removeItem('chipstarot_demo_user');
-    } else {
-      await supabase.auth.signOut();
+    try {
+      if (isSupabaseConfigured) {
+        await supabase.auth.signOut();
+      }
+    } catch (err) {
+      console.error("Supabase signout failed", err);
     }
+    
+    localStorage.removeItem('chipstarot_token');
+    localStorage.removeItem('chipstarot_demo_user');
     setUser(null);
     setCredits(0);
     setCreditsExpiresAt(null);
@@ -227,7 +286,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const todayStr = new Date().toISOString().split('T')[0];
       setCredits(newBalance);
       setCreditsExpiresAt(newExpiresAt);
-      setUser(prev => prev ? { ...prev, credits: newBalance, credits_expires_at: newExpiresAt, daily_allowance: amount, last_reset_date: todayStr } : null);
+      setUser(prev => prev ? { ...prev, credits: newBalance, creditsExpiresAt: newExpiresAt, dailyAllowance: amount, lastResetDate: todayStr } : null);
       return;
     }
 
@@ -235,7 +294,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!error) {
       setCredits(newBalance);
       setCreditsExpiresAt(newExpiresAt || null);
-      setUser(prev => prev ? { ...prev, credits: newBalance, credits_expires_at: newExpiresAt || null } : null);
+      setUser(prev => prev ? { ...prev, credits: newBalance, creditsExpiresAt: newExpiresAt || null } : null);
     }
   }, [user, credits, creditsExpiresAt]);
 
@@ -260,10 +319,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       setCredits(newBalance);
       setCreditsExpiresAt(newExpiresAt);
-      setUser(prev => prev ? { ...prev, credits: newBalance, credits_expires_at: newExpiresAt, daily_allowance: pkg.dailyCredits, last_reset_date: todayStr } : null);
+      setUser(prev => prev ? { ...prev, credits: newBalance, creditsExpiresAt: newExpiresAt, dailyAllowance: pkg.dailyCredits, lastResetDate: todayStr } : null);
 
       // Persist demo session
-      const updatedUser = { ...user, credits: newBalance, credits_expires_at: newExpiresAt, daily_allowance: pkg.dailyCredits, last_reset_date: todayStr } as AppUser;
+      const updatedUser = { ...user, credits: newBalance, creditsExpiresAt: newExpiresAt, dailyAllowance: pkg.dailyCredits, lastResetDate: todayStr } as AppUser;
       localStorage.setItem('chipstarot_demo_user', JSON.stringify(updatedUser));
       expiresDate.setTime(base.getTime());
       return {
@@ -280,7 +339,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     setCredits(newBalance);
     setCreditsExpiresAt(newExpiresAt);
-    setUser(prev => prev ? { ...prev, credits: newBalance, credits_expires_at: newExpiresAt } : null);
+    setUser(prev => prev ? { ...prev, credits: newBalance, creditsExpiresAt: newExpiresAt } : null);
 
     return {
       success: true,
@@ -293,35 +352,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!user) return false;
     if (credits <= 0) return false;
 
-    // ── Kiểm tra thời hạn TRƯỚC KHI tiêu ──
-    if (!isCreditsValid(user)) {
-      // Hết hạn → reset state local
+    // Kiểm tra thời hạn local trước
+    if (creditsExpiresAt && new Date() >= new Date(creditsExpiresAt)) {
       setCredits(0);
       setCreditsExpiresAt(null);
-      setUser(prev => prev ? { ...prev, credits: 0, credits_expires_at: null } : null);
+      setUser(prev => prev ? { ...prev, credits: 0, creditsExpiresAt: null } : null);
       return false;
     }
 
-    if (!isSupabaseConfigured) {
+    try {
+      // Backend START_READING sẽ trừ credit
+      // Ở đây ta có thể gọi api.startReading hoặc một endpoint cụ thể để trừ credit
+      // Trong thiết kế hiện tại, StartReadingAsync trong TarotController thực hiện việc này.
+      // Nên function này có thể chỉ cần sync lại state sau khi reading kết thúc, 
+      // HOẶC gọi một endpoint 'consume-only' nếu cần validate trước.
+
+      // Giả sử ta sync state thủ công để UI mượt mà
       const newBalance = credits - 1;
       setCredits(newBalance);
-      setUser(prev => prev ? { ...prev, credits: newBalance } : null);
+      setUser(prev => prev ? { ...prev, credits: newBalance, petFood: (prev.petFood || 0) + 1 } : null);
       return true;
-    }
-
-    const newBalance = await consumeUserCredit(user.id);
-    if (newBalance === -1) {
-      // Server báo hết hạn → sync state
-      setCredits(0);
-      setCreditsExpiresAt(null);
-      setUser(prev => prev ? { ...prev, credits: 0, credits_expires_at: null } : null);
+    } catch (err) {
+      console.error(err);
       return false;
     }
-
-    setCredits(newBalance);
-    setUser(prev => prev ? { ...prev, credits: newBalance } : null);
-    return true;
-  }, [user, credits]);
+  }, [user, credits, creditsExpiresAt]);
 
 
   // ── Demo mode: restore session from localStorage on mount ──
@@ -331,12 +386,46 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (saved) {
         try {
           const demoUser: AppUser = JSON.parse(saved);
-          
+
           // Kiểm tra và reset hàng ngày cho demo
           const todayStr = new Date().toISOString().split('T')[0];
-          if (demoUser.daily_allowance && demoUser.daily_allowance > 0 && demoUser.last_reset_date !== todayStr) {
-            demoUser.credits = demoUser.daily_allowance;
-            demoUser.last_reset_date = todayStr;
+          let needsUpdate = false;
+
+          if (demoUser.dailyAllowance && demoUser.dailyAllowance > 0 && demoUser.lastResetDate !== todayStr) {
+            demoUser.credits = demoUser.dailyAllowance;
+            demoUser.lastResetDate = todayStr;
+            needsUpdate = true;
+          }
+
+          // Đồng bộ permissions với chipstarot_mock_rbac nếu có thay đổi
+          const savedRbac = localStorage.getItem('chipstarot_mock_rbac');
+          if (savedRbac) {
+            try {
+              const rbacData = JSON.parse(savedRbac);
+              const permIds = rbacData.rolePermissions.filter((rp: any) => rp.roleId === demoUser.roleId).map((rp: any) => rp.permissionId);
+              const latestPerms = rbacData.permissions.filter((p: any) => permIds.includes(p.id)).map((p: any) => p.key);
+
+              // So sánh xem có khác biệt không, nếu có thì update (Dùng mảng tạm để tránh mutate mảng gốc)
+              const currentPerms = [...(demoUser.permissions || [])].sort();
+              const sortedLatest = [...latestPerms].sort();
+
+              if (JSON.stringify(currentPerms) !== JSON.stringify(sortedLatest)) {
+                demoUser.permissions = latestPerms;
+                needsUpdate = true;
+              }
+            } catch (e) { }
+          } else if (demoUser.role === 'admin' && demoUser.permissions.length < 18) {
+            // Chỉ auto-migrate khi chưa có mock rbac
+            demoUser.permissions = [
+              'dashboard.view', 'users.view', 'users.manage', 'cards.view', 'cards.manage',
+              'products.view', 'products.manage', 'packages.view', 'packages.manage',
+              'orders.view', 'orders.manage', 'nfc.view', 'nfc.manage', 'content.view',
+              'content.manage', 'reports.view', 'settings.manage', 'rbac.manage'
+            ];
+            needsUpdate = true;
+          }
+
+          if (needsUpdate) {
             localStorage.setItem('chipstarot_demo_user', JSON.stringify(demoUser));
           }
 
@@ -348,11 +437,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [user]);
 
+  const updateUserSession = useCallback((updates: Partial<AppUser>) => {
+    setUser(prev => {
+      if (!prev) return prev;
+      const nextUser = { ...prev, ...updates };
+      if (!isSupabaseConfigured) {
+        localStorage.setItem('chipstarot_demo_user', JSON.stringify(nextUser));
+      }
+      return nextUser;
+    });
+  }, [isSupabaseConfigured]);
+
   const value: AuthContextValue = {
     user, loading, isConfigured: isSupabaseConfigured,
     login, register, logout,
     credits, creditsExpiresAt, creditsExpired, expiryLabel,
-    addCredits, buyPackage, consumeCredit, refreshCredits,
+    addCredits, buyPackage, consumeCredit, refreshCredits, updateUserSession,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -32,7 +32,10 @@ export interface CustomerProfile {
   account_id: string;
   full_name: string | null;
   phone_number: string | null;
-  address: string | null;
+  province: string | null;
+  district: string | null;
+  ward: string | null;
+  street_address: string | null;
   date_of_birth: string | null;
   gender: string | null;
   zodiac_sign: string | null;
@@ -40,8 +43,13 @@ export interface CustomerProfile {
   avatar_url: string | null;
   credits: number;
   credits_expires_at: string | null;  // ISO string | null = không hết hạn (từ NFC)
+  daily_allowance: number;
+  last_reset_date: string | null;
   pet_exp: number;
   pet_food: number;
+  pet_type: string | null;
+  pet_name: string | null;
+  pet_status: string;
   pet_claimed_levels: number[];
   updated_at: string;
 }
@@ -51,14 +59,28 @@ export interface AppUser {
   email: string;
   name: string;
   credits: number;
-  credits_expires_at: string | null;  // Thời hạn hiệu lực của gói
-  daily_allowance: number;            // Định mức lượt mỗi ngày
-  last_reset_date: string | null;     // Ngày reset gần nhất (YYYY-MM-DD)
-  role_id: number;
-  avatar_url: string | null;
-  pet_exp?: number;
-  pet_food?: number;
-  pet_claimed_levels?: number[];
+  creditsExpiresAt: string | null;
+  dailyAllowance: number;
+  lastResetDate: string | null;
+  phoneNumber: string | null;
+  province: string | null;
+  district: string | null;
+  ward: string | null;
+  streetAddress: string | null;
+  dateOfBirth: string | null;
+  gender: string | null;
+  zodiacSign: string | null;
+  lifePathNumber: number | null;
+  roleId: number;          // ID vai trò (1=super_admin,2=admin,3=customer)
+  role: string;            // Key vai trò: 'super_admin' | 'admin' | 'customer'
+  permissions: string[];   // ['users.view','products.manage',...]
+  avatarUrl: string | null;
+  petExp: number;
+  petFood: number;
+  petType: string | null;
+  petName: string | null;
+  petStatus: string;
+  petClaimedLevels: string; // JSON string
 }
 
 // ─────────────────────────────────────────────
@@ -74,8 +96,8 @@ export interface AppUser {
 export function isCreditsValid(user: AppUser | null): boolean {
   if (!user) return false;
   if (user.credits <= 0) return false;
-  if (!user.credits_expires_at) return true; // NFC credits: vô thời hạn
-  return new Date() < new Date(user.credits_expires_at);
+  if (!user.creditsExpiresAt) return true; // NFC credits: vô thời hạn
+  return new Date() < new Date(user.creditsExpiresAt);
 }
 
 /**
@@ -109,22 +131,35 @@ export function getExpiryLabel(creditsExpiresAt: string | null): {
 export async function fetchUserProfile(userId: string): Promise<AppUser | null> {
   if (!isSupabaseConfigured) return null;
 
+  // 1. Fetch Account (lấy role_id)
+  const { data: accountData, error: accountError } = await supabase
+    .from('accounts')
+    .select('role_id')
+    .eq('id', userId)
+    .single();
+
+  if (accountError || !accountData) return null;
+  const roleId = accountData.role_id || 3;
+
+  // 2. Fetch Profile
   const { data, error } = await supabase
     .from('customer_profiles')
-    .select('account_id, full_name, credits, credits_expires_at, avatar_url, daily_allowance, last_reset_date, pet_exp, pet_food, pet_claimed_levels')
+    .select('*')
     .eq('account_id', userId)
     .single();
 
   if (error || !data) return null;
 
+  const profile = data as unknown as CustomerProfile;
+
+  const expiresAt: string | null = profile.credits_expires_at ?? null;
+  let credits = profile.credits ?? 0;
+  const dailyAllowance = profile.daily_allowance ?? 0;
+  let lastResetDate = profile.last_reset_date ?? null;
+  const todayStr = new Date().toISOString().split('T')[0];
+
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return null;
-
-  const expiresAt: string | null = data.credits_expires_at ?? null;
-  let credits = data.credits ?? 0;
-  const dailyAllowance = data.daily_allowance ?? 0;
-  let lastResetDate = data.last_reset_date ?? null;
-  const todayStr = new Date().toISOString().split('T')[0];
 
   if (expiresAt && new Date() >= new Date(expiresAt) && credits > 0) {
     // Gói đã hết hạn → reset về 0 (ghi log)
@@ -137,7 +172,7 @@ export async function fetchUserProfile(userId: string): Promise<AppUser | null> 
     }).eq('account_id', userId);
     await supabase.from('credit_transactions').insert({
       account_id: userId,
-      amount: -(data.credits),
+      amount: -(profile.credits),
       balance_after: 0,
       type: 'expiry_reset',
       note: `Gói hết hạn vào ${new Date(expiresAt).toLocaleDateString('vi-VN')}`,
@@ -156,16 +191,32 @@ export async function fetchUserProfile(userId: string): Promise<AppUser | null> 
   return {
     id: userId,
     email: user.email || '',
-    name: data.full_name || user.email?.split('@')[0] || 'Người dùng',
+    name: profile.full_name || user.email?.split('@')[0] || 'Người dùng',
     credits,
-    credits_expires_at: credits > 0 ? expiresAt : null,
-    daily_allowance: dailyAllowance,
-    last_reset_date: lastResetDate,
-    role_id: 2,
-    avatar_url: data.avatar_url,
-    pet_exp: data.pet_exp || 0,
-    pet_food: data.pet_food || 0,
-    pet_claimed_levels: data.pet_claimed_levels || [],
+    creditsExpiresAt: credits > 0 ? expiresAt : null,
+    dailyAllowance: dailyAllowance,
+    lastResetDate: lastResetDate,
+    phoneNumber: profile.phone_number,
+    province: profile.province,
+    district: profile.district,
+    ward: profile.ward,
+    streetAddress: profile.street_address,
+    dateOfBirth: profile.date_of_birth,
+    gender: profile.gender,
+    zodiacSign: profile.zodiac_sign,
+    lifePathNumber: profile.life_path_number,
+    roleId,
+    role: roleId === 1 ? 'super_admin' : roleId === 2 ? 'admin' : 'customer',
+    permissions: roleId === 1 || roleId === 2 
+      ? ['users.view', 'users.manage', 'settings.manage', 'products.manage', 'content.manage'] 
+      : [],
+    avatarUrl: profile.avatar_url,
+    petExp: profile.pet_exp || 0,
+    petFood: profile.pet_food || 0,
+    petType: profile.pet_type,
+    petName: profile.pet_name,
+    petStatus: profile.pet_status || 'egg',
+    petClaimedLevels: JSON.stringify(profile.pet_claimed_levels || []),
   };
 }
 

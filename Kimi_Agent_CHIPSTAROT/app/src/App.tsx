@@ -1,33 +1,34 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense, lazy } from 'react';
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import './App.css';
 import { useAuth } from '@/lib/AuthContext';
+import { RequirePermission, RequireAdmin, RequireAuth } from '@/hooks/usePermission';
 
 // Components
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-
-// Pages
-import HomePage from '@/pages/HomePage';
-import ShopPage from '@/pages/ShopPage';
-import CartPage from '@/pages/CartPage';
-import CheckoutPage from '@/pages/CheckoutPage';
-import AdminPage from '@/pages/AdminPage';
-import ProfilePage from '@/pages/ProfilePage';
-import AuthPage from '@/pages/AuthPage';
-import ReadingPage from '@/pages/ReadingPage';
-import CardsPage from '@/pages/CardsPage';
-import GamePage from '@/pages/GamePage';
-import BlogPage from '@/pages/BlogPage';
-import ProductDetailPage from '@/pages/ProductDetailPage';
-import AboutPage from '@/pages/AboutPage';
-import NotFoundPage from '@/pages/NotFoundPage';
-import PaymentPage from '@/pages/PaymentPage';
 import NFCScannerOverlay from '@/components/NFCScannerOverlay';
+
+// Pages - Lazy Loaded for Performance
+const HomePage = lazy(() => import('@/pages/HomePage'));
+const ShopPage = lazy(() => import('@/pages/ShopPage'));
+const CartPage = lazy(() => import('@/pages/CartPage'));
+const CheckoutPage = lazy(() => import('@/pages/CheckoutPage'));
+const AdminPage = lazy(() => import('@/pages/AdminPage'));
+const ProfilePage = lazy(() => import('@/pages/ProfilePage'));
+const AuthPage = lazy(() => import('@/pages/AuthPage'));
+const ReadingPage = lazy(() => import('@/pages/ReadingPage'));
+const CardsPage = lazy(() => import('@/pages/CardsPage'));
+const GamePage = lazy(() => import('@/pages/GamePage'));
+const BlogPage = lazy(() => import('@/pages/BlogPage'));
+const ProductDetailPage = lazy(() => import('@/pages/ProductDetailPage'));
+const AboutPage = lazy(() => import('@/pages/AboutPage'));
+const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'));
+const PaymentPage = lazy(() => import('@/pages/PaymentPage'));
 
 export default function App() {
   // ── Auth (từ AuthContext — persistent qua reload) ──
-  const { user, loading, credits, creditsExpired, expiryLabel, addCredits, consumeCredit, logout } = useAuth();
+  const { user, loading, credits, creditsExpired, expiryLabel, addCredits, consumeCredit, refreshCredits, logout } = useAuth();
 
   // ── Navigation ──
   const navigate = useNavigate();
@@ -124,37 +125,41 @@ export default function App() {
         cartCount={cartCount}
       />
 
-      <Routes>
-        <Route path="/" element={<HomePage setPage={(p: any) => navigate(p === 'home' ? '/' : `/${p}`)} />} />
-        <Route path="/home" element={<HomePage setPage={(p: any) => navigate(p === 'home' ? '/' : `/${p}`)} />} />
-        <Route path="/reading" element={<ReadingPage user={user} consumeCredit={handleConsumeCredit} />} />
-        <Route path="/cards" element={<CardsPage />} />
-        <Route path="/shop" element={<ShopPage addToCart={addToCart} viewProduct={viewProduct} />} />
-        <Route path="/product/:productId" element={<ProductDetailPage addToCart={addToCart} />} />
-        <Route path="/cart" element={<CartPage cart={cart} updateQty={updateQty} removeFromCart={removeFromCart} total={cartTotal} />} />
-        <Route path="/checkout" element={<CheckoutPage cart={cart} total={cartTotal} />} />
-        <Route path="/payment" element={<PaymentPage />} />
-        <Route path="/game" element={<GamePage />} />
-        <Route path="/blog" element={<BlogPage />} />
-        <Route path="/about" element={<AboutPage />} />
-        <Route path="/admin" element={
-          user?.role_id === 1
-            ? <AdminPage setPage={(p: any) => navigate(p === 'home' ? '/' : `/${p}`)} />
-            : <div className="min-h-screen bg-gradient-to-br from-purple-900 via-purple-800 to-yellow-900 flex items-center justify-center p-6">
-                <div className="text-center text-white">
-                  <div className="text-7xl mb-6">🚫</div>
-                  <h1 className="text-3xl font-bold mb-3">Truy cập bị từ chối</h1>
-                  <p className="text-purple-200 mb-8">{user ? 'Tài khoản của bạn không có quyền Admin.' : 'Vui lòng đăng nhập bằng tài khoản Admin.'}</p>
-                  <button onClick={() => navigate(user ? '/' : '/auth')} className="bg-yellow-500 hover:bg-yellow-400 text-yellow-950 font-bold px-8 py-3 rounded-xl transition-all">
-                    {user ? '← Về trang chủ' : '→ Đăng nhập'}
-                  </button>
-                </div>
-              </div>
-        } />
-        <Route path="/profile" element={<ProfilePage user={user} onScanClick={() => setShowScanner(true)} />} />
-        <Route path="/auth" element={<AuthPage />} />
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
+      <Suspense fallback={
+        <div className="min-h-[60vh] flex items-center justify-center">
+          <div className="text-center">
+            <div className="w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-purple-600 font-medium">Đang tải trang...</p>
+          </div>
+        </div>
+      }>
+        <Routes>
+          <Route path="/" element={<HomePage setPage={(p: any) => navigate(p === 'home' ? '/' : `/${p}`)} />} />
+          <Route path="/home" element={<HomePage setPage={(p: any) => navigate(p === 'home' ? '/' : `/${p}`)} />} />
+          <Route path="/reading" element={<ReadingPage user={user} consumeCredit={handleConsumeCredit} refreshCredits={refreshCredits} />} />
+          <Route path="/cards" element={<CardsPage />} />
+          <Route path="/shop" element={<ShopPage addToCart={addToCart} viewProduct={viewProduct} />} />
+          <Route path="/product/:productId" element={<ProductDetailPage addToCart={addToCart} />} />
+          <Route path="/cart" element={<CartPage cart={cart} updateQty={updateQty} removeFromCart={removeFromCart} total={cartTotal} />} />
+          <Route path="/checkout" element={<CheckoutPage cart={cart} total={cartTotal} />} />
+          <Route path="/payment" element={<PaymentPage />} />
+          <Route path="/game" element={<GamePage />} />
+          <Route path="/blog" element={<BlogPage />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/admin" element={
+            <RequireAdmin>
+              <AdminPage setPage={(p: any) => navigate(p === 'home' ? '/' : `/${p}`)} />
+            </RequireAdmin>
+          } />
+          <Route path="/profile" element={
+            <RequireAuth>
+              <ProfilePage user={user} onScanClick={() => setShowScanner(true)} />
+            </RequireAuth>
+          } />
+          <Route path="/auth" element={<AuthPage />} />
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+      </Suspense>
 
       <Footer />
 

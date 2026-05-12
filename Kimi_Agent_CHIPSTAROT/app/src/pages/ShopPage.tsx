@@ -2,13 +2,21 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PRODUCTS, CREDIT_PACKAGES } from '../data/constants';
 import { useAuth } from '@/lib/AuthContext';
+import { usePermission } from '../hooks/usePermission';
 
 export default function ShopPage({ addToCart, viewProduct }: any) {
   const navigate = useNavigate();
   const { user, buyPackage, creditsExpiresAt, expiryLabel } = useAuth();
+  const { can } = usePermission();
   const [activeTab, setActiveTab] = useState<'products' | 'credits'>('products');
   const [buyingPkg, setBuyingPkg] = useState<string | null>(null);
   const [resultMsg, setResultMsg] = useState<{ id: string; msg: string; ok: boolean } | null>(null);
+  
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 6;
+  const totalPages = Math.ceil(PRODUCTS.length / ITEMS_PER_PAGE);
+  const currentProducts = PRODUCTS.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
   const handleBuyCredits = async (pkg: typeof CREDIT_PACKAGES[0]) => {
     if (!user) { navigate('/auth'); return; }
@@ -29,6 +37,11 @@ export default function ShopPage({ addToCart, viewProduct }: any) {
           <div className="flex justify-center gap-4">
             <a href="https://shopee.vn" target="_blank" rel="noopener noreferrer" className="px-6 py-2 bg-orange-500 text-white rounded-full text-sm font-medium hover:bg-orange-600 transition-colors">🛒 Shopee</a>
             <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer" className="px-6 py-2 bg-gray-900 text-white rounded-full text-sm font-medium hover:bg-gray-800 transition-colors">📱 TikTok Shop</a>
+            {can('products.manage') && (
+              <button onClick={() => navigate('/admin')} className="px-6 py-2 bg-purple-100 text-purple-700 rounded-full text-sm font-bold hover:bg-purple-200 transition-colors border border-purple-200">
+                ⚙️ Quản lý Shop
+              </button>
+            )}
           </div>
         </div>
 
@@ -60,7 +73,7 @@ export default function ShopPage({ addToCart, viewProduct }: any) {
               </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {PRODUCTS.map(p => (
+              {currentProducts.map(p => (
                 <div key={p.id} className="bg-white rounded-2xl overflow-hidden product-card-3d group">
                   <div className="cursor-pointer" onClick={() => viewProduct(p.id)}>
                     <div className="relative aspect-square bg-gradient-to-br from-yellow-50 to-purple-50 overflow-hidden">
@@ -93,6 +106,37 @@ export default function ShopPage({ addToCart, viewProduct }: any) {
                 </div>
               ))}
             </div>
+
+            {/* Pagination UI */}
+            {totalPages > 1 && (
+              <div className="flex justify-center items-center gap-3 mt-10">
+                <button 
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  className="px-4 py-2 rounded-xl bg-white border border-gray-200 text-gray-600 font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors shadow-sm"
+                >
+                  Trang trước
+                </button>
+                <div className="flex gap-2">
+                  {Array.from({ length: totalPages }).map((_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setCurrentPage(i + 1)}
+                      className={`w-10 h-10 rounded-xl font-bold transition-all shadow-sm ${currentPage === i + 1 ? 'bg-gradient-to-r from-yellow-400 to-amber-500 text-white' : 'bg-white border border-gray-200 text-gray-600 hover:bg-yellow-50 hover:border-yellow-300'}`}
+                    >
+                      {i + 1}
+                    </button>
+                  ))}
+                </div>
+                <button 
+                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                  className="px-4 py-2 rounded-xl bg-white border border-gray-200 text-gray-600 font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors shadow-sm"
+                >
+                  Trang sau
+                </button>
+              </div>
+            )}
           </>
         )}
 

@@ -5,6 +5,37 @@ import { VIETNAM_ADDRESS_DATA } from '../data/addressData';
 export default function CheckoutPage({ cart, total }: any) {
   const navigate = useNavigate();
   const [form, setForm] = useState({ name: '', phone: '', address: '', note: '', method: 'momo' });
+  const [voucherCode, setVoucherCode] = useState('');
+  const [appliedVoucher, setAppliedVoucher] = useState<any>(null);
+  const [voucherLoading, setVoucherLoading] = useState(false);
+  const [voucherError, setVoucherError] = useState('');
+
+  const applyVoucher = async () => {
+    if (!voucherCode.trim()) return;
+    setVoucherLoading(true);
+    setVoucherError('');
+    try {
+      // Giả sử component nhận api từ props hoặc import trực tiếp
+      // Ở đây tôi dùng import từ lib/api nếu có thể, hoặc giả định có sẵn
+      const { api } = await import('../lib/api');
+      const res = await api.validateVoucher(voucherCode, total);
+      if (res.success) {
+        setAppliedVoucher(res.data);
+        setVoucherError('');
+      } else {
+        setVoucherError(res.error || 'Mã không hợp lệ');
+        setAppliedVoucher(null);
+      }
+    } catch (err: any) {
+      setVoucherError(err.message || 'Lỗi áp dụng mã');
+      setAppliedVoucher(null);
+    } finally {
+      setVoucherLoading(false);
+    }
+  };
+
+  const finalTotal = appliedVoucher ? appliedVoucher.finalAmount : total;
+
   const [error, setError] = useState('');
 
   // Address State
@@ -49,9 +80,19 @@ export default function CheckoutPage({ cart, total }: any) {
     }
 
     setError('');
-    // Navigate sang trang Payment với thông tin đơn hàng
-    const orderId = `CS-${Date.now().toString(36).toUpperCase()}`;
-    navigate(`/payment?method=${form.method}&total=${total}&orderId=${orderId}`);
+    // Chuẩn bị dữ liệu đơn hàng để truyền sang trang Payment
+    const orderData = {
+      ...form,
+      province,
+      district,
+      ward,
+      street,
+      voucherCode: appliedVoucher?.code || '',
+      total: finalTotal,
+      items: cart
+    };
+
+    navigate('/payment', { state: orderData });
   };
 
 
@@ -72,9 +113,49 @@ export default function CheckoutPage({ cart, total }: any) {
               <span className="font-semibold text-gray-800">{(item.price * item.qty).toLocaleString()}đ</span>
             </div>
           ))}
-          <div className="flex justify-between items-center pt-3 mt-1">
-            <span className="font-bold text-gray-800">Tổng cộng</span>
-            <span className="text-xl font-bold text-red-500">{total.toLocaleString()}đ</span>
+          
+          {/* Voucher Section */}
+          <div className="mt-4 pt-4 border-t border-dashed border-gray-200">
+             <div className="flex gap-2">
+                <input 
+                  type="text" 
+                  placeholder="Nhập mã giảm giá..." 
+                  value={voucherCode}
+                  onChange={e => setVoucherCode(e.target.value.toUpperCase())}
+                  className="flex-1 px-3 py-2 rounded-lg border border-gray-200 focus:border-purple-400 focus:outline-none text-sm uppercase font-mono"
+                />
+                <button 
+                  onClick={applyVoucher}
+                  disabled={voucherLoading || !voucherCode}
+                  className="px-4 py-2 bg-purple-600 text-white rounded-lg text-sm font-bold hover:bg-purple-700 disabled:opacity-50 transition-colors"
+                >
+                  {voucherLoading ? '...' : 'Áp dụng'}
+                </button>
+             </div>
+             {voucherError && <p className="text-red-500 text-xs mt-1">{voucherError}</p>}
+             {appliedVoucher && (
+               <div className="mt-2 flex justify-between items-center bg-green-50 p-2 rounded-lg border border-green-100">
+                  <span className="text-xs text-green-700 font-medium">🎟️ Đã áp dụng: <b>{appliedVoucher.code}</b></span>
+                  <button onClick={() => { setAppliedVoucher(null); setVoucherCode(''); }} className="text-green-700 hover:text-red-500 text-xs font-bold">Xoá</button>
+               </div>
+             )}
+          </div>
+
+          <div className="space-y-2 pt-4 mt-2">
+            <div className="flex justify-between text-sm text-gray-500">
+              <span>Tạm tính</span>
+              <span>{total.toLocaleString()}đ</span>
+            </div>
+            {appliedVoucher && (
+              <div className="flex justify-between text-sm text-green-600 font-medium">
+                <span>Giảm giá</span>
+                <span>-{appliedVoucher.discountAmount.toLocaleString()}đ</span>
+              </div>
+            )}
+            <div className="flex justify-between items-center pt-2 border-t border-gray-100">
+              <span className="font-bold text-gray-800">Tổng thanh toán</span>
+              <span className="text-2xl font-bold text-red-500">{finalTotal.toLocaleString()}đ</span>
+            </div>
           </div>
         </div>
 

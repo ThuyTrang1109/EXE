@@ -1,0 +1,6 @@
+@ChipStarot.WebAPI_HostAddress = http://localhost:5096
+
+GET {{ChipStarot.WebAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { validateAndActivateNFCChip } from '@/lib/supabase';
+import { api } from '@/lib/api';
 
 interface NFCScannerOverlayProps {
   onSuccess: (credits: number, nfcTagId?: string) => void;
@@ -15,19 +15,19 @@ export default function NFCScannerOverlay({ onSuccess, onClose, userId }: NFCSca
   const handleTagDetected = async (tagId: string) => {
     setStatus('validating');
 
-    const { valid, creditsBonus, error } = await validateAndActivateNFCChip(
-      userId || 'demo',
-      tagId
-    );
-
-    if (!valid) {
+    try {
+      const res = await api.activateNfc({ nfcTagId: tagId });
+      if (res.success) {
+        setStatus('success');
+        setTimeout(() => onSuccess(res.data.creditsBonus || 3, tagId), 1500);
+      } else {
+        setStatus('error');
+        setErrorMsg(res.message || 'Chip NFC không hợp lệ.');
+      }
+    } catch (err) {
       setStatus('error');
-      setErrorMsg(error || 'Chip NFC không hợp lệ.');
-      return;
+      setErrorMsg((err as any).message || 'Lỗi hệ thống khi kích hoạt chip.');
     }
-
-    setStatus('success');
-    setTimeout(() => onSuccess(creditsBonus, tagId), 1500);
   };
 
   useEffect(() => {

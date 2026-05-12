@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { usePermission } from '../hooks/usePermission';
 
 const CATEGORIES = ['Tất cả', 'Ý nghĩa lá bài', 'Phong thủy', 'Hướng dẫn', 'Cung hoàng đạo'];
 
@@ -159,6 +161,8 @@ function renderContent(text: string) {
 }
 
 export default function BlogPage() {
+  const navigate = useNavigate();
+  const { can } = usePermission();
   const [activeCategory, setActiveCategory] = useState('Tất cả');
   const [selectedPost, setSelectedPost] = useState<typeof POSTS[0] | null>(null);
 
@@ -170,7 +174,7 @@ export default function BlogPage() {
     <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-purple-50 to-yellow-100 py-12 px-4">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-10">
+        <div className="text-center mb-10 relative">
           <div className="inline-flex items-center gap-2 bg-purple-100 text-purple-700 text-sm font-semibold px-4 py-2 rounded-full mb-4">
             ✨ Kiến thức Tarot & Tâm linh
           </div>
@@ -178,6 +182,14 @@ export default function BlogPage() {
           <p className="text-gray-500 max-w-xl mx-auto">
             Khám phá kiến thức Tarot, phong thủy và tâm linh từ đội ngũ chuyên gia nhiều năm kinh nghiệm
           </p>
+
+          {can('content.manage') && (
+            <div className="mt-4 flex justify-center">
+              <button onClick={() => navigate('/admin')} className="px-6 py-2 bg-blue-100 text-blue-700 rounded-full text-sm font-bold hover:bg-blue-200 transition-colors border border-blue-200 flex items-center gap-2">
+                ✍️ Quản lý bài viết (Admin)
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Category Filter */}
@@ -186,11 +198,10 @@ export default function BlogPage() {
             <button
               key={cat}
               onClick={() => setActiveCategory(cat)}
-              className={`px-5 py-2 rounded-full text-sm font-semibold transition-all ${
-                activeCategory === cat
+              className={`px-5 py-2 rounded-full text-sm font-semibold transition-all ${activeCategory === cat
                   ? 'bg-purple-600 text-white shadow-md shadow-purple-200'
                   : 'bg-white text-gray-600 hover:bg-purple-50 hover:text-purple-600 border border-gray-200'
-              }`}
+                }`}
             >
               {cat}
             </button>

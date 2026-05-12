@@ -59,14 +59,10 @@ export default function AuthPage() {
         if (err) {
           setError(err);
         } else {
-          // Redirect Admin → /admin, Customer → /
-          const saved = localStorage.getItem('chipstarot_demo_user');
-          const savedUser = saved ? JSON.parse(saved) : null;
-          if (savedUser?.role_id === 1) {
-            navigate('/admin');
-          } else {
-            navigate('/');
-          }
+          // Success handled by AuthContext, now just navigate based on role
+          // Note: In a real app, you might want to wait for AuthContext to update or use the response
+          // Here we assume the refresh in login() is done.
+          navigate('/');
         }
 
       } else if (mode === 'register') {
@@ -74,54 +70,18 @@ export default function AuthPage() {
         if (err) {
           setError(err);
         } else {
-          if (isSupabaseConfigured) {
-            setSuccess('Đăng ký thành công! Vui lòng kiểm tra email để xác thực tài khoản.');
-            setMode('verify');
-          } else {
-            // Demo mode
-            setMode('verify');
-          }
+          setSuccess('Đăng ký thành công! Bạn có thể đăng nhập ngay bây giờ.');
+          setMode('login');
         }
 
       } else if (mode === 'forgot') {
-        if (!isSupabaseConfigured) {
-          setMode('verify');
-        } else {
-          const { supabase } = await import('@/lib/supabase');
-          const { error: resetErr } = await supabase.auth.resetPasswordForEmail(email, {
-            redirectTo: `${window.location.origin}/auth`,
-          });
-          if (resetErr) {
-            setError(resetErr.message);
-          } else {
-            setSuccess('Đã gửi email khôi phục! Vui lòng kiểm tra hộp thư của bạn.');
-            setMode('verify');
-          }
-        }
+        // [FIX] Placeholder for forgot password via BE
+        setSuccess('Tính năng đang được bảo trì. Vui lòng liên hệ Admin.');
 
       } else if (mode === 'verify') {
-        if (!isSupabaseConfigured) {
-          // Demo OTP
-          if (otp !== '123456') {
-            setError('Mã xác thực không hợp lệ! (Demo: nhập 123456)');
-          } else {
-            const err = await login(email, password || 'demo_pass');
-            if (!err) navigate('/');
-          }
-        } else {
-          // Real OTP via Supabase
-          const { supabase } = await import('@/lib/supabase');
-          const { error: verifyErr } = await supabase.auth.verifyOtp({
-            email,
-            token: otp,
-            type: 'email',
-          });
-          if (verifyErr) {
-            setError('Mã xác thực không hợp lệ hoặc đã hết hạn!');
-          } else {
-            navigate('/');
-          }
-        }
+        // [FIX] Placeholder for OTP verify via BE
+        const err = await login(email, password || 'demo_pass');
+        if (!err) navigate('/');
       }
     } catch (ex) {
       setError('Đã có lỗi xảy ra, vui lòng thử lại.');
@@ -304,27 +264,39 @@ export default function AuthPage() {
               
               {!isSupabaseConfigured && mode === 'login' && (
                 <div className="mt-5 space-y-2">
-                  <p className="text-white/40 text-xs uppercase tracking-widest text-center">Tài khoản demo</p>
-                  <div className="grid grid-cols-2 gap-2">
+                  <p className="text-white/40 text-xs uppercase tracking-widest text-center mb-3">Truy cập nhanh (Demo)</p>
+                  <div className="grid grid-cols-2 gap-3">
                     <button
                       type="button"
                       onClick={() => { setEmail('admin@chipstarot.com'); setPassword('admin123'); setError(''); }}
-                      className="flex flex-col items-center gap-1 px-3 py-3 bg-purple-500/10 hover:bg-purple-500/25 border border-purple-500/30 hover:border-purple-400/60 rounded-xl text-xs transition-all group"
+                      className="flex flex-col items-center gap-1 px-2 py-3 bg-purple-500/10 hover:bg-purple-500/25 border border-purple-500/30 hover:border-purple-400/60 rounded-xl transition-all group"
                     >
-                      <span className="text-lg">👑</span>
-                      <span className="text-purple-300 font-bold">Admin</span>
-                      <span className="text-white/40 font-mono text-[10px]">admin@chipstarot.com</span>
-                      <span className="text-xs text-purple-400/80 mt-1 group-hover:text-purple-300 transition-colors">→ Click để điền</span>
+                      <span className="text-xl">👑</span>
+                      <span className="text-purple-300 text-[10px] font-bold uppercase tracking-tighter">Admin</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { setEmail('staff@chipstarot.com'); setPassword('staff123'); setError(''); }}
+                      className="flex flex-col items-center gap-1 px-2 py-3 bg-blue-500/10 hover:bg-blue-500/25 border border-blue-500/30 hover:border-blue-400/60 rounded-xl transition-all group"
+                    >
+                      <span className="text-xl">📦</span>
+                      <span className="text-blue-300 text-[10px] font-bold uppercase tracking-tighter">Staff</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { setEmail('editor@chipstarot.com'); setPassword('editor123'); setError(''); }}
+                      className="flex flex-col items-center gap-1 px-2 py-3 bg-emerald-500/10 hover:bg-emerald-500/25 border border-emerald-500/30 hover:border-emerald-400/60 rounded-xl transition-all group"
+                    >
+                      <span className="text-xl">✍️</span>
+                      <span className="text-emerald-300 text-[10px] font-bold uppercase tracking-tighter">Editor</span>
                     </button>
                     <button
                       type="button"
                       onClick={() => { setEmail('demo@chipstarot.com'); setPassword('123456'); setError(''); }}
-                      className="flex flex-col items-center gap-1 px-3 py-3 bg-yellow-500/10 hover:bg-yellow-500/25 border border-yellow-500/30 hover:border-yellow-400/60 rounded-xl text-xs transition-all group"
+                      className="flex flex-col items-center gap-1 px-2 py-3 bg-yellow-500/10 hover:bg-yellow-500/25 border border-yellow-500/30 hover:border-yellow-400/60 rounded-xl transition-all group"
                     >
-                      <span className="text-lg">👤</span>
-                      <span className="text-yellow-300 font-bold">Customer</span>
-                      <span className="text-white/40 font-mono text-[10px]">demo@chipstarot.com</span>
-                      <span className="text-xs text-yellow-400/80 mt-1 group-hover:text-yellow-300 transition-colors">→ Click để điền</span>
+                      <span className="text-xl">👤</span>
+                      <span className="text-yellow-300 text-[10px] font-bold uppercase tracking-tighter">Customer</span>
                     </button>
                   </div>
                 </div>

@@ -1,0 +1,15 @@
+C:\Users\VicTus\Desktop\EXE_Project\EXE - Copy\Kimi_Agent_CHIPSTAROT\backend\src\scratch\HatchTest\bin\Debug\net9.0\HatchTest.exe
+C:\Users\VicTus\Desktop\EXE_Project\EXE - Copy\Kimi_Agent_CHIPSTAROT\backend\src\scratch\HatchTest\bin\Debug\net9.0\HatchTest.deps.json
+C:\Users\VicTus\Desktop\EXE_Project\EXE - Copy\Kimi_Agent_CHIPSTAROT\backend\src\scratch\HatchTest\bin\Debug\net9.0\HatchTest.runtimeconfig.json
+C:\Users\VicTus\Desktop\EXE_Project\EXE - Copy\Kimi_Agent_CHIPSTAROT\backend\src\scratch\HatchTest\bin\Debug\net9.0\HatchTest.dll
+C:\Users\VicTus\Desktop\EXE_Project\EXE - Copy\Kimi_Agent_CHIPSTAROT\backend\src\scratch\HatchTest\bin\Debug\net9.0\HatchTest.pdb
+C:\Users\VicTus\Desktop\EXE_Project\EXE - Copy\Kimi_Agent_CHIPSTAROT\backend\src\scratch\HatchTest\obj\Debug\net9.0\HatchTest.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\VicTus\Desktop\EXE_Project\EXE - Copy\Kimi_Agent_CHIPSTAROT\backend\src\scratch\HatchTest\obj\Debug\net9.0\HatchTest.AssemblyInfoInputs.cache
+C:\Users\VicTus\Desktop\EXE_Project\EXE - Copy\Kimi_Agent_CHIPSTAROT\backend\src\scratch\HatchTest\obj\Debug\net9.0\HatchTest.AssemblyInfo.cs
+C:\Users\VicTus\Desktop\EXE_Project\EXE - Copy\Kimi_Agent_CHIPSTAROT\backend\src\scratch\HatchTest\obj\Debug\net9.0\HatchTest.csproj.CoreCompileInputs.cache
+C:\Users\VicTus\Desktop\EXE_Project\EXE - Copy\Kimi_Agent_CHIPSTAROT\backend\src\scratch\HatchTest\obj\Debug\net9.0\HatchTest.sourcelink.json
+C:\Users\VicTus\Desktop\EXE_Project\EXE - Copy\Kimi_Agent_CHIPSTAROT\backend\src\scratch\HatchTest\obj\Debug\net9.0\HatchTest.dll
+C:\Users\VicTus\Desktop\EXE_Project\EXE - Copy\Kimi_Agent_CHIPSTAROT\backend\src\scratch\HatchTest\obj\Debug\net9.0\refint\HatchTest.dll
+C:\Users\VicTus\Desktop\EXE_Project\EXE - Copy\Kimi_Agent_CHIPSTAROT\backend\src\scratch\HatchTest\obj\Debug\net9.0\HatchTest.pdb
+C:\Users\VicTus\Desktop\EXE_Project\EXE - Copy\Kimi_Agent_CHIPSTAROT\backend\src\scratch\HatchTest\obj\Debug\net9.0\HatchTest.genruntimeconfig.cache
+C:\Users\VicTus\Desktop\EXE_Project\EXE - Copy\Kimi_Agent_CHIPSTAROT\backend\src\scratch\HatchTest\obj\Debug\net9.0\ref\HatchTest.dll

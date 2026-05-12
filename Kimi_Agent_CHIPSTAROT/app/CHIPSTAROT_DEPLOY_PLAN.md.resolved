@@ -1,0 +1,313 @@
+# 🗺️ KẾ HOẠCH TRIỂN KHAI TOÀN DIỆN — CHIPSTAROT
+> Phiên bản: 1.0 | Cập nhật: 2026-05-08
+
+---
+
+## I. KIẾN TRÚC TỔNG QUAN
+
+```
+[Người dùng / Thẻ NFC]
+        │
+        ▼ HTTPS
+[Vercel] — React 18 + Vite — chipstarot.vercel.app
+        │
+        ▼ REST API (HTTPS/JSON + JWT Bearer)
+[Render.com] — .NET 9.0 Web API — chipstarot-api.onrender.com
+        │
+        ▼ PostgreSQL Connection String
+[Supabase] — PostgreSQL 15 — Region: Singapore
+        │
+        ▼ HTTP
+[Google Gemini API] — AI Tarot Analysis
+```
+
+| Layer | Công nghệ | Nền tảng | Chi phí |
+|---|---|---|---|
+| Frontend | React 18, Vite | Vercel | Free |
+| Backend | .NET 9.0, EF Core 9, JWT | Render.com | Free → $7/tháng |
+| Database | PostgreSQL 15 | Supabase | Free (500MB) |
+| AI | Gemini 1.5 Flash | Google Cloud | ~$0.002/request |
+
+---
+
+## II. GIAI ĐOẠN 1 — CHUẨN BỊ TÀI KHOẢN & HẠ TẦNG (~1 giờ)
+
+### 1.1 Supabase (Database)
+- [ ] Đăng ký tại https://supabase.com (login bằng GitHub)
+- [ ] New Project → Tên: `chipstarot-prod` | Region: **Singapore**
+- [ ] Đặt Database Password ≥16 ký tự → Lưu vào Password Manager
+- [ ] Project Settings → Database → Connection String → URI → Copy
+
+### 1.2 Google Gemini AI
+- [ ] Vào https://aistudio.google.com/app/apikey
+- [ ] Create API Key → Copy chuỗi `AIzaSy...`
+
+### 1.3 Gmail App Password
+- [ ] Google Account → Security → 2-Step Verification → App passwords
+- [ ] Tạo App Password → Nhận chuỗi 16 ký tự
+
+### 1.4 Render.com + Vercel
+- [ ] Đăng ký Render: https://render.com (login GitHub)
+- [ ] Đăng ký Vercel: https://vercel.com (login GitHub)
+
+### 1.5 GitHub
+- [ ] Tạo Repo `chipstarot` (Public/Private)
+- [ ] Push toàn bộ code lên main branch
+- [ ] Kiểm tra `.gitignore` loại bỏ: `bin/`, `obj/`, `node_modules/`, `.env*`
+
+---
+
+## III. GIAI ĐOẠN 2 — CẤU HÌNH BIẾN MÔI TRƯỜNG (~30 phút)
+
+### 3.1 Backend — thiết lập trên Render Dashboard → Environment
+
+| Biến | Giá trị | Nguồn |
+|---|---|---|
+| `ConnectionStrings__DefaultConnection` | `postgresql://postgres.xxx:PWD@host:6543/postgres` | Supabase |
+| `Jwt__Secret` | Chuỗi ngẫu nhiên ≥32 ký tự | Tự tạo |
+| `Jwt__Issuer` | `chipstarot-api` | Giữ nguyên |
+| `Jwt__Audience` | `chipstarot-app` | Giữ nguyên |
+| `Jwt__AccessTokenExpireMinutes` | `60` | Giữ nguyên |
+| `Gemini__ApiKey` | `AIzaSy...` | Google AI Studio |
+| `Email__SmtpHost` | `smtp.gmail.com` | Giữ nguyên |
+| `Email__SmtpPort` | `587` | Giữ nguyên |
+| `Email__FromEmail` | email của bạn | Gmail |
+| `Email__FromPassword` | `xxxx xxxx xxxx xxxx` | Gmail App Password |
+| `Email__FromName` | `CHIPSTAROT` | Giữ nguyên |
+| `Cors__AllowedOrigins__0` | `https://chipstarot.vercel.app` | URL Vercel sau deploy |
+| `ASPNETCORE_ENVIRONMENT` | `Production` | Bắt buộc |
+| `PORT` | `10000` | Render yêu cầu |
+
+**Tạo JWT Secret an toàn (PowerShell):**
+```powershell
+[System.Convert]::ToBase64String([System.Security.Cryptography.RandomNumberGenerator]::GetBytes(48))
+```
+
+### 3.2 Frontend — thiết lập trên Vercel Dashboard → Settings → Environment Variables
+
+| Biến | Giá trị |
+|---|---|
+| `VITE_API_BASE_URL` | `https://chipstarot-api.onrender.com/api` |
+| `VITE_SUPABASE_URL` | `https://xxx.supabase.co` |
+| `VITE_SUPABASE_ANON_KEY` | `eyJ...` (anon key từ Supabase) |
+
+> [!WARNING]
+> **KHÔNG BAO GIỜ** commit các giá trị secret vào GitHub. Chỉ đặt trong Dashboard.
+
+---
+
+## IV. GIAI ĐOẠN 3 — TRIỂN KHAI DATABASE (~20 phút)
+
+### 4.1 Auto-Migration khi Backend khởi động lần đầu
+
+Backend đã có `context.Database.Migrate()` trong `Program.cs` → Tự động tạo bảng:
+- `Accounts`, `CustomerProfiles`, `TarotCards`, `TarotReadings`
+- `PetGameLogs`, `NfcCards`, `NfcScanLogs`
+- `Products`, `Orders`, `OrderItems`, `Blogs`
+
+### 4.2 Seed Admin đầu tiên
+
+- [ ] Đăng ký tài khoản bình thường qua web
+- [ ] Vào **Supabase → Table Editor → Accounts**
+- [ ] Set cột `Role` = `Admin` cho tài khoản vừa tạo
+- [ ] Đăng nhập lại → Truy cập `/admin` để quản lý
+
+### 4.3 Seed 78 lá Tarot
+
+- [ ] Login Admin → `/admin` → Quản lý Tarot Cards → Import CSV hoặc nhập thủ công
+
+---
+
+## V. GIAI ĐOẠN 4 — TRIỂN KHAI BACKEND lên RENDER.COM (~45 phút)
+
+### 5.1 Tạo Web Service
+
+- [ ] Render Dashboard → **New → Web Service**
+- [ ] Connect Repo `chipstarot`
+- [ ] Cấu hình:
+
+| Trường | Giá trị |
+|---|---|
+| Name | `chipstarot-api` |
+| Region | Singapore |
+| Branch | `main` |
+| Root Directory | `backend` |
+| Environment | `Docker` |
+| Instance Type | Free (test) / Starter $7/tháng (production) |
+| Health Check Path | `/health` |
+
+- [ ] Thêm toàn bộ Environment Variables từ mục III.1
+- [ ] Click **Create Web Service** → Chờ build ~5-10 phút
+
+### 5.2 Xác nhận hoạt động
+
+```
+GET https://chipstarot-api.onrender.com/health
+→ Mong đợi: {"status":"ok","timestamp":"..."}
+
+GET https://chipstarot-api.onrender.com/swagger
+→ Mong đợi: Swagger UI hiển thị
+```
+
+> [!NOTE]
+> Render Free ngủ sau 15 phút. Dùng **Starter $7/tháng** cho production thực tế.
+
+---
+
+## VI. GIAI ĐOẠN 5 — TRIỂN KHAI FRONTEND lên VERCEL (~15 phút)
+
+### 6.1 Tạo Project
+
+- [ ] Vercel Dashboard → **Add New → Project** → Import `chipstarot`
+- [ ] Cấu hình:
+
+| Trường | Giá trị |
+|---|---|
+| Framework Preset | Vite |
+| Root Directory | `app` |
+| Build Command | `npm run build` |
+| Output Directory | `dist` |
+
+- [ ] Thêm Environment Variables từ mục III.2
+- [ ] Click **Deploy** → Chờ ~2 phút
+
+### 6.2 Kiểm tra file `app/vercel.json`
+
+```json
+{
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+}
+```
+File này bắt buộc phải tồn tại để React Router hoạt động đúng khi user truy cập URL trực tiếp.
+
+### 6.3 Cập nhật CORS Backend
+
+Sau khi có URL Vercel thực tế:
+- [ ] Render → Environment → Cập nhật `Cors__AllowedOrigins__0` = URL Vercel thực
+- [ ] Save → Render tự restart
+
+---
+
+## VII. GIAI ĐOẠN 6 — CẤU HÌNH THẺ NFC VẬT LÝ (~30 phút/10 thẻ)
+
+### 7.1 Ghi thẻ bằng NFC Tools
+
+1. Cài **NFC Tools** (iOS/Android)
+2. Tab Write → Add a record → URL/URI
+3. Nhập: `https://chipstarot.vercel.app/nfc/{CARD_ID}`
+   - Thẻ 1: `CT-TAROT-001`, Thẻ 2: `CT-STAR-002`...
+4. Bấm Write → Chạm điện thoại vào thẻ
+5. Ghi chú mapping thẻ vật lý ↔ CARD_ID
+
+### 7.2 Kích hoạt trong hệ thống
+
+- [ ] Admin → Quản lý NFC → Thêm từng CARD_ID → Set `status = available`
+
+---
+
+## VIII. GIAI ĐOẠN 7 — KIỂM THỬ TÍCH HỢP (~2 giờ)
+
+### 8.1 Test API endpoints chính
+
+**Auth:**
+| Test | Endpoint | Kết quả mong đợi |
+|---|---|---|
+| Đăng ký mới | POST `/api/auth/register` | 201 + JWT token |
+| Đăng nhập đúng | POST `/api/auth/login` | 200 + token |
+| Đăng nhập sai | POST `/api/auth/login` | 401 |
+| Spam 11 lần | POST `/api/auth/login` | 429 Rate Limit |
+
+**Pet System:**
+| Test | Endpoint | Kết quả mong đợi |
+|---|---|---|
+| Ấp trứng lần 1 | POST `/api/profile/pet/hatch` | 200, randomType |
+| Ấp trứng lần 2 | POST `/api/profile/pet/hatch` | 400 "Đã có thú" |
+| Cho ăn (có food) | POST `/api/profile/pet/feed` | 200, exp+10 food-1 |
+| Cho ăn (hết food) | POST `/api/profile/pet/feed` | 400 |
+| Nhận quà level | POST `/api/profile/pet/claim-reward` | 200, food cộng thêm |
+| Nhận quà lần 2 | POST `/api/profile/pet/claim-reward` | 400 "Đã nhận" |
+
+**NFC:**
+| Test | Endpoint | Kết quả mong đợi |
+|---|---|---|
+| Quét lần 1 | POST `/api/nfc/{cardId}` | 200, food+1 |
+| Quét lần 2 cùng ngày | POST `/api/nfc/{cardId}` | 400 "Đã quét hôm nay" |
+
+### 8.2 Test giao diện
+
+- [ ] Trang chủ tải đúng, không lỗi console
+- [ ] Đăng ký → Đăng nhập → Dashboard hoạt động
+- [ ] Trải bài Tarot → AI giải thích hiện ra
+- [ ] Cho gà ăn → EXP tăng → Level up → Nhận quà
+- [ ] Quét thẻ NFC → Animation 3D kích hoạt
+
+### 8.3 Test thiết bị
+
+| Thiết bị | Ưu tiên |
+|---|---|
+| Desktop Chrome/Windows | 🔴 Bắt buộc |
+| iPhone Safari | 🔴 Bắt buộc (NFC) |
+| Android Chrome | 🔴 Bắt buộc |
+| Desktop Safari/Mac | 🟡 Nên test |
+
+### 8.4 Checklist Go-Live (100% bắt buộc)
+
+- [ ] Tất cả API test case pass
+- [ ] 3 luồng chính pass trên mobile: Auth / Tarot / Pet
+- [ ] NFC vật lý quét thẻ thật → Food cộng vào account
+- [ ] Không có lỗi console nghiêm trọng trên production
+- [ ] HTTPS hoạt động, không cảnh báo cert
+- [ ] Trang load < 3 giây trên 4G
+
+---
+
+## IX. GIAI ĐOẠN 8 — BẢO TRÌ ĐỊNH KỲ
+
+### 9.1 Hàng ngày
+- [ ] Kiểm tra Render Logs → Có HTTP 500 không
+- [ ] Ping: `GET /health` trả về ok
+- [ ] Supabase Dashboard → DB usage không vượt 500MB
+
+### 9.2 Hàng tuần
+- [ ] Backup DB: Supabase → Settings → Backups → Download
+- [ ] Review lỗi 4xx/5xx phổ biến
+- [ ] Kiểm tra Gemini API quota còn lại
+
+### 9.3 Hàng tháng
+- [ ] `npm update` → Test build → Push nếu OK
+- [ ] `dotnet list package --outdated` → Cập nhật NuGet
+- [ ] Rotate JWT Secret nếu cần
+- [ ] Review analytics: users mới, số lần Tarot, loại gà phổ biến
+
+### 9.4 CI/CD — Quy trình cập nhật code
+
+```
+feature/xxx branch → Test local → PR vào main → Merge
+    ↓ Tự động
+Vercel: Deploy FE (~2 phút)
+Render: Docker build + Deploy BE (~10 phút)
+    ↓ Kiểm tra
+Ping /health + Test 3 luồng chính
+```
+
+---
+
+## X. TỔNG HỢP TIMELINE
+
+| # | Giai đoạn | Thời gian | Người thực hiện |
+|---|---|---|---|
+| 1 | Tạo tài khoản dịch vụ | 1 giờ | Dev/PM |
+| 2 | Chuẩn bị Environment Variables | 30 phút | Dev |
+| 3 | Deploy Database + Migrate + Seed | 20 phút | Dev |
+| 4 | Deploy Backend (Render.com) | 45 phút | Dev |
+| 5 | Deploy Frontend (Vercel) | 15 phút | Dev |
+| 6 | Ghi thẻ NFC + Kích hoạt trong DB | 30 phút | Dev/PM |
+| 7 | Kiểm thử tích hợp | 2 giờ | Dev + QA |
+| 8 | Bàn giao Admin + Training | 1 giờ | Dev → PM |
+| **TỔNG** | | **~6.5 giờ** | |
+
+> [!IMPORTANT]
+> **Go-Live chỉ được thực hiện khi 100% checklist Section VIII.4 đã pass.**
+
+> [!TIP]
+> Deploy vào **Thứ 3 hoặc Thứ 4** (giữa tuần). Tránh cuối tuần để còn thời gian hotfix nếu có sự cố.

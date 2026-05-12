@@ -233,3 +233,11 @@ export const CREDIT_PACKAGES = [
     perCredit: 49,
   },
 ];
+
+// ─── Thú Cưng (Virtual Pet Levels) ───
+export const PET_LEVELS = [
+  { maxExp: 100, name: "Gà Sơ Sinh" },
+  { maxExp: 300, name: "Gà Thiếu Niên" },
+  { maxExp: 600, name: "Gà Trưởng Thành" },
+  { maxExp: Infinity, name: "Gà Linh Thú" }
+];

@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TAROT_DB, TOPICS, SUB_QUESTIONS, SUGGESTED_QUESTIONS } from '../data/constants';
-import { generateTarotReading } from '../lib/gemini';
-import { syncPetProgress } from '../lib/supabase';
+import { api } from '../lib/api';
 
-export default function ReadingPage({ user, consumeCredit }: any) {
+export default function ReadingPage({ user, refreshCredits }: any) {
   const navigate = useNavigate();
   const [step, setStep] = useState(user?.name ? 2 : 1);
   const [name, setName] = useState(user?.name || '');
@@ -17,7 +16,6 @@ export default function ReadingPage({ user, consumeCredit }: any) {
   const [selected, setSelected] = useState<number[]>([]);
   const [revealed, setRevealed] = useState(false);
   const [result, setResult] = useState<any[]>([]);
-  const [creditUsed, setCreditUsed] = useState(false);
   const [aiReading, setAiReading] = useState('');
   const [loadingAI, setLoadingAI] = useState(false);
   const [isShuffling, setIsShuffling] = useState(false);
@@ -26,7 +24,6 @@ export default function ReadingPage({ user, consumeCredit }: any) {
   const [questionError, setQuestionError] = useState('');
   const [isFlyingUp, setIsFlyingUp] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isConsuming, setIsConsuming] = useState(false); // [FIX] Guard chống consume 2 lần
 
   useEffect(() => {
     if (user?.name && step === 1) {
@@ -157,24 +154,6 @@ export default function ReadingPage({ user, consumeCredit }: any) {
     setStep(5);
   });
 
-  // [FIX] Credit được tiêu TRUỚC khi lật bài (step 6 + revealed)
-  // Guard `isConsuming` đảm bảo chỉ gọi consumeCredit đúng 1 lần dù useEffect chạy nhiều lần.
-  useEffect(() => {
-    if (step === 6 && revealed && user && !creditUsed && !isConsuming) {
-      setIsConsuming(true);
-      consumeCredit().then((success: boolean) => {
-        if (success) {
-          setCreditUsed(true);
-        } else {
-          // Không còn credit / hết hạn → ẩn kết quả, hiện paywall (App.tsx xử lý)
-          setRevealed(false);
-          setSelected([]);
-        }
-        setIsConsuming(false);
-      });
-    }
-  }, [step, revealed, user, creditUsed, isConsuming, consumeCredit]);
-
   const shuffle = () => {
     const cards = [...TAROT_DB.cards];
     for (let i = cards.length - 1; i > 0; i--) {
@@ -197,29 +176,31 @@ export default function ReadingPage({ user, consumeCredit }: any) {
             setRevealed(true);
             const pickedCards = newSel.map(i => shuffled[i]);
             setResult(pickedCards);
-            
-            // Gọi AI giải bài
+
+            // Gọi AI giải bài (Backend)
             setLoadingAI(true);
             try {
-              const aiResult = await generateTarotReading(
-                name,
-                TOPICS.find(t => t.id === topic)?.name || topic,
-                subAnswer,
-                question,
-                pickedCards
-              );
-              setAiReading(aiResult);
-              // [FIX] Sync Pet: đọc từ user state thay vì localStorage để tránh stale data
-              const newFood = (user?.pet_food ?? parseInt(localStorage.getItem('chipstarot_chicken_food') || '0')) + 1;
-              localStorage.setItem('chipstarot_chicken_food', newFood.toString());
-              if (user) {
-                const exp = user.pet_exp ?? parseInt(localStorage.getItem('chipstarot_chicken_exp') || '0');
-                const claimed = user.pet_claimed_levels ?? JSON.parse(localStorage.getItem('chipstarot_chicken_claimed') || '[]');
-                syncPetProgress(user.id, exp, newFood, claimed);
+              const res = await api.startReading({
+                topic: TOPICS.find(t => t.id === topic)?.name || topic,
+                topicSubAnswer: subAnswer,
+                userQuestion: question,
+                cardCount: cardCount,
+                nfcTagId: null,
+                selectedCards: pickedCards.map(c => ({
+                  cardId: c.id,
+                  isReversed: c.reversed
+                }))
+              });
+
+              if (res.success) {
+                setAiReading(res.data.aiResponseStory);
+                if (refreshCredits) refreshCredits();
+              } else {
+                setAiReading('Lỗi: ' + res.message);
               }
             } catch (err) {
               console.error(err);
-              setAiReading('Có lỗi xảy ra khi tải lời giải từ vũ trụ.');
+              setAiReading('Có lỗi xảy ra khi kết nối với vũ trụ.');
             } finally {
               setLoadingAI(false);
             }
@@ -230,15 +211,14 @@ export default function ReadingPage({ user, consumeCredit }: any) {
   };
 
   const reset = () => {
-    setStep(user?.name ? 2 : 1); 
-    setName(user?.name || ''); 
+    setStep(user?.name ? 2 : 1);
+    setName(user?.name || '');
     setDob('');
-    setTopic(''); 
-    _setSubAnswer(''); 
+    setTopic('');
+    _setSubAnswer('');
     setQuestion('');
     setCardCount(0); setShuffled([]); setSelected([]); setRevealed(false); setResult([]);
-    setCreditUsed(false); setAiReading(''); setLoadingAI(false); setIsShuffling(false); setIsFlyingUp(false);
-    setIsConsuming(false); // [FIX] Reset guard khi bắt đầu lại
+    setAiReading(''); setLoadingAI(false); setIsShuffling(false); setIsFlyingUp(false);
   };
 
   const currentTopic = TOPICS.find(t => t.id === topic);
@@ -313,7 +293,7 @@ export default function ReadingPage({ user, consumeCredit }: any) {
                 />
                 {nameError && <p className="text-red-400 text-sm mt-2 font-medium">{nameError}</p>}
               </div>
-              { !user && (
+              {!user && (
                 <div>
                   <div className="text-left text-white/80 text-sm mb-1 ml-2">Ngày sinh:</div>
                   <input
@@ -397,13 +377,12 @@ export default function ReadingPage({ user, consumeCredit }: any) {
             </div>
             <div className="relative max-w-2xl mx-auto">
               <textarea
-                className={`w-full block px-5 py-4 rounded-2xl bg-white/10 border ${
-                  questionError
-                    ? 'border-red-400 focus:border-red-400'
-                    : question.trim().length > 0 && question.trim().length < 10
-                      ? 'border-orange-400 focus:border-orange-400'
-                      : 'border-white/30 focus:border-yellow-400'
-                } text-white placeholder-white/40 focus:outline-none resize-none transition-colors pb-8`}
+                className={`w-full block px-5 py-4 rounded-2xl bg-white/10 border ${questionError
+                  ? 'border-red-400 focus:border-red-400'
+                  : question.trim().length > 0 && question.trim().length < 10
+                    ? 'border-orange-400 focus:border-orange-400'
+                    : 'border-white/30 focus:border-yellow-400'
+                  } text-white placeholder-white/40 focus:outline-none resize-none transition-colors pb-8`}
                 placeholder="Ví dụ: Tôi có nên thay đổi công việc trong năm nay không?"
                 rows={4}
                 maxLength={300}
@@ -411,9 +390,8 @@ export default function ReadingPage({ user, consumeCredit }: any) {
                 onChange={e => { setQuestion(e.target.value); setQuestionError(''); }}
               />
               {/* Character counter */}
-              <div className={`absolute bottom-3 right-4 text-xs font-mono ${
-                question.length > 270 ? 'text-red-400' : question.length > 200 ? 'text-orange-400' : 'text-white/40'
-              }`}>
+              <div className={`absolute bottom-3 right-4 text-xs font-mono ${question.length > 270 ? 'text-red-400' : question.length > 200 ? 'text-orange-400' : 'text-white/40'
+                }`}>
                 {question.length}/300
               </div>
             </div>
@@ -476,13 +454,13 @@ export default function ReadingPage({ user, consumeCredit }: any) {
           <div className="flex flex-col items-center justify-center py-32 overflow-visible relative">
             <div className="absolute inset-0 bg-yellow-400/20 blur-[100px] rounded-full animate-pulse pointer-events-none" />
             <div className="relative w-32 h-48 perspective-1000 z-10">
-               {[...Array(15)].map((_, i) => (
-                 <div 
-                   key={i}
-                   className="absolute top-0 left-0 w-full h-full rounded-xl bg-[url('/card-back.png')] bg-cover bg-center magic-shuffle-card border border-white/20"
-                   style={{ '--i': i } as any}
-                 />
-               ))}
+              {[...Array(15)].map((_, i) => (
+                <div
+                  key={i}
+                  className="absolute top-0 left-0 w-full h-full rounded-xl bg-[url('/card-back.png')] bg-cover bg-center magic-shuffle-card border border-white/20"
+                  style={{ '--i': i } as any}
+                />
+              ))}
             </div>
             <p className="mt-24 text-yellow-400 font-bold text-xl animate-pulse tracking-widest drop-shadow-[0_0_8px_rgba(251,191,36,0.8)] z-10">
               Vũ trụ đang kết nối...
@@ -506,7 +484,7 @@ export default function ReadingPage({ user, consumeCredit }: any) {
                 const flyingClass = isFlyingUp
                   ? (isSelected ? 'animate-fly-up z-50 pointer-events-none' : 'opacity-0 scale-90 pointer-events-none')
                   : '';
-                
+
                 return (
                   <div
                     key={idx}
@@ -516,15 +494,14 @@ export default function ReadingPage({ user, consumeCredit }: any) {
                     <button
                       onClick={() => handleSelectCard(idx)}
                       disabled={isSelected || selected.length >= cardCount}
-                      className={`relative w-full h-full rounded-lg transition-all duration-700 [transform-style:preserve-3d] outline-none ${
-                        isSelected
-                          ? 'scale-110 shadow-lg shadow-yellow-400/50 [transform:rotateY(180deg)] z-10'
-                          : 'hover:-translate-y-2 hover:shadow-[0_10px_20px_rgba(168,85,247,0.4)] hover:ring-2 hover:ring-purple-400'
-                      }`}
+                      className={`relative w-full h-full rounded-lg transition-all duration-700 [transform-style:preserve-3d] outline-none ${isSelected
+                        ? 'scale-110 shadow-lg shadow-yellow-400/50 [transform:rotateY(180deg)] z-10'
+                        : 'hover:-translate-y-2 hover:shadow-[0_10px_20px_rgba(168,85,247,0.4)] hover:ring-2 hover:ring-purple-400'
+                        }`}
                     >
                       {/* Mặt sau (Card back) */}
                       <div className={`absolute inset-0 w-full h-full rounded-lg bg-[url('/card-back.png')] bg-cover bg-center border border-white/10 [backface-visibility:hidden] ${isSelected ? 'ring-2 ring-yellow-400' : ''}`} />
-                      
+
                       {/* Mặt trước (Card face) */}
                       <div className="absolute inset-0 w-full h-full rounded-lg bg-[#0d0029] border-2 border-yellow-400 [backface-visibility:hidden] [transform:rotateY(180deg)] overflow-hidden flex items-center justify-center">
                         {isSelected && (
@@ -548,7 +525,7 @@ export default function ReadingPage({ user, consumeCredit }: any) {
                 <p className="text-purple-200 mb-6">Đăng nhập để xem ý nghĩa đầy đủ từ vũ trụ</p>
                 <button onClick={() => navigate('/auth')} className="btn-3d-yellow">Đăng nhập để xem →</button>
               </div>
-            ) : creditUsed ? (
+            ) : (
               <div>
                 <h2 className="text-2xl font-bold text-white text-center mb-8">🌟 Thông điệp cho {name}</h2>
                 <div className={`grid gap-6 ${result.length === 1 ? 'grid-cols-1 max-w-sm mx-auto' : 'grid-cols-1 md:grid-cols-3'}`}>
@@ -557,7 +534,7 @@ export default function ReadingPage({ user, consumeCredit }: any) {
                       {/* Magical Sparkle Effect */}
                       <div className="absolute -top-2 -right-2 text-xl animate-sparkle opacity-0 group-hover:opacity-100 transition-opacity">✨</div>
                       <div className="absolute -bottom-2 -left-2 text-xl animate-sparkle delay-300 opacity-0 group-hover:opacity-100 transition-opacity">✨</div>
-                      
+
                       <p className="text-yellow-400 text-sm font-semibold mb-3">{POSITIONS[result.length === 1 ? 0 : i + 1]}</p>
                       <img
                         src={card.image}
@@ -590,7 +567,7 @@ export default function ReadingPage({ user, consumeCredit }: any) {
                       )}
                     </div>
                   ) : (
-                    <p className="text-white/60 text-sm italic">Nhập API Key trong file .env để nhận thông điệp từ AI.</p>
+                    <p className="text-white/60 text-sm italic">Đang chờ kết nối vũ trụ...</p>
                   )}
                 </div>
 
@@ -598,12 +575,6 @@ export default function ReadingPage({ user, consumeCredit }: any) {
                   <button onClick={reset} className="btn-3d-yellow">🔄 Trải bài mới</button>
                   <button onClick={() => navigate('/shop')} className="btn-3d-white">🛍️ Khám phá shop</button>
                 </div>
-              </div>
-            ) : (
-              <div className="text-center py-10">
-                <div className="text-4xl animate-spin inline-block mb-4">🔮</div>
-                <h2 className="text-2xl font-bold text-white mb-2">Đang kết nối vũ trụ...</h2>
-                <p className="text-purple-200">Vui lòng mua thêm lượt nếu bạn đã hết năng lượng.</p>
               </div>
             )}
           </div>

@@ -1,88 +1,107 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';
+import { api } from '@/lib/api';
+import { PET_LEVELS } from '@/data/constants';
+import { PetChicken } from '@/components/PetChicken';
+import { HatchingOverlay } from '@/components/HatchingOverlay';
 
-export default function ProfilePage({ user, onScanClick }: any) {
+export default function ProfilePage({ onScanClick }: any) {
   const navigate = useNavigate();
-  const { credits, expiryLabel, creditsExpiresAt } = useAuth();
+  const { user, credits, expiryLabel, creditsExpiresAt, updateUserSession, refreshCredits, logout } = useAuth();
+  
   const [activeTab, setActiveTab] = useState<'history' | 'orders' | 'nfc'>('history');
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const [editingProfile, setEditingProfile] = useState(false);
   const [editName, setEditName] = useState(user?.name || '');
-  const [editPhone, setEditPhone] = useState(user?.phone_number || '');
+  const [editPhone, setEditPhone] = useState(user?.phoneNumber || '');
   const [savingProfile, setSavingProfile] = useState(false);
+
+  // Pet states
+  const [showHatchOverlay, setShowHatchOverlay] = useState(false);
+  const [hatchingPetType, setHatchingPetType] = useState<string | null>(null);
+  const [feeding, setFeeding] = useState(false);
+
+  // History states
+  const [history, setHistory] = useState<any[]>([]);
+  const [loadingHistory, setLoadingHistory] = useState(false);
+  const [orders, setOrders] = useState<any[]>([]);
+  const [loadingOrders, setLoadingOrders] = useState(false);
+
+  useEffect(() => {
+    if (!user) return;
+    
+    const fetchData = async () => {
+      if (activeTab === 'history') {
+        setLoadingHistory(true);
+        try {
+          const res = await api.getMyReadings();
+          if (res.success) setHistory(res.data.items || []);
+        } catch (err) { console.error(err); }
+        finally { setLoadingHistory(false); }
+      } else if (activeTab === 'orders') {
+        setLoadingOrders(true);
+        try {
+          const res = await api.getMyOrders();
+          if (res.success) setOrders(res.data.items || []);
+        } catch (err) { console.error(err); }
+        finally { setLoadingOrders(false); }
+      }
+    };
+    fetchData();
+  }, [activeTab, user]);
 
   const handleSaveProfile = async () => {
     if (!editName.trim()) return;
     setSavingProfile(true);
-    // TODO: gọi API BE để update profile
-    // await apiUpdateProfile({ full_name: editName, phone_number: editPhone });
-    await new Promise(r => setTimeout(r, 800)); // simulate
-    setSavingProfile(false);
-    setEditingProfile(false);
+    try {
+      await api.updateProfile({ fullName: editName, phoneNumber: editPhone });
+      updateUserSession({ name: editName, phoneNumber: editPhone });
+      setEditingProfile(false);
+    } catch (err) {
+      alert("Lỗi cập nhật hồ sơ: " + (err as any).message);
+    } finally {
+      setSavingProfile(false);
+    }
   };
 
-  const mockHistory = [
-    { 
-      id: 1, 
-      date: '25/04/2024', 
-      time: '21:30',
-      topic: 'Tình Yêu', 
-      topicIcon: '💖',
-      status: 'single',
-      statusText: 'Đang mập mờ',
-      cards: [
-        { name: 'The Lovers', image: '/tarot-cards/06-the-lovers.jpg', meaning: 'Sự hòa hợp, lựa chọn từ trái tim.' }
-      ], 
-      note: 'Mình cảm thấy người ấy cũng đang có ý với mình, nhưng cả hai đều chưa dám ngỏ lời.' 
-    },
-    { 
-      id: 2, 
-      date: '20/04/2024', 
-      time: '10:15',
-      topic: 'Sự Nghiệp', 
-      topicIcon: '💼',
-      status: 'stuck',
-      statusText: 'Đang bế tắc',
-      cards: [
-        { name: 'The Emperor', image: '/tarot-cards/04-the-emperor.jpg', meaning: 'Cần sự kỷ luật và cấu trúc.' },
-        { name: 'The Chariot', image: '/tarot-cards/07-the-chariot.jpg', meaning: 'Chiến thắng thông qua sự quyết tâm.' },
-        { name: 'The Sun', image: '/tarot-cards/19-the-sun.jpg', meaning: 'Thành công và sự rõ ràng sắp tới.' }
-      ], 
-      note: 'Dự án đang gặp khó khăn nhưng thông điệp khuyên mình nên kiên trì và giữ kỷ luật.' 
-    },
-  ];
-
-  const mockOrders = [
-    { 
-      id: '#ORD-9921', 
-      date: '25/04/2024', 
-      total: 288000, 
-      status: 'shipping', 
-      statusText: 'Đang giao hàng',
-      items: [
-        { name: 'Móc khóa NFC CHIPSTAROT', qty: 1, image: '/products/nfc-chick.jpg' },
-        { name: 'Móc khóa Đá Thạch Anh Tím', qty: 1, image: '/products/amethyst.jpg' }
-      ],
-      progress: 65
-    },
-    { 
-      id: '#ORD-8852', 
-      date: '15/04/2024', 
-      total: 79000, 
-      status: 'delivered', 
-      statusText: 'Đã hoàn thành',
-      items: [
-        { name: 'Móc khóa Đá Mắt Hổ', qty: 1, image: '/products/tiger-eye.jpg' }
-      ],
-      progress: 100
+  const handleFeed = async () => {
+    if (!user || user.petFood <= 0 || feeding) return;
+    setFeeding(true);
+    try {
+      const res = await api.feedPet(1); // Cho ăn 1 đơn vị
+      if (res.success) {
+        // Cập nhật local state
+        updateUserSession({ 
+          petExp: res.data.currentExp, 
+          petFood: res.data.currentFood,
+          petStatus: res.data.petStatus 
+        });
+      }
+    } catch (err) {
+      alert("Lỗi cho ăn: " + (err as any).message);
+    } finally {
+      setFeeding(false);
     }
-  ];
+  };
 
-  const mockNFC = [
-    { id: 'CHIP-TR-001', product: 'Móc khóa NFC CHIPSTAROT', activatedAt: '25/04/2024', creditsAdded: 3, icon: '🐣' },
-    { id: 'CHIP-AM-042', product: 'Móc khóa Đá Thạch Anh Tím', activatedAt: '20/04/2024', creditsAdded: 3, icon: '💎' }
-  ];
+  const handleHatch = async () => {
+    if (!user || user.petStatus !== 'egg') return;
+    try {
+      const res = await api.hatchPet();
+      if (res.success) {
+        setHatchingPetType(res.data.petType);
+        setShowHatchOverlay(true);
+        updateUserSession({ 
+          petType: res.data.petType, 
+          petStatus: res.data.petStatus,
+          petName: res.data.petName 
+        });
+      }
+    } catch (err) {
+      alert("Lỗi ấp trứng: " + (err as any).message);
+    }
+  };
 
   if (!user) {
     return (
@@ -90,17 +109,40 @@ export default function ProfilePage({ user, onScanClick }: any) {
         <div className="bg-white rounded-3xl p-8 text-center max-w-md w-full shadow-2xl">
           <div className="text-6xl mb-4 animate-bounce">🔒</div>
           <h2 className="text-2xl font-bold mb-2">Vui lòng đăng nhập</h2>
-          <p className="text-gray-600 mb-6">Đăng nhập để xem nhật ký trải bài và quản lý đơn hàng của bạn.</p>
+          <p className="text-gray-600 mb-6">Đăng nhập để xem nhật ký trải bài và quản lý thú cưng của bạn.</p>
           <button onClick={() => navigate('/auth')} className="btn-3d-yellow w-full">Đăng nhập ngay</button>
         </div>
       </div>
     );
   }
 
+  // Level calculation unified with GamePage
+  const getLevelInfo = (exp: number) => {
+    for (let i = 0; i < PET_LEVELS.length; i++) {
+      if (exp < PET_LEVELS[i].maxExp) return { level: i, ...PET_LEVELS[i] };
+    }
+    return { level: 3, ...PET_LEVELS[3] };
+  };
+
+  const currentInfo = getLevelInfo(user.petExp || 0);
+  const level = currentInfo.level; // Internal index 0-3
+  const displayLevel = level + 1; // Display 1-4
+  
+  const prevMaxExp = level === 0 ? 0 : PET_LEVELS[level - 1].maxExp;
+  const targetExp = currentInfo.maxExp === Infinity ? (user.petExp || 0) : currentInfo.maxExp;
+  const progressPercent = level === 3 ? 100 : (((user.petExp || 0) - prevMaxExp) / (targetExp - prevMaxExp)) * 100;
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-purple-50 to-yellow-100 py-12 px-4">
-      <div className="max-w-4xl mx-auto">
+      {showHatchOverlay && (
+        <HatchingOverlay 
+          petType={hatchingPetType} 
+          petName={user.petName || 'Thần kê'} 
+          onFinished={() => setShowHatchOverlay(false)} 
+        />
+      )}
 
+      <div className="max-w-4xl mx-auto">
         {/* Edit Profile Modal */}
         {editingProfile && (
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setEditingProfile(false)}>
@@ -112,13 +154,12 @@ export default function ProfilePage({ user, onScanClick }: any) {
               <div className="p-6 space-y-4">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-1">Họ và tên</label>
-                  <input type="text" value={editName} onChange={e => setEditName(e.target.value)} onFocus={e => e.target.select()}
+                  <input type="text" value={editName} onChange={e => setEditName(e.target.value)}
                     className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-100" />
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-1">Số điện thoại</label>
-                  <input type="tel" value={editPhone} onChange={e => setEditPhone(e.target.value)} onFocus={e => e.target.select()}
-                    placeholder="0867 774 023"
+                  <input type="tel" value={editPhone} onChange={e => setEditPhone(e.target.value)}
                     className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-100" />
                 </div>
                 <div className="flex gap-3 pt-2">
@@ -137,154 +178,164 @@ export default function ProfilePage({ user, onScanClick }: any) {
         <div className="bg-white rounded-3xl shadow-2xl overflow-hidden mb-8 border border-white/20">
           <div className="bg-gradient-to-r from-purple-600 via-purple-700 to-indigo-800 p-8 text-white flex flex-col md:flex-row items-start gap-6 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl" />
-            <div className="w-24 h-24 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-5xl border-4 border-white/30 shadow-lg flex-shrink-0 mt-2">👤</div>
-            <div className="text-center md:text-left z-10 w-full">
+            
+            {/* Pet Avatar Section */}
+            <div className="relative group">
+              <div className="w-32 h-32 bg-white/10 backdrop-blur-md rounded-3xl flex items-center justify-center border-4 border-white/30 shadow-lg flex-shrink-0 relative overflow-hidden">
+                {user.petStatus === 'egg' ? (
+                  <div className="text-6xl animate-bounce">🥚</div>
+                ) : (
+                  <PetChicken type={user.petType || 'chicken_classic'} level={level} className="w-24 h-24" />
+                )}
+              </div>
+              <div className="absolute -bottom-2 -right-2 w-10 h-10 bg-yellow-400 text-purple-900 rounded-xl flex items-center justify-center font-black text-sm shadow-lg border-2 border-white">
+                Lv.{displayLevel}
+              </div>
+            </div>
+
+            <div className="text-center md:text-left z-10 flex-1">
               <div className="flex flex-col md:flex-row md:justify-between md:items-start w-full gap-4">
-                <div>
-                  <h1 className="text-3xl font-bold mb-1">{user.name}</h1>
+                <div className="flex-1">
+                  <h1 className="text-3xl font-bold mb-1 flex items-center gap-2">
+                    {user.name}
+                    {user.petStatus !== 'egg' && <span className="text-sm font-normal text-purple-200 opacity-70">| {user.petName}</span>}
+                  </h1>
                   <p className="text-purple-200 mb-3">{user.email}</p>
+                  
+                  {/* Pet Progress */}
+                  <div className="mb-4 max-w-xs mx-auto md:mx-0">
+                    <div className="flex justify-between text-[10px] font-bold uppercase tracking-wider mb-1">
+                      <span>Kinh nghiệm (EXP)</span>
+                      <span>{user.petExp}/{currentInfo.maxExp === Infinity ? 'MAX' : currentInfo.maxExp}</span>
+                    </div>
+                    <div className="h-2 bg-black/20 rounded-full overflow-hidden border border-white/10">
+                      <div className="h-full bg-gradient-to-r from-yellow-400 to-amber-500 transition-all duration-1000" style={{width: `${progressPercent}%`}} />
+                    </div>
+                  </div>
+
                   <div className="flex flex-wrap justify-center md:justify-start gap-2">
-                    <span className="px-3 py-1 bg-yellow-400 text-purple-900 rounded-full text-[10px] font-bold uppercase tracking-wider shadow-sm">Thành viên CHIPSTAROT</span>
-                    <span className="px-3 py-1 bg-purple-500/30 text-white rounded-full text-[10px] font-bold uppercase tracking-wider backdrop-blur-sm border border-white/20">Hạng Đồng</span>
-                    <button onClick={() => { setEditName(user?.name || ''); setEditPhone(user?.phone_number || ''); setEditingProfile(true); }}
-                      className="px-3 py-1 bg-white/20 hover:bg-white/30 text-white rounded-full text-[10px] font-bold uppercase tracking-wider backdrop-blur-sm border border-white/20 transition-all">
-                      ✏️ Chỉnh sửa
+                    {user.petStatus === 'egg' ? (
+                      <button onClick={handleHatch} className="px-4 py-2 bg-yellow-400 text-purple-900 rounded-xl text-xs font-black uppercase tracking-wider hover:bg-yellow-300 transition-all shadow-lg active:scale-95">
+                        🐣 Ấp trứng ngay!
+                      </button>
+                    ) : (
+                      <button onClick={handleFeed} disabled={user.petFood <= 0 || feeding}
+                        className="px-4 py-2 bg-orange-500 text-white rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-orange-400 transition-all shadow-lg disabled:opacity-50 active:scale-95 flex items-center gap-2">
+                        🍎 Cho ăn ({user.petFood}) {feeding && '...'}
+                      </button>
+                    )}
+                    <button onClick={() => { logout(); navigate('/'); }}
+                      className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-all shadow-lg active:scale-95 flex items-center gap-2">
+                      🚪 Đăng xuất
+                    </button>
+                    <button onClick={() => { setEditName(user.name); setEditPhone(user.phoneNumber || ''); setEditingProfile(true); }}
+                      className="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-xl text-xs font-bold uppercase tracking-wider backdrop-blur-sm border border-white/20 transition-all">
+                      ✏️ Hồ sơ
                     </button>
                   </div>
                 </div>
                 
                 {/* Credits Card */}
-                <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/20 min-w-[200px] text-center md:text-right flex flex-col md:items-end items-center">
+                <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/20 min-w-[180px] text-center md:text-right flex flex-col md:items-end items-center">
                   <p className="text-purple-200 text-xs font-bold uppercase tracking-wider mb-1">Số dư lượt bốc bài</p>
                   <div className="flex items-end gap-2 mb-2">
                     <span className="text-4xl font-black text-yellow-400 leading-none">{credits}</span>
                     <span className="text-yellow-400/80 text-sm font-medium pb-1">lượt</span>
                   </div>
-                  {credits > 0 ? (
-                    <div className={`text-xs font-medium px-2.5 py-1 rounded-lg ${
-                      expiryLabel.urgency === 'expired' ? 'bg-red-500/80 text-white' :
-                      expiryLabel.urgency === 'warning' ? 'bg-amber-500/80 text-white' :
-                      'bg-green-500/80 text-white'
-                    }`}>
-                      {creditsExpiresAt ? `Hạn dùng: ${new Date(creditsExpiresAt).toLocaleDateString('vi-VN')}` : 'Vô thời hạn (NFC)'}
-                    </div>
-                  ) : (
-                    <button onClick={() => navigate('/shop')} className="text-xs font-bold text-yellow-400 hover:text-yellow-300 underline mt-1">
-                      Nạp thêm lượt ngay →
-                    </button>
-                  )}
+                  <div className={`text-xs font-medium px-2.5 py-1 rounded-lg ${
+                    expiryLabel.urgency === 'expired' ? 'bg-red-500/80 text-white' :
+                    expiryLabel.urgency === 'warning' ? 'bg-amber-500/80 text-white' :
+                    'bg-green-500/80 text-white'
+                  }`}>
+                    {creditsExpiresAt ? `Hạn dùng: ${new Date(creditsExpiresAt).toLocaleDateString('vi-VN')}` : 'Vô thời hạn (NFC)'}
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-          <div className="flex border-b bg-white/50 backdrop-blur-sm sticky top-0 z-20">
+
+          <div className="flex border-b bg-white sticky top-0 z-20">
             {['history', 'orders', 'nfc'].map(tab => (
               <button key={tab} onClick={() => setActiveTab(tab as any)}
-                className={`flex-1 py-4 font-bold text-sm text-center transition-all relative ${activeTab === tab ? 'text-purple-700 bg-purple-50/50' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50/50'}`}>
+                className={`flex-1 py-4 font-bold text-sm text-center transition-all relative ${activeTab === tab ? 'text-purple-700 bg-purple-50' : 'text-gray-400 hover:text-gray-600'}`}>
                 {tab === 'history' ? '🔮 Nhật ký Tarot' : tab === 'orders' ? '📦 Đơn hàng' : '📱 Thẻ NFC'}
                 {activeTab === tab && <div className="absolute bottom-0 left-0 right-0 h-1 bg-purple-600 rounded-full mx-4" />}
               </button>
             ))}
           </div>
+
           <div className="p-6 bg-white min-h-[500px]">
             {activeTab === 'history' && (
               <div className="space-y-6">
                 <div className="flex justify-between items-center mb-4">
                   <h2 className="text-2xl font-bold text-gray-800">Nhật ký trải bài</h2>
-                  <div className="flex gap-2">
-                    <button className="p-2 bg-gray-50 rounded-lg text-gray-500 hover:bg-gray-100"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg></button>
-                    <button className="p-2 bg-gray-50 rounded-lg text-gray-500 hover:bg-gray-100"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" /></svg></button>
-                  </div>
                 </div>
 
-                {mockHistory.map(h => (
-                  <div key={h.id} className="bg-white border border-gray-100 rounded-3xl overflow-hidden hover:shadow-xl transition-all duration-300 group">
-                    <div className="bg-gray-50/50 p-4 border-b border-gray-50 flex justify-between items-center">
-                      <div className="flex items-center gap-3">
-                        <span className="text-2xl">{h.topicIcon}</span>
-                        <div>
-                          <p className="font-bold text-gray-800">{h.topic}</p>
-                          <p className="text-[10px] text-gray-400 uppercase font-bold tracking-tighter">{h.date} • {h.time}</p>
-                        </div>
-                      </div>
-                      <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-[10px] font-bold uppercase tracking-wider">{h.statusText}</span>
-                    </div>
+                {loadingHistory ? (
+                  <div className="py-12 text-center text-gray-400">Đang tải nhật ký...</div>
+                ) : history.length === 0 ? (
+                  <div className="py-12 text-center text-gray-400">Bạn chưa có phiên bốc bài nào.</div>
+                ) : history.map(h => (
+                  <div key={h.id} className="bg-white border border-gray-100 rounded-3xl overflow-hidden hover:shadow-xl transition-all duration-300">
                     <div className="p-6">
-                      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4 mb-6">
-                        {h.cards.map((c, idx) => (
-                          <div key={idx} className="space-y-2 group/card text-center">
-                            <div className="aspect-[2/3] bg-purple-50 rounded-xl overflow-hidden border border-purple-100 shadow-sm transition-transform group-hover/card:scale-105 group-hover/card:rotate-2">
-                              <img src={c.image} alt={c.name} className="w-full h-full object-cover" onError={e => (e.currentTarget.src = '/tarot-cards/00-the-fool.jpg')} />
-                            </div>
-                            <p className="text-[10px] font-bold text-gray-700 truncate px-1">{c.name}</p>
+                      <div className="flex justify-between items-center mb-4">
+                        <p className="text-xs text-gray-400 uppercase font-bold">{new Date(h.createdAt).toLocaleString('vi-VN')}</p>
+                        <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-[10px] font-bold uppercase">{h.readingType}</span>
+                      </div>
+                      <div className="grid grid-cols-3 sm:grid-cols-5 gap-4 mb-4">
+                        {h.details.map((d: any, idx: number) => (
+                          <div key={idx} className="space-y-1 text-center">
+                            <img src={d.card.imageUrl} alt={d.card.name} className="aspect-[2/3] object-cover rounded-lg border border-purple-100 shadow-sm" />
+                            <p className="text-[10px] font-bold text-gray-700 truncate">{d.card.name}</p>
                           </div>
                         ))}
                       </div>
-                      <div className="bg-yellow-50/50 rounded-2xl p-4 border border-yellow-100/50">
-                        <p className="text-xs font-bold text-yellow-800 mb-2 flex items-center gap-2">✍️ Ghi chú của bạn:</p>
-                        <p className="text-gray-600 text-sm leading-relaxed">{h.note}</p>
+                      <div className="bg-yellow-50 rounded-2xl p-4">
+                        <p className="text-xs text-gray-600 italic line-clamp-3">{h.summary}</p>
                       </div>
-                      <div className="mt-4 flex justify-between items-center">
-                        <button className="text-purple-600 text-xs font-bold hover:underline">Chi tiết trải bài →</button>
-                        <button className="text-gray-400 hover:text-red-500 transition-colors"><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button>
-                      </div>
+                      <button onClick={() => navigate(`/reading/${h.id}`)} className="mt-4 text-purple-600 text-xs font-bold hover:underline">Xem lại lời giải →</button>
                     </div>
                   </div>
                 ))}
-                <button onClick={() => navigate('/reading')} className="w-full py-6 mt-4 border-2 border-dashed border-purple-200 text-purple-400 rounded-3xl hover:bg-purple-50 hover:border-purple-400 hover:text-purple-600 font-bold transition-all flex flex-col items-center gap-2">
+                
+                <button onClick={() => navigate('/reading')} className="w-full py-8 border-2 border-dashed border-purple-200 text-purple-400 rounded-3xl hover:bg-purple-50 hover:border-purple-400 hover:text-purple-600 font-bold transition-all flex flex-col items-center gap-2">
                   <span className="text-3xl">🔮</span>
-                  <span>Tiếp tục hành trình bốc bài</span>
+                  <span>Bắt đầu phiên bốc bài mới</span>
                 </button>
               </div>
             )}
 
-            
             {activeTab === 'orders' && (
               <div className="space-y-6">
                 <h2 className="text-2xl font-bold text-gray-800 mb-6">Đơn hàng của bạn</h2>
-                {mockOrders.map(o => (
+                {loadingOrders ? (
+                  <div className="py-12 text-center text-gray-400">Đang tải đơn hàng...</div>
+                ) : orders.length === 0 ? (
+                  <div className="py-12 text-center text-gray-400">Bạn chưa có đơn hàng nào.</div>
+                ) : orders.map(o => (
                   <div key={o.id} className="bg-white border border-gray-100 rounded-3xl overflow-hidden hover:shadow-xl transition-all duration-300">
                     <div className="p-6">
-                      <div className="flex justify-between items-start mb-6">
+                      <div className="flex justify-between items-start mb-4">
                         <div>
-                          <p className="text-lg font-bold text-gray-800">{o.id}</p>
-                          <p className="text-xs text-gray-400 uppercase font-bold tracking-widest mt-1">{o.date}</p>
+                          <p className="text-sm font-bold text-gray-800">#{o.id.substring(0,8).toUpperCase()}</p>
+                          <p className="text-xs text-gray-400 uppercase font-bold mt-1">{new Date(o.createdAt).toLocaleDateString('vi-VN')}</p>
                         </div>
-                        <span className={`px-4 py-1.5 rounded-full text-xs font-bold ${o.status === 'shipping' ? 'bg-yellow-100 text-yellow-700' : 'bg-green-100 text-green-700'}`}>
-                          {o.statusText}
+                        <span className={`px-4 py-1.5 rounded-full text-xs font-bold ${o.paymentStatus === 'paid' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                          {o.paymentStatus === 'paid' ? 'Đã thanh toán' : 'Chưa thanh toán'}
                         </span>
                       </div>
-                      
-                      <div className="space-y-4 mb-6">
-                        {o.items.map((item, idx) => (
-                          <div key={idx} className="flex items-center gap-4">
-                            <div className="w-16 h-16 bg-gray-50 rounded-xl overflow-hidden border border-gray-100">
-                              <img src={item.image} alt={item.name} className="w-full h-full object-cover" onError={e => (e.currentTarget.src = '/hero-main.jpg')} />
-                            </div>
-                            <div className="flex-1">
-                              <p className="text-sm font-bold text-gray-800">{item.name}</p>
-                              <p className="text-xs text-gray-400">Số lượng: {item.qty}</p>
-                            </div>
-                          </div>
+                      <div className="space-y-2">
+                        {o.items.map((item: any, idx: number) => (
+                          <p key={idx} className="text-sm text-gray-600 flex justify-between">
+                            <span>{item.productName} x {item.quantity}</span>
+                            <span>{(item.priceAtPurchase * item.quantity).toLocaleString()}đ</span>
+                          </p>
                         ))}
                       </div>
-
-                      <div className="border-t border-gray-50 pt-6">
-                        <div className="flex justify-between items-center mb-2 text-sm">
-                          <span className="text-gray-500 font-medium">Tiến độ giao hàng</span>
-                          <span className="text-purple-600 font-bold">{o.progress}%</span>
-                        </div>
-                        <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
-                          <div className="h-full bg-gradient-to-r from-purple-500 to-indigo-600 rounded-full transition-all duration-1000" style={{ width: `${o.progress}%` }} />
-                        </div>
+                      <div className="border-t border-gray-50 mt-4 pt-4 flex justify-between items-center">
+                        <span className="text-xl font-bold text-red-500">{o.totalAmount.toLocaleString()}đ</span>
+                        <button onClick={() => setSelectedOrder(o)} className="text-purple-600 text-xs font-bold">Chi tiết</button>
                       </div>
-                    </div>
-                    <div className="bg-gray-50/50 p-4 flex justify-between items-center">
-                      <div className="flex flex-col">
-                        <span className="text-[10px] text-gray-400 uppercase font-bold">Tổng thanh toán</span>
-                        <span className="text-xl font-bold text-red-500">{o.total.toLocaleString()}đ</span>
-                      </div>
-                      <button onClick={() => setSelectedOrder(o)} className="px-6 py-2 bg-white text-gray-600 rounded-xl text-sm font-bold border border-gray-200 hover:bg-gray-100 transition-all shadow-sm">Xem chi tiết</button>
                     </div>
                   </div>
                 ))}
@@ -294,36 +345,14 @@ export default function ProfilePage({ user, onScanClick }: any) {
             {activeTab === 'nfc' && (
               <div className="space-y-6">
                 <div className="bg-gradient-to-br from-yellow-400 via-orange-500 to-red-500 rounded-3xl p-8 text-white relative overflow-hidden shadow-xl mb-8">
-                  <div className="absolute -right-10 -bottom-10 w-48 h-48 bg-white/20 rounded-full blur-3xl" />
                   <div className="relative z-10">
                     <h3 className="text-2xl font-bold mb-2">Kích hoạt Thẻ NFC mới</h3>
-                    <p className="text-white/80 text-sm mb-6 max-w-md">Chạm móc khóa CHIPSTAROT của bạn vào điện thoại để nhận ngay 3 lượt bốc bài/ngày trong suốt 6 tháng miễn phí.</p>
-                    <button onClick={onScanClick} className="bg-white text-orange-600 px-8 py-3 rounded-2xl font-bold hover:scale-105 transition-all shadow-lg flex items-center gap-2">
-                      <span className="text-xl">📱</span> Chạm để quét ngay
-                    </button>
+                    <p className="text-white/80 text-sm mb-6 max-w-md">Chạm móc khóa CHIPSTAROT của bạn để nhận lượt bốc bài mỗi ngày.</p>
+                    <button onClick={onScanClick} className="bg-white text-orange-600 px-8 py-3 rounded-2xl font-bold hover:scale-105 transition-all shadow-lg"> Chạm để quét ngay</button>
                   </div>
                   <div className="absolute top-8 right-8 text-6xl opacity-30 animate-pulse">📡</div>
                 </div>
-
-                <h2 className="text-xl font-bold text-gray-800 mb-4">Thiết bị đã kết nối ({mockNFC.length})</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {mockNFC.map(n => (
-                    <div key={n.id} className="bg-white border border-gray-100 rounded-3xl p-5 hover:shadow-xl transition-all duration-300 flex items-center gap-4">
-                      <div className="w-14 h-14 bg-yellow-50 rounded-2xl flex items-center justify-center text-3xl shadow-inner">{n.icon}</div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-bold text-gray-800 truncate">{n.product}</p>
-                        <p className="text-[10px] text-gray-400 font-mono tracking-tighter mt-0.5">{n.id}</p>
-                        <div className="flex items-center gap-2 mt-2">
-                          <span className="text-[10px] px-2 py-0.5 bg-green-100 text-green-700 rounded-full font-bold">+{n.creditsAdded} lượt</span>
-                          <span className="text-[10px] text-gray-300">{n.activatedAt}</span>
-                        </div>
-                      </div>
-                      <button className="p-2 text-gray-400 hover:text-purple-600"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" /></svg></button>
-                    </div>
-                  ))}
-                </div>
-                
-                <button onClick={() => navigate('/shop')} className="w-full py-4 mt-4 bg-purple-50 text-purple-600 rounded-2xl font-bold hover:bg-purple-100 transition-all border border-purple-100">🛒 Mua thêm thiết bị mới</button>
+                <p className="text-center text-gray-400 py-12">Đang tải danh sách thẻ...</p>
               </div>
             )}
           </div>
@@ -331,45 +360,33 @@ export default function ProfilePage({ user, onScanClick }: any) {
       </div>
 
       {selectedOrder && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200" onClick={() => setSelectedOrder(null)}>
-          <div className="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl relative animate-in zoom-in-95 duration-200" onClick={e => e.stopPropagation()}>
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setSelectedOrder(null)}>
+          <div className="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl relative" onClick={e => e.stopPropagation()}>
             <div className="bg-gradient-to-r from-purple-600 to-indigo-600 p-6 text-white flex justify-between items-center">
-              <div>
-                <h3 className="text-xl font-bold">Chi tiết đơn hàng</h3>
-                <p className="text-sm text-purple-200">{selectedOrder.id}</p>
-              </div>
-              <button onClick={() => setSelectedOrder(null)} className="w-8 h-8 flex items-center justify-center bg-white/20 rounded-full hover:bg-white/40 transition-colors">&times;</button>
+              <h3 className="text-xl font-bold">Chi tiết đơn hàng</h3>
+              <button onClick={() => setSelectedOrder(null)} className="w-8 h-8 flex items-center justify-center bg-white/20 rounded-full hover:bg-white/40">✕</button>
             </div>
             <div className="p-6">
-              <div className="mb-6 bg-yellow-50 rounded-xl p-4 border border-yellow-100">
-                <p className="text-xs text-gray-500 font-medium mb-1">Trạng thái hiện tại</p>
-                <div className="flex items-center justify-between">
-                  <p className="font-bold text-yellow-700">{selectedOrder.statusText}</p>
-                  <p className="text-xs text-gray-400">{selectedOrder.date}</p>
-                </div>
-              </div>
-              
-              <h4 className="font-bold text-gray-800 mb-3">Sản phẩm đã đặt</h4>
-              <div className="space-y-3 mb-6 max-h-48 overflow-y-auto pr-2">
+              <div className="space-y-3 mb-6">
                 {selectedOrder.items.map((item: any, idx: number) => (
                   <div key={idx} className="flex items-center gap-4 bg-gray-50 p-3 rounded-xl">
-                    <img src={item.image} alt={item.name} className="w-12 h-12 rounded-lg object-cover" />
                     <div className="flex-1">
-                      <p className="text-sm font-bold text-gray-800 line-clamp-1">{item.name}</p>
-                      <p className="text-xs text-gray-500">SL: {item.qty}</p>
+                      <p className="text-sm font-bold text-gray-800">{item.productName}</p>
+                      <p className="text-xs text-gray-500">SL: {item.quantity} | {item.priceAtPurchase.toLocaleString()}đ</p>
                     </div>
                   </div>
                 ))}
               </div>
-
-              <div className="border-t border-gray-100 pt-4 flex justify-between items-center">
-                <span className="text-gray-500 font-medium">Tổng thanh toán</span>
-                <span className="text-2xl font-black text-red-500">{selectedOrder.total.toLocaleString()}đ</span>
+              <div className="border-t border-gray-100 pt-4 space-y-2">
+                <div className="flex justify-between text-sm text-gray-500"><span>Tạm tính</span><span>{selectedOrder.subtotalAmount.toLocaleString()}đ</span></div>
+                <div className="flex justify-between text-sm text-green-600"><span>Giảm giá</span><span>-{selectedOrder.discountAmount.toLocaleString()}đ</span></div>
+                <div className="flex justify-between text-sm text-gray-500"><span>Phí vận chuyển</span><span>{selectedOrder.shippingFee.toLocaleString()}đ</span></div>
+                <div className="flex justify-between pt-2 border-t border-gray-50"><span className="font-bold">Tổng cộng</span><span className="text-2xl font-black text-red-500">{selectedOrder.totalAmount.toLocaleString()}đ</span></div>
               </div>
-            </div>
-            <div className="p-4 bg-gray-50 border-t border-gray-100 flex gap-3">
-              <button className="flex-1 py-3 bg-purple-600 text-white rounded-xl font-bold hover:bg-purple-700 transition-colors">Theo dõi vận chuyển</button>
-              <button onClick={() => setSelectedOrder(null)} className="flex-1 py-3 bg-white text-gray-600 border border-gray-200 rounded-xl font-bold hover:bg-gray-100 transition-colors">Đóng</button>
+              <div className="p-4 bg-gray-50 border-t border-gray-100 flex gap-3">
+                <button className="flex-1 py-3 bg-purple-600 text-white rounded-xl font-bold hover:bg-purple-700 transition-colors">Theo dõi vận chuyển</button>
+                <button onClick={() => setSelectedOrder(null)} className="flex-1 py-3 bg-white text-gray-600 border border-gray-200 rounded-xl font-bold hover:bg-gray-100 transition-colors">Đóng</button>
+              </div>
             </div>
           </div>
         </div>

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { usePermission } from '../hooks/usePermission';
 
 interface HeaderProps {
   user: any;
@@ -14,6 +15,7 @@ export default function Header({ user, credits, creditsExpired, expiryLabel, log
   const navigate = useNavigate();
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
+  const { can, isAdmin } = usePermission();
 
   const navs = [
     { key: 'home', path: '/', label: 'Trang chủ' },
@@ -64,7 +66,7 @@ export default function Header({ user, credits, creditsExpired, expiryLabel, log
             {user ? (
               <div className="hidden md:flex items-center gap-3">
                 <button onClick={() => navigate('/profile')} className="text-sm font-medium text-blue-600 hover:text-blue-800 bg-blue-100 px-3 py-1 rounded-full">👤 Hồ sơ</button>
-                {user?.role_id === 1 && (
+                {isAdmin() && (
                   <button onClick={() => navigate('/admin')} className="text-sm font-medium text-purple-600 hover:text-purple-800 bg-purple-100 px-3 py-1 rounded-full">Admin</button>
                 )}
                 <div className="relative group">
@@ -83,7 +85,12 @@ export default function Header({ user, credits, creditsExpired, expiryLabel, log
                     </div>
                   )}
                 </div>
-                <button onClick={() => { logout(); navigate('/'); }} className="text-sm text-gray-500 hover:text-red-500">Đăng xuất</button>
+                <button onClick={() => { logout(); navigate('/'); }} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 transition-all">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                  </svg>
+                  Đăng xuất
+                </button>
               </div>
             ) : (
               <button onClick={() => navigate('/auth')} className="hidden md:block px-4 py-2 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white rounded-full font-medium text-sm hover:from-yellow-600 hover:to-yellow-700 transition-all">Đăng nhập</button>
@@ -104,12 +111,13 @@ export default function Header({ user, credits, creditsExpired, expiryLabel, log
             {user && (
               <>
                 <button onClick={() => handleNav('/profile')} className="block w-full text-left px-4 py-3 text-blue-600 hover:bg-blue-50 rounded-lg font-medium">👤 Hồ sơ của tôi</button>
-                {user?.role_id === 1 && (
+                {isAdmin() && (
                   <button onClick={() => handleNav('/admin')} className="block w-full text-left px-4 py-3 text-purple-600 hover:bg-purple-50 rounded-lg font-medium">⚙️ Admin Dashboard</button>
                 )}
+                <button onClick={() => { logout(); navigate('/'); setMenuOpen(false); }} className="block w-full text-left px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg font-medium">🚪 Đăng xuất</button>
               </>
             )}
-            {!user && <button onClick={() => handleNav('/auth')} className="block w-full text-left px-4 py-3 text-yellow-600 hover:bg-yellow-50 rounded-lg">Đăng nhập</button>}
+            {!user && <button onClick={() => handleNav('/auth')} className="block w-full text-left px-4 py-3 text-yellow-600 hover:bg-yellow-50 rounded-lg font-medium">🔑 Đăng nhập</button>}
           </div>
         )}
       </div>

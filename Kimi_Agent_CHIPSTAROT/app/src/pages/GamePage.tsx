@@ -1,14 +1,25 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';
-import { syncPetProgress } from '@/lib/supabase';
+import { api } from '@/lib/api';
+import { PET_LEVELS } from '@/data/constants';
+import { PetChicken } from '@/components/PetChicken';
+import { HatchingOverlay } from '@/components/HatchingOverlay';
 
-const LEVELS = [
-  { maxExp: 20, name: 'Quả Trứng Huyền Bí', emoji: '🥚', desc: 'Đang ấp ủ năng lượng từ các vì sao...', size: 'text-8xl' },
-  { maxExp: 50, name: 'Gà Con Tập Sự', emoji: '🐣', desc: 'Mới nở, cực kỳ ham ăn và cần sự chăm sóc.', size: 'text-8xl' },
-  { maxExp: 100, name: 'Gà Tarot Cập Cấp', emoji: '🐓', desc: 'Đã trưởng thành và bắt đầu cảm nhận được năng lượng Tarot.', size: 'text-9xl' },
-  { maxExp: Infinity, name: 'Gà Thần Vũ Trụ', emoji: '✨🐔✨', desc: 'Đã tiến hóa hoàn toàn! Sẵn sàng ban phát phước lành.', size: 'text-9xl drop-shadow-[0_0_30px_rgba(251,191,36,0.8)]' },
-];
+
+
+const PET_TYPES: Record<string, { name: string; emoji: string; color: string; desc: string; aura: string; particle: string }> = {
+  "chicken_classic": { name: "Gà Classic", emoji: "🐣", color: "from-yellow-400 to-amber-500", desc: "Chú gà con truyền thống, ham ăn chóng lớn.", aura: "bg-yellow-400/30", particle: "🍗" },
+  "chicken_golden": { name: "Gà Vàng May Mắn", emoji: "✨🐣✨", color: "from-yellow-300 to-yellow-600", desc: "Mang lại năng lượng tài lộc và sự thịnh vượng.", aura: "bg-yellow-200/40", particle: "✨" },
+  "chicken_ninja": { name: "Gà Ninja", emoji: "🥷🐤", color: "from-gray-700 to-black", desc: "Âm thầm và nhanh nhẹn trong bóng tối.", aura: "bg-purple-900/40", particle: "👤" },
+  "chicken_wizard": { name: "Gà Phù Thủy", emoji: "🧙‍♂️🐥", color: "from-purple-600 to-indigo-900", desc: "Bậc thầy phép thuật và những lời tiên tri.", aura: "bg-indigo-500/30", particle: "🔮" },
+  "chicken_robot": { name: "Gà Robot", emoji: "🤖🐥", color: "from-blue-400 to-cyan-600", desc: "Sở hữu trí tuệ nhân tạo vượt thời đại.", aura: "bg-cyan-400/30", particle: "⚡" },
+  "chicken_angel": { name: "Gà Thiên Thần", emoji: "👼🐥", color: "from-blue-400 to-blue-600", desc: "Ban phát phước lành và sự bình an.", aura: "bg-white/40", particle: "🪽" },
+  "chicken_devil": { name: "Gà Ác Ma", emoji: "😈🐤", color: "from-red-600 to-red-900", desc: "Cá tính, nổi loạn và đầy quyền năng.", aura: "bg-red-600/30", particle: "🔥" },
+  "chicken_samurai": { name: "Gà Samurai", emoji: "⚔️🐥", color: "from-red-700 to-gray-800", desc: "Tinh thần võ sĩ đạo bất diệt.", aura: "bg-red-800/30", particle: "⚔️" },
+  "chicken_viking": { name: "Gà Viking", emoji: "🪓🐥", color: "from-orange-800 to-brown-700", desc: "Chiến binh dũng mãnh từ phương Bắc.", aura: "bg-orange-800/30", particle: "🛡️" },
+  "chicken_cosmic": { name: "Gà Vũ Trụ", emoji: "🌌🐥", color: "from-indigo-600 to-purple-800", desc: "Kết nối trực tiếp với năng lượng các vì sao.", aura: "bg-purple-600/40", particle: "⭐" }
+};
 
 const RANDOM_REWARDS = [
   { code: 'TAROT10', desc: 'Giảm 10% khi mua gói năng lượng Tarot!' },
@@ -20,101 +31,155 @@ const RANDOM_REWARDS = [
 
 export default function GamePage() {
   const navigate = useNavigate();
-  const { user } = useAuth();
-  const [exp, setExp] = useState(() => parseInt(localStorage.getItem('chipstarot_chicken_exp') || '0'));
-  const [food, setFood] = useState(() => parseInt(localStorage.getItem('chipstarot_chicken_food') || '0'));
-  const [claimedLevels, setClaimedLevels] = useState<number[]>(() => {
-    try { return JSON.parse(localStorage.getItem('chipstarot_chicken_claimed') || '[]'); } catch { return []; }
-  });
+  const { user, updateUserSession, isConfigured } = useAuth();
+  const [exp, setExp] = useState(0);
+  const [food, setFood] = useState(0);
+  const [petStatus, setPetStatus] = useState<'egg' | 'hatched'>('egg');
+  const [petType, setPetType] = useState<string | null>(null);
+  const [petName, setPetName] = useState<string>('');
+  const [isHatching, setIsHatching] = useState(false);
+  const [claimedLevels, setClaimedLevels] = useState<number[]>([]);
   const [isFeeding, setIsFeeding] = useState(false);
   const [showRewardModal, setShowRewardModal] = useState(false);
   const [currentReward, setCurrentReward] = useState<any>(null);
-  const [copyMsg, setCopyMsg] = useState(''); // [FIX] Thay thế alert() bằng in-UI feedback
+  const [copyMsg, setCopyMsg] = useState('');
+
+  // Test states for shape/level preview
+  const [testLevel, setTestLevel] = useState<number | null>(null);
+  const [testType, setTestType] = useState<string | null>(null);
+
+  // New visual effect states
+  const [showHatchingOverlay, setShowHatchingOverlay] = useState(false);
+  const [isAscending, setIsAscending] = useState(false);
+  const [prevLevel, setPrevLevel] = useState<number | null>(null);
 
   // [FIX] Chỉ chạy khi user thay đổi (mount / login) — không để `food` và `claimedLevels` vào deps
   // vì mỗi lần cho ăn sẽ trigger sync lại líễu gây ra "sync loop" vô hạn.
   useEffect(() => {
     if (user) {
-      const dbExp = user.pet_exp || 0;
-      const dbFood = user.pet_food || 0;
-      const dbClaimed = user.pet_claimed_levels || [];
-      const localExp = parseInt(localStorage.getItem('chipstarot_chicken_exp') || '0');
-      
-      if (dbExp > localExp) {
-        // DB mới hơn → ưu tiên DB
-        setTimeout(() => {
-          setExp(dbExp);
-          setFood(dbFood);
-          setClaimedLevels(dbClaimed);
-        }, 0);
-        localStorage.setItem('chipstarot_chicken_exp', dbExp.toString());
-        localStorage.setItem('chipstarot_chicken_food', dbFood.toString());
-        localStorage.setItem('chipstarot_chicken_claimed', JSON.stringify(dbClaimed));
-      } else if (localExp > dbExp && localExp > 0) {
-        // Local mới hơn → đẩy lên DB (dùng giá trị local hiện tại từ localStorage)
-        const localFood = parseInt(localStorage.getItem('chipstarot_chicken_food') || '0');
-        const localClaimed: number[] = JSON.parse(localStorage.getItem('chipstarot_chicken_claimed') || '[]');
-        syncPetProgress(user.id, localExp, localFood, localClaimed);
+      setExp(user.petExp || 0);
+      setFood(user.petFood || 0);
+      setPetStatus((user.petStatus as 'egg' | 'hatched') || 'egg');
+      setPetType(user.petType);
+      setPetName(user.petName || '');
+      try {
+        setClaimedLevels(JSON.parse(user.petClaimedLevels || '[]'));
+      } catch {
+        setClaimedLevels([]);
       }
     }
-  }, [user]); // Chỉ chạy khi user thay đổi, không phụ thuộc vào food/claimedLevels
+  }, [user]);
 
   const saveState = (newExp: number, newFood: number, newClaimed?: number[]) => {
-    localStorage.setItem('chipstarot_chicken_exp', newExp.toString());
-    localStorage.setItem('chipstarot_chicken_food', newFood.toString());
-    if (newClaimed) localStorage.setItem('chipstarot_chicken_claimed', JSON.stringify(newClaimed));
-    
     setExp(newExp);
     setFood(newFood);
     if (newClaimed) setClaimedLevels(newClaimed);
 
-    if (user) {
-      syncPetProgress(user.id, newExp, newFood, newClaimed || claimedLevels);
+    if (user && updateUserSession) {
+      updateUserSession({
+        petExp: newExp,
+        petFood: newFood,
+        petClaimedLevels: newClaimed ? JSON.stringify(newClaimed) : user.petClaimedLevels
+      });
     }
   };
 
   const getLevelInfo = (currentExp: number) => {
-    for (let i = 0; i < LEVELS.length; i++) {
-      if (currentExp < LEVELS[i].maxExp) return { level: i, ...LEVELS[i] };
+    for (let i = 0; i < PET_LEVELS.length; i++) {
+      if (currentExp < PET_LEVELS[i].maxExp) return { level: i, ...PET_LEVELS[i] };
     }
-    return { level: 3, ...LEVELS[3] };
+    return { level: 3, ...PET_LEVELS[3] };
   };
 
   const currentInfo = getLevelInfo(exp);
-  const prevMaxExp = currentInfo.level === 0 ? 0 : LEVELS[currentInfo.level - 1].maxExp;
+  const prevMaxExp = currentInfo.level === 0 ? 0 : PET_LEVELS[currentInfo.level - 1].maxExp;
   const targetExp = currentInfo.maxExp === Infinity ? exp : currentInfo.maxExp;
   const progressPercent = currentInfo.level === 3 ? 100 : ((exp - prevMaxExp) / (targetExp - prevMaxExp)) * 100;
   const hasUnclaimedReward = currentInfo.level > 0 && !claimedLevels.includes(currentInfo.level);
 
-  const handleFeed = () => {
-    if (food <= 0 || isFeeding) return; // [FIX] Guard chống double-click: kiểm tra `isFeeding` trước khi cho ăn
+  // Effect: Detect Level Up for Ascension
+  useEffect(() => {
+    if (prevLevel !== null && currentInfo.level > prevLevel) {
+      setIsAscending(true);
+      setTimeout(() => setIsAscending(false), 3000);
+    }
+    setPrevLevel(currentInfo.level);
+  }, [currentInfo.level]);
+
+  const handleFeed = async () => {
+    const foodCost = Number(localStorage.getItem('chipstarot_admin_pet_food_cost')) || 1;
+    const expGain = Number(localStorage.getItem('chipstarot_admin_pet_exp_gain')) || 10;
+    const rareRate = Number(localStorage.getItem('chipstarot_admin_pet_rare_rate')) || 5;
+
+    if (food < foodCost || isFeeding) return;
 
     setIsFeeding(true);
-    setTimeout(() => setIsFeeding(false), 800); // Tăng lên 800ms để chắc hơn
 
-    const newExp = exp + 10;
-    saveState(newExp, food - 1);
+    if (user && isConfigured && !user.id.startsWith('demo-')) {
+      try {
+        const res = await api.feedPet(foodCost);
+        if (res.success) {
+          setExp(res.data.petExp);
+          setFood(res.data.petFood);
+        }
+      } catch (err) {
+        console.error("Lỗi khi cho ăn:", err);
+      }
+    } else {
+      const newExp = exp + expGain;
+      saveState(newExp, food - foodCost);
+    }
+
+    setTimeout(() => setIsFeeding(false), 800);
   };
 
   return (
     <div className="min-h-screen bg-[#0d0029] py-12 px-4 relative overflow-hidden flex flex-col items-center justify-center">
-      {/* Background elements */}
-      <div className="absolute inset-0 bg-[url('/noise.png')] opacity-20 mix-blend-overlay pointer-events-none" />
-      <div className="absolute inset-0">
-        {[...Array(30)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute rounded-full bg-yellow-400 animate-pulse"
-            style={{
-              width: `${((i * 3 + 1) % 3) + 1}px`,
-              height: `${((i * 3 + 1) % 3) + 1}px`,
-              left: `${(i * 13.7) % 100}%`,
-              top: `${(i * 23.3) % 100}%`,
-              animationDelay: `${(i * 0.5) % 2}s`,
-            }}
-          />
-        ))}
-      </div>
+      {/* Fullscreen Hatching Overlay */}
+      {showHatchingOverlay && petType && (
+        <HatchingOverlay
+          petType={petType}
+          petName={petName}
+          onFinished={() => {
+            setShowHatchingOverlay(false);
+            setPetStatus('hatched');
+            if (updateUserSession) updateUserSession({ petType: petType!, petName: petName, petStatus: 'hatched' });
+          }}
+        />
+      )}
+      {/* Background elements - Only show during level up OR permanent subtle for Level 4 */}
+      {(isAscending || currentInfo.level === 3) && (
+        <div className={`absolute inset-0 transition-opacity duration-1000 ${isAscending ? 'opacity-100' : 'opacity-40'}`}>
+          {[...Array(currentInfo.level === 3 ? 40 : 30)].map((_, i) => (
+            <div
+              key={i}
+              className={`absolute rounded-full animate-pulse`}
+              style={{
+                width: `${((i * 3 + 1) % 4) + 2}px`,
+                height: `${((i * 3 + 1) % 4) + 2}px`,
+                left: `${(i * 13.7) % 100}%`,
+                top: `${(i * 23.3) % 100}%`,
+                animationDelay: `${(i * 0.5) % 2}s`,
+                background: currentInfo.level === 3
+                  ? `hsl(${(i * 45) % 360}, 80%, 70%)`
+                  : '#FACC15',
+                boxShadow: currentInfo.level === 3
+                  ? `0 0 10px hsl(${(i * 45) % 360}, 80%, 60%)`
+                  : 'none',
+                filter: currentInfo.level === 3 ? 'blur(0.5px)' : 'none'
+              }}
+            />
+          ))}
+          {/* Extra mystical floating symbols for Level 4 */}
+          {currentInfo.level === 3 && (
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+              <div className="absolute top-1/4 left-1/4 text-4xl opacity-10 animate-float">🔮</div>
+              <div className="absolute bottom-1/4 right-1/4 text-4xl opacity-10 animate-float" style={{ animationDelay: '1s' }}>✨</div>
+              <div className="absolute top-1/3 right-1/4 text-3xl opacity-10 animate-float" style={{ animationDelay: '2s' }}>🌙</div>
+            </div>
+          )}
+        </div>
+      )}
 
       <div className="relative z-10 max-w-2xl w-full">
         <div className="text-center mb-8">
@@ -126,12 +191,45 @@ export default function GamePage() {
         </div>
 
         <div className="bg-white/10 backdrop-blur-md rounded-3xl border border-white/20 p-8 shadow-2xl relative overflow-hidden">
+
+          {/* TEST PANEL (Collapsible for Production) */}
+          <details className="group bg-black/30 rounded-xl mb-8 border border-white/5 overflow-hidden transition-all duration-300">
+            <summary className="cursor-pointer px-4 py-3 text-white/50 text-xs font-semibold tracking-wider uppercase hover:text-white/80 hover:bg-white/5 transition-colors outline-none list-none flex justify-between items-center">
+              <span>🛠 Chế Độ Thử Nghiệm Hình Thái</span>
+              <span className="group-open:rotate-180 transition-transform duration-300">▼</span>
+            </summary>
+            <div className="p-4 border-t border-white/5 bg-black/50">
+              <p className="text-gray-400 text-xs mb-3 italic">*Dùng để xem trước các cấp độ và linh thú. Không ảnh hưởng đến dữ liệu thật.</p>
+              <div className="flex flex-wrap gap-2 mb-3">
+                {[0, 1, 2, 3].map(lv => (
+                  <button
+                    key={`test-lv-${lv}`}
+                    onClick={() => setTestLevel(testLevel === lv ? null : lv)}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${testLevel === lv ? 'bg-yellow-400 text-black scale-105 shadow-[0_0_15px_rgba(250,204,21,0.4)]' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'}`}
+                  >
+                    Cấp {lv + 1}
+                  </button>
+                ))}
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {Object.keys(PET_TYPES).map(typeKey => (
+                  <button
+                    key={typeKey}
+                    onClick={() => setTestType(testType === typeKey ? null : typeKey)}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${testType === typeKey ? 'bg-purple-600 text-white shadow-[0_0_15px_rgba(147,51,234,0.5)] scale-105' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'}`}
+                  >
+                    {PET_TYPES[typeKey].emoji} {PET_TYPES[typeKey].name}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </details>
           {/* Status Bar */}
           <div className="flex justify-between items-center bg-black/30 rounded-2xl p-4 mb-8">
             <div>
               <p className="text-purple-300 text-xs font-bold mb-1 uppercase tracking-wider">Lương Thực</p>
               <p className="text-2xl font-black text-white flex items-center gap-2">
-                <span>🍗</span> {food} <span className="text-sm font-normal text-purple-200">phần</span>
+                <span>🍎</span> {food} <span className="text-sm font-normal text-purple-200">phần</span>
               </p>
             </div>
             <div className="text-right">
@@ -141,39 +239,149 @@ export default function GamePage() {
           </div>
 
           {/* Pet Character */}
-          <div className="h-64 flex flex-col items-center justify-center relative my-8">
-            <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full blur-3xl transition-all duration-1000 ${
-              currentInfo.level === 3
-                ? 'w-64 h-64 bg-yellow-400/30 animate-pulse'
-                : 'w-48 h-48 bg-yellow-400/10'
-            }`} />
+          <div className="min-h-[380px] flex flex-col items-center justify-center relative my-10">
 
-            <div className={`transition-transform duration-300 ${
-              isFeeding ? 'scale-125 -translate-y-4' : 'scale-100 animate-bounce-slow'
-            } ${currentInfo.size} ${currentInfo.level === 3 ? 'animate-level-glow rounded-full' : ''} relative`}>
-              {currentInfo.emoji}
-              {isFeeding && (
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center pointer-events-none">
+              {petStatus === 'hatched' && petType && (
                 <>
-                  <div className="absolute -top-4 -right-4 text-2xl animate-sparkle">✨</div>
-                  <div className="absolute -bottom-4 -left-4 text-2xl animate-sparkle delay-150">✨</div>
+                  {/* God Level Permanent Subtle Aura */}
+                  {currentInfo.level === 3 && (
+                    <div className={`absolute w-80 h-80 rounded-full blur-[80px] opacity-20 animate-pulse ${PET_TYPES[petType].aura}`} />
+                  )}
+
+                  {/* Level Up Intense Effects */}
+                  {isAscending && (
+                    <>
+                      {/* Background Aura Glow */}
+                      <div className={`absolute w-64 h-64 rounded-full blur-[60px] animate-aura-pulse ${PET_TYPES[petType].aura}`} />
+
+                      {/* Spinning Aura Ring */}
+                      <div className="absolute w-72 h-72 rounded-full border-2 border-dashed border-white/10 animate-aura-spin" />
+
+                      {/* Dynamic Particles */}
+                      {[...Array(6)].map((_, i) => (
+                        <div
+                          key={i}
+                          className="absolute text-xl animate-particle-float"
+                          style={{
+                            left: `${40 + Math.random() * 20}%`,
+                            top: `${40 + Math.random() * 20}%`,
+                            animationDelay: `${i * 0.4}s`,
+                            animationDuration: `${2 + Math.random()}s`
+                          }}
+                        >
+                          {PET_TYPES[petType].particle}
+                        </div>
+                      ))}
+                    </>
+                  )}
+                </>
+              )}
+              {petStatus === 'egg' && (
+                <div className="absolute w-48 h-48 bg-yellow-400/20 rounded-full blur-[40px] animate-pulse" />
+              )}
+            </div>
+
+            <div className="transition-all duration-300 relative z-10 flex items-center justify-center">
+              {/* Ascension Effect Overlay */}
+              {isAscending && (
+                <div className="absolute inset-0 flex items-center justify-center z-50 pointer-events-none">
+                  <div className="absolute bottom-0 w-32 bg-gradient-to-t from-yellow-400/80 via-yellow-200/40 to-transparent animate-ascension-beam" />
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-white/20 rounded-full blur-[80px] animate-pulse" />
+                  {[...Array(12)].map((_, i) => (
+                    <div
+                      key={`asc-${i}`}
+                      className="absolute text-2xl animate-particle-float"
+                      style={{
+                        left: `${20 + Math.random() * 60}%`,
+                        bottom: '0',
+                        animationDelay: `${i * 0.2}s`,
+                        animationDuration: '2.5s'
+                      }}
+                    >
+                      {['✨', '⭐', '🕊️', '🔥'][i % 4]}
+                    </div>
+                  ))}
+                  <div className="absolute -top-20 text-4xl font-black text-yellow-400 animate-bounce-slow drop-shadow-[0_0_15px_rgba(250,204,21,0.8)]">
+                    THĂNG CẤP! 🆙
+                  </div>
+                </div>
+              )}
+
+              {petStatus === 'egg' ? (
+                <div className={`text-8xl ${isHatching ? 'animate-pet-shake scale-150' : 'animate-pet-float'}`}>🥚</div>
+              ) : petStatus === 'hatched' ? (
+                <div className={`relative cursor-pointer ${isAscending ? 'animate-ascension-glow' : ''}`} onClick={handleFeed}>
+                  <PetChicken
+                    type={testType || petType || 'chicken_classic'}
+                    className="w-64 h-64 md:w-80 md:h-80 mx-auto"
+                    isFeeding={isFeeding}
+                    level={testLevel !== null ? testLevel : currentInfo.level}
+                    isAscending={isAscending}
+                  />
+                </div>
+              ) : null}
+
+              {isFeeding && petStatus !== 'egg' && (
+                <>
+                  <div className="absolute -top-4 -right-4 text-3xl animate-bounce z-20">😋</div>
+                  <div className="absolute -top-10 left-1/2 -translate-x-1/2 text-2xl animate-ping text-yellow-400 z-20 whitespace-nowrap font-black">✨+10 EXP</div>
                 </>
               )}
             </div>
 
-            {isFeeding && (
-              <div className="absolute top-10 right-1/4 text-2xl animate-ping">💖</div>
+            {petStatus === 'hatched' && petType && (
+              <div className={`relative z-20 mt-4 px-4 py-1 rounded-full bg-gradient-to-r ${PET_TYPES[petType]?.color} text-white text-sm font-bold shadow-lg`}>
+                {PET_TYPES[petType]?.name}
+              </div>
+            )}
+
+            {petStatus === 'egg' && (
+              <button
+                onClick={async () => {
+                  setIsHatching(true);
+                  try {
+                    if (!isConfigured || user?.id.startsWith('demo-')) {
+                      const types = Object.keys(PET_TYPES);
+                      const randomType = types[Math.floor(Math.random() * types.length)];
+                      setPetType(randomType);
+                      setPetName("Gà Demo");
+                      setShowHatchingOverlay(true);
+                      return;
+                    }
+                    const res = await api.hatchPet();
+                    if (res.success) {
+                      setPetType(res.data.petType);
+                      setPetName(res.data.petName);
+                      setShowHatchingOverlay(true);
+                    }
+                  } catch (err) {
+                    console.error(err);
+                  } finally {
+                    setIsHatching(false);
+                  }
+                }}
+                disabled={isHatching}
+                className="mt-8 btn-3d-yellow px-8 py-3 animate-pulse"
+              >
+                {isHatching ? '🐣 Đang nở...' : '✨ ẤP TRỨNG NGAY'}
+              </button>
             )}
 
             <p className="mt-8 text-center text-purple-200 max-w-sm relative z-10 italic">
-              "{currentInfo.desc}"
+              {petStatus === 'egg' ? "Đang ấp ủ năng lượng từ các vì sao..." : petType ? PET_TYPES[petType]?.desc : "Gà con đang lớn..."}
             </p>
           </div>
 
           {/* Progress Bar */}
           <div className="mb-8">
             <div className="flex justify-between text-xs font-bold text-purple-300 mb-2">
-              <span>EXP: {exp}</span>
+              <span>{currentInfo.maxExp === Infinity ? 'MAX' : `${exp} / ${currentInfo.maxExp}`} EXP</span>
               {currentInfo.level < 3 ? <span>Cần đạt: {targetExp}</span> : <span>MAX LEVEL</span>}
+            </div>
+            <div className="flex justify-between text-xs text-white/50 mb-1">
+              <span>Thức ăn: {food} 🍎</span>
+              <span>1 🍎 = {Number(localStorage.getItem('chipstarot_admin_pet_exp_gain')) || 10} EXP</span>
             </div>
             <div className="h-4 bg-black/40 rounded-full overflow-hidden border border-white/10">
               <div
@@ -189,24 +397,36 @@ export default function GamePage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <button
               onClick={handleFeed}
-              disabled={food <= 0 || currentInfo.level === 3}
-              className={`py-4 px-6 rounded-2xl font-bold text-lg flex items-center justify-center gap-2 transition-all ${food > 0 && currentInfo.level < 3
-                  ? 'bg-gradient-to-r from-green-500 to-emerald-400 text-white hover:scale-105 shadow-lg shadow-green-500/30 cursor-pointer'
-                  : 'bg-white/5 text-white/40 cursor-not-allowed border border-white/10'
+              disabled={food < (Number(localStorage.getItem('chipstarot_admin_pet_food_cost')) || 1) || currentInfo.level === 3}
+              className={`py-4 px-6 rounded-2xl font-bold text-lg flex items-center justify-center gap-2 transition-all ${food >= (Number(localStorage.getItem('chipstarot_admin_pet_food_cost')) || 1) && currentInfo.level < 3
+                ? 'bg-gradient-to-r from-green-500 to-emerald-400 text-white hover:scale-105 shadow-lg shadow-green-500/30 cursor-pointer'
+                : 'bg-white/5 text-white/40 cursor-not-allowed border border-white/10'
                 }`}
             >
-              🍗 Cho ăn (-1 Thức ăn)
+              🍎 Cho ăn (-{Number(localStorage.getItem('chipstarot_admin_pet_food_cost')) || 1} Thức ăn)
             </button>
 
             {hasUnclaimedReward ? (
               <button
-                onClick={() => {
+                onClick={async () => {
                   const reward = RANDOM_REWARDS[Math.floor(Math.random() * RANDOM_REWARDS.length)];
                   setCurrentReward(reward);
                   setShowRewardModal(true);
-                  
-                  const newClaimed = [...claimedLevels, currentInfo.level];
-                  saveState(exp, food, newClaimed);
+
+                  if (user && isConfigured && !user.id.startsWith('demo-')) {
+                    try {
+                      const res = await api.claimPetReward(currentInfo.level);
+                      if (res.success) {
+                        setFood(res.data.petFood);
+                        setClaimedLevels([...claimedLevels, currentInfo.level]);
+                      }
+                    } catch (err) {
+                      console.error("Lỗi nhận quà:", err);
+                    }
+                  } else {
+                    const newClaimed = [...claimedLevels, currentInfo.level];
+                    saveState(exp, food, newClaimed);
+                  }
                 }}
                 className="py-4 px-6 rounded-2xl font-bold text-lg bg-gradient-to-r from-yellow-500 to-amber-500 text-white hover:scale-105 shadow-lg shadow-yellow-500/30 flex items-center justify-center gap-2 animate-pulse"
               >
@@ -227,6 +447,34 @@ export default function GamePage() {
                 🔮 Xem Tarot kiếm thức ăn
               </button>
             )}
+          </div>
+          {/* [DEV TEST] Pet Gallery */}
+          <div className="mt-12 pt-8 border-t border-white/10 w-full">
+            <p className="text-white/40 text-xs font-bold uppercase tracking-widest mb-4 text-center">Dev Test: Tất cả hình thái gà</p>
+            <div className="grid grid-cols-5 md:grid-cols-10 gap-2">
+              {Object.entries(PET_TYPES).map(([type, info]) => (
+                <button
+                  key={type}
+                  onClick={() => {
+                    setPetType(type);
+                    setPetStatus('hatched');
+                    setPetName(info.name);
+                  }}
+                  className={`flex flex-col items-center p-2 rounded-xl transition-all border ${petType === type ? 'bg-yellow-400/20 border-yellow-400' : 'bg-white/5 border-transparent hover:bg-white/10'
+                    }`}
+                  title={info.name}
+                >
+                  <span className="text-2xl mb-1">{info.emoji}</span>
+                  <span className="text-[8px] text-white/60 truncate w-full text-center">{info.name.split(' ')[1] || info.name}</span>
+                </button>
+              ))}
+            </div>
+            <button
+              onClick={() => { setPetStatus('egg'); setPetType(null); }}
+              className="mt-4 w-full py-2 bg-white/5 hover:bg-white/10 text-white/40 text-[10px] rounded-lg border border-white/10 transition-all"
+            >
+              Reset về Trứng 🥚
+            </button>
           </div>
         </div>
       </div>

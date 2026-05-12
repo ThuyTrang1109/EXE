@@ -1,28 +1,92 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { api } from '../lib/api';
 
 export default function PaymentPage() {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const method = searchParams.get('method') || 'momo';
-  const totalStr = searchParams.get('total') || '0';
-  const [orderId] = useState(() => searchParams.get('orderId') || `CS-${Date.now().toString(36).toUpperCase()}`);
-  const total = parseInt(totalStr);
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const urlStatus = queryParams.get('status');
+  const urlOrderId = queryParams.get('orderId');
 
+  const orderData = location.state || {};
+  
+  const method = orderData.method || (urlStatus ? 'vnpay' : 'momo');
+  const total = orderData.total || 0;
+  const [orderId, setOrderId] = useState<string | null>(urlOrderId);
+  const [creatingOrder, setCreatingOrder] = useState(!urlStatus);
+  
   const [timeLeft, setTimeLeft] = useState(15 * 60); // 15 phút
-  const [status, setStatus] = useState<'waiting' | 'checking' | 'success' | 'failed' | 'expired'>('waiting');
+  const [status, setStatus] = useState<'waiting' | 'checking' | 'success' | 'failed' | 'expired'>(
+    urlStatus === 'success' ? 'success' : urlStatus === 'failed' ? 'failed' : 'waiting'
+  );
+  const [errorMessage, setErrorMessage] = useState(urlStatus === 'failed' ? 'Thanh toán qua VNPAY bị hủy hoặc thất bại.' : '');
   const [copied, setCopied] = useState(false);
+
+  // ── Step 1: Create Order on Mount (Only if not returning from VNPAY) ──
+  useEffect(() => {
+    if (urlStatus) return; // Trả về từ VNPAY -> đã có status, không tạo đơn mới
+
+    const initOrder = async () => {
+      try {
+        const res = await api.createOrder({
+          shippingProvince: orderData.province,
+          shippingDistrict: orderData.district,
+          shippingWard: orderData.ward,
+          shippingStreet: orderData.street,
+          recipientName: orderData.name,
+          recipientPhone: orderData.phone,
+          recipientEmail: orderData.email || '',
+          notes: orderData.note,
+          voucherCode: orderData.voucherCode,
+          paymentMethod: orderData.method,
+          items: orderData.items.map((i: any) => ({ productId: i.id, quantity: i.qty }))
+        });
+
+        if (res.success) {
+          const newId = res.data.id;
+          setOrderId(newId);
+          setCreatingOrder(false);
+
+          // ── Step 2: If VNPAY, redirect to portal ──
+          if (method === 'vnpay') {
+            const payRes = await api.vnpayCreate(newId);
+            if (payRes.success && payRes.data.paymentUrl) {
+              window.location.href = payRes.data.paymentUrl;
+            } else {
+              setErrorMessage("Không thể khởi tạo cổng thanh toán VNPAY.");
+              setStatus('failed');
+            }
+          }
+        } else {
+          setErrorMessage(res.message || "Lỗi tạo đơn hàng.");
+          setStatus('failed');
+          setCreatingOrder(false);
+        }
+      } catch (err: any) {
+        setErrorMessage(err.message || "Lỗi hệ thống.");
+        setStatus('failed');
+        setCreatingOrder(false);
+      }
+    };
+
+    if (orderData.items) {
+      initOrder();
+    } else if (!urlStatus) {
+      navigate('/cart');
+    }
+  }, []);
 
   // Countdown timer
   useEffect(() => {
-    if (status !== 'waiting') return;
+    if (status !== 'waiting' || creatingOrder) return;
     if (timeLeft <= 0) {
       setTimeout(() => setStatus('expired'), 0);
       return;
     }
     const t = setInterval(() => setTimeLeft(p => p - 1), 1000);
     return () => clearInterval(t);
-  }, [timeLeft, status]);
+  }, [timeLeft, status, creatingOrder]);
 
   const formatTime = (s: number) => {
     const m = Math.floor(s / 60).toString().padStart(2, '0');
@@ -37,12 +101,13 @@ export default function PaymentPage() {
     });
   };
 
-  const handleCheckPayment = useCallback(() => {
+  const handleCheckPayment = useCallback(async () => {
+    // Với demo/momo manual, ta chuyển sang SUCCESS sau khi user bấm xác nhận
+    // Trong thực tế sẽ có IPN/Webhook từ MOMO cập nhật status đơn hàng
     setStatus('checking');
-    // Simulate payment verification (trong thực tế sẽ gọi API Backend)
     setTimeout(() => {
       setStatus('success');
-    }, 2500);
+    }, 1500);
   }, []);
 
   const bankInfo = {
@@ -82,7 +147,14 @@ export default function PaymentPage() {
   };
 
   const info = bankInfo[method as keyof typeof bankInfo] || bankInfo.momo;
-  const transferContent = `CHIPSTAROT ${orderId}`;
+  const transferContent = `CHIPSTAROT ${orderId || '...'}`;
+
+  // Loading state
+  if (creatingOrder) return (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="text-xl font-bold animate-pulse">Đang xử lý đơn hàng...</div>
+    </div>
+  );
 
   // ── Success Screen ────────────────────────────────────────────
   if (status === 'success') return (
@@ -103,6 +175,21 @@ export default function PaymentPage() {
         <button onClick={() => navigate('/')} className="btn-3d-yellow w-full mb-3">🏠 Về Trang Chủ</button>
         <button onClick={() => navigate('/profile')} className="w-full py-3 text-purple-600 font-semibold hover:underline text-sm">
           👤 Xem hồ sơ & lịch sử →
+        </button>
+      </div>
+    </div>
+  );
+
+  // ── Failed Screen ─────────────────────────────────────────────
+  if (status === 'failed') return (
+    <div className="min-h-screen bg-gradient-to-br from-red-50 to-pink-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-3xl shadow-xl p-10 max-w-md w-full text-center">
+        <div className="text-7xl mb-4">❌</div>
+        <h2 className="text-2xl font-bold text-gray-800 mb-2">Thanh toán thất bại</h2>
+        <p className="text-red-500 font-medium mb-6">{errorMessage}</p>
+        <button onClick={() => setStatus('waiting')} className="btn-3d-yellow w-full mb-3">🔄 Thử lại</button>
+        <button onClick={() => navigate('/checkout')} className="w-full py-3 text-gray-500 font-semibold hover:underline text-sm">
+          ← Quay lại chỉnh sửa thông tin
         </button>
       </div>
     </div>

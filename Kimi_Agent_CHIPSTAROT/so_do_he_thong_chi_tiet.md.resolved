@@ -1,0 +1,130 @@
+# Các Sơ Đồ Luồng Đi Của Hệ Thống CHIPSTAROT
+
+Dưới đây là các mô phỏng luồng đi (Flowcharts) cho các phân hệ chính của nền tảng CHIPSTAROT, được xây dựng bằng Mermaid. 
+
+## 1. Luồng Người Dùng Cốt Lõi (Tarot & Mua sắm NFC)
+Luồng này mô tả hành trình từ lúc người dùng bắt đầu muốn xem Tarot đến khi họ thanh toán hoặc dùng NFC để nạp lượt.
+
+```mermaid
+flowchart TD
+    Start((Bắt đầu)) --> Home[🏠 Trang Chủ]
+    
+    %% Trải bài Tarot Flow
+    Home --> Reading[🔮 Trải bài Tarot]
+    Reading --> CheckAuth{Đã đăng nhập?}
+    CheckAuth -- "Chưa" --> Login[🔐 Đăng nhập]
+    Login --> Reading
+    CheckAuth -- "Rồi" --> Step1[Chọn chủ đề & Nhập tên]
+    Step1 --> Step2[Đặt câu hỏi chi tiết]
+    Step2 --> Step3[Chọn 1 hoặc 3 lá bài]
+    Step3 --> CheckCredit{Tài khoản còn Credits?}
+    
+    CheckCredit -- "✅ Còn (Trừ 1 Credit)" --> Result[Đọc thông điệp AI]
+    Result -- Trải bài tiếp --> Step1
+    
+    CheckCredit -- "❌ Hết lượt" --> Paywall[Màn hình Paywall]
+    Paywall -- Nạp thêm --> Shop[🛍️ Cửa hàng]
+    Home --> Shop
+    
+    %% Mua sắm Flow
+    Shop --> BuyType{Loại sản phẩm}
+    BuyType -- "Gói Lượt Khách (Digital)" --> Digital[Chọn gói 5/10/50 lượt]
+    BuyType -- "Sản Phẩm Vật Lý (NFC)" --> Physical[Chọn móc khóa NFC]
+    
+    Physical --> Cart[🛒 Giỏ hàng]
+    Digital --> Cart
+    Cart --> Checkout[💳 Thanh toán]
+    
+    %% Logic cộng tiền
+    Checkout -- Trực tuyến --> AddCreditDigi[(Hệ thống cộng lượt số)]
+    Checkout -- Mua NFC --> Receive[Nhận hàng & Quét NFC]
+    Receive --> AddCreditNFC[(Hệ thống kích hoạt VIP/Lượt Vô Hạn)]
+    
+    AddCreditDigi -.-> Reading
+    AddCreditNFC -.-> Reading
+
+    classDef page fill:#f3e8ff,stroke:#a855f7,stroke-width:2px,color:#000
+    classDef action fill:#dbeafe,stroke:#3b82f6,stroke-width:2px,color:#000
+    classDef decision fill:#fef08a,stroke:#ca8a04,stroke-width:2px,color:#000
+    classDef database fill:#bbf7d0,stroke:#22c55e,stroke-width:2px,color:#000
+    
+    class Home,Reading,Shop,Cart,Checkout,Login page
+    class Step1,Step2,Step3,Result,Receive action
+    class CheckCredit,BuyType,CheckAuth,Paywall decision
+    class AddCreditDigi,AddCreditNFC database
+```
+
+## 2. Luồng Mini-game (Magic Garden / Virtual Pet)
+Luồng này mô phỏng cách người dùng tương tác với Pet (Linh Thú), kiếm kinh nghiệm (EXP) thông qua việc đọc Tarot và nâng cấp Pet.
+
+```mermaid
+flowchart TD
+    StartGame((Truy cập Game)) --> GamePage[🌲 Magic Garden / Pet Page]
+    GamePage --> LoadState[(Tải trạng thái Pet từ DB)]
+    
+    LoadState --> ViewStatus[Hiển thị: Level, EXP, Ngoại hình Pet]
+    
+    ViewStatus --> Action{Hành động}
+    Action -- "Xem Tarot (Mỗi lần +EXP)" --> AddExp[Hệ thống cộng EXP]
+    Action -- "Tương tác / Cho ăn" --> Interact[Tăng điểm Thân Mật / Happiness]
+    
+    AddExp --> CheckLevel{Đủ EXP lên cấp?}
+    CheckLevel -- "✅ Đủ" --> LevelUp[🎉 Chúc mừng Lên Cấp]
+    CheckLevel -- "❌ Chưa đủ" --> UpdateState[(Lưu trạng thái mới)]
+    
+    LevelUp --> Evolve[Pet thay đổi ngoại hình/Kỹ năng]
+    Evolve --> UpdateState
+    
+    UpdateState --> ViewStatus
+
+    classDef page fill:#ecfdf5,stroke:#10b981,stroke-width:2px,color:#000
+    classDef action fill:#fef3c7,stroke:#d97706,stroke-width:2px,color:#000
+    classDef decision fill:#fce7f3,stroke:#db2777,stroke-width:2px,color:#000
+    classDef database fill:#e0e7ff,stroke:#4f46e5,stroke-width:2px,color:#000
+    
+    class GamePage page
+    class ViewStatus,AddExp,Interact,LevelUp,Evolve action
+    class Action,CheckLevel decision
+    class LoadState,UpdateState database
+```
+
+## 3. Luồng Quản Trị Hệ Thống (Admin Flow)
+Luồng dành cho quản trị viên thực hiện các thao tác CRUD lên dữ liệu của ứng dụng.
+
+```mermaid
+flowchart TD
+    AdminStart((Admin Access)) --> Login[Đăng nhập Admin]
+    Login --> Verify{Kiểm tra Role}
+    
+    Verify -- "User thường" --> Redirect[Đẩy về Trang Chủ]
+    Verify -- "Admin/SuperAdmin" --> Dashboard[📊 Admin Dashboard]
+    
+    Dashboard --> SelectModule{Chọn Module Quản Lý}
+    
+    SelectModule -- "Quản lý User" --> UserMgr[👤 Quản trị Người Dùng]
+    SelectModule -- "Quản lý Sản Phẩm" --> ProdMgr[🛍️ Quản trị Cửa Hàng]
+    SelectModule -- "Quản lý Tarot" --> TarotMgr[🔮 Quản trị Thẻ bài / Bộ câu hỏi]
+    SelectModule -- "Báo cáo / Thống kê" --> Report[📈 Xem Doanh thu & Lượt tương tác]
+    
+    UserMgr --> UserAction{Thao tác}
+    UserAction -- "Cấp quyền/Khóa" --> UpdateDB[(Cập nhật DB)]
+    UserAction -- "Cộng lượt thủ công" --> UpdateDB
+    
+    ProdMgr --> ProdAction{Thao tác}
+    ProdAction -- "Thêm/Sửa/Xóa" --> UpdateDB
+    
+    TarotMgr --> TarotAction{Thao tác}
+    TarotAction -- "Sửa ý nghĩa bài" --> UpdateDB
+    
+    Report --> Export[Xuất PDF / Excel báo cáo]
+
+    classDef admin fill:#f1f5f9,stroke:#475569,stroke-width:2px,color:#000
+    classDef module fill:#fed7aa,stroke:#ea580c,stroke-width:2px,color:#000
+    classDef action fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#000
+    classDef db fill:#fca5a5,stroke:#dc2626,stroke-width:2px,color:#000
+    
+    class Dashboard,AdminStart,Login,Redirect admin
+    class UserMgr,ProdMgr,TarotMgr,Report module
+    class SelectModule,Verify,UserAction,ProdAction,TarotAction,Export action
+    class UpdateDB db
+```

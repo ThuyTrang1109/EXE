@@ -1,0 +1,16 @@
+C:\Users\VicTus\Desktop\EXE_Project\EXE - Copy\Kimi_Agent_CHIPSTAROT\backend\src\ChipStarot.Application\bin\Release\net9.0\ChipStarot.Application.deps.json
+C:\Users\VicTus\Desktop\EXE_Project\EXE - Copy\Kimi_Agent_CHIPSTAROT\backend\src\ChipStarot.Application\bin\Release\net9.0\ChipStarot.Application.dll
+C:\Users\VicTus\Desktop\EXE_Project\EXE - Copy\Kimi_Agent_CHIPSTAROT\backend\src\ChipStarot.Application\bin\Release\net9.0\ChipStarot.Application.pdb
+C:\Users\VicTus\Desktop\EXE_Project\EXE - Copy\Kimi_Agent_CHIPSTAROT\backend\src\ChipStarot.Application\bin\Release\net9.0\ChipStarot.Domain.dll
+C:\Users\VicTus\Desktop\EXE_Project\EXE - Copy\Kimi_Agent_CHIPSTAROT\backend\src\ChipStarot.Application\bin\Release\net9.0\ChipStarot.Domain.pdb
+C:\Users\VicTus\Desktop\EXE_Project\EXE - Copy\Kimi_Agent_CHIPSTAROT\backend\src\ChipStarot.Application\obj\Release\net9.0\ChipStarot.Application.csproj.AssemblyReference.cache
+C:\Users\VicTus\Desktop\EXE_Project\EXE - Copy\Kimi_Agent_CHIPSTAROT\backend\src\ChipStarot.Application\obj\Release\net9.0\ChipStarot.Application.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\VicTus\Desktop\EXE_Project\EXE - Copy\Kimi_Agent_CHIPSTAROT\backend\src\ChipStarot.Application\obj\Release\net9.0\ChipStarot.Application.AssemblyInfoInputs.cache
+C:\Users\VicTus\Desktop\EXE_Project\EXE - Copy\Kimi_Agent_CHIPSTAROT\backend\src\ChipStarot.Application\obj\Release\net9.0\ChipStarot.Application.AssemblyInfo.cs
+C:\Users\VicTus\Desktop\EXE_Project\EXE - Copy\Kimi_Agent_CHIPSTAROT\backend\src\ChipStarot.Application\obj\Release\net9.0\ChipStarot.Application.csproj.CoreCompileInputs.cache
+C:\Users\VicTus\Desktop\EXE_Project\EXE - Copy\Kimi_Agent_CHIPSTAROT\backend\src\ChipStarot.Application\obj\Release\net9.0\ChipStarot.Application.sourcelink.json
+C:\Users\VicTus\Desktop\EXE_Project\EXE - Copy\Kimi_Agent_CHIPSTAROT\backend\src\ChipStarot.Application\obj\Release\net9.0\ChipStar.07E3D894.Up2Date
+C:\Users\VicTus\Desktop\EXE_Project\EXE - Copy\Kimi_Agent_CHIPSTAROT\backend\src\ChipStarot.Application\obj\Release\net9.0\ChipStarot.Application.dll
+C:\Users\VicTus\Desktop\EXE_Project\EXE - Copy\Kimi_Agent_CHIPSTAROT\backend\src\ChipStarot.Application\obj\Release\net9.0\refint\ChipStarot.Application.dll
+C:\Users\VicTus\Desktop\EXE_Project\EXE - Copy\Kimi_Agent_CHIPSTAROT\backend\src\ChipStarot.Application\obj\Release\net9.0\ChipStarot.Application.pdb
+C:\Users\VicTus\Desktop\EXE_Project\EXE - Copy\Kimi_Agent_CHIPSTAROT\backend\src\ChipStarot.Application\obj\Release\net9.0\ref\ChipStarot.Application.dll

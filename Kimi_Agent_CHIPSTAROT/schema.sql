@@ -75,6 +75,9 @@ CREATE TABLE customer_profiles (
     credits_expires_at TIMESTAMP WITH TIME ZONE,        -- Thời hạn sử dụng gói (NULL = không có gói)
     pet_exp INT DEFAULT 0,                              -- Kinh nghiệm thú ảo
     pet_food INT DEFAULT 0,                             -- Thức ăn thú ảo
+    pet_type VARCHAR(50),                               -- Loại thú ảo (VD: 'cat', 'dog')
+    pet_name VARCHAR(100),                              -- Tên thú ảo
+    pet_status VARCHAR(50) DEFAULT 'egg',               -- Trạng thái (VD: 'egg', 'baby', 'adult')
     pet_claimed_levels JSONB DEFAULT '[]'::jsonb,       -- Mảng các cấp độ đã nhận thưởng
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );

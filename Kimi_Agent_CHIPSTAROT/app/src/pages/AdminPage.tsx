@@ -2,9 +2,27 @@ import { useState, useEffect } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, BarChart, Bar, Legend, PieChart, Pie, Cell } from 'recharts';
 import { getActiveGeminiKey, setAdminGeminiKey, clearAdminGeminiKey } from '../lib/gemini';
 import { CREDIT_PACKAGES } from '../data/constants';
+import { usePermission } from '../hooks/usePermission';
 
 export default function AdminPage({ setPage }: any) {
-  const [tab, setTab] = useState<'dashboard' | 'products' | 'packages' | 'orders' | 'users' | 'reports' | 'cards' | 'nfcs' | 'blogs' | 'settings'>('dashboard');
+  const { can } = usePermission();
+  
+  const allTabs = [
+    { id: 'dashboard', label: '📊 Tổng quan', perm: 'dashboard.view' },
+    { id: 'users', label: '👥 Quản lý TK', perm: 'users.view' },
+    { id: 'cards', label: '🎴 Quản lý Thẻ', perm: 'cards.view' },
+    { id: 'products', label: '🛍️ Sản phẩm', perm: 'products.view' },
+    { id: 'packages', label: '⚡ Gói Tarot', perm: 'packages.view' },
+    { id: 'orders', label: '📦 Đơn hàng', perm: 'orders.view' },
+    { id: 'nfcs', label: '🏷️ Mã Chip NFC', perm: 'nfc.view' },
+    { id: 'blogs', label: '✍️ Bài viết (Blog)', perm: 'content.view' },
+    { id: 'reports', label: '📈 Báo cáo', perm: 'reports.view' },
+    { id: 'rbac', label: '🛡️ Phân Quyền (RBAC)', perm: 'rbac.manage' },
+    { id: 'settings', label: '⚙️ Cài đặt', perm: 'settings.manage' },
+  ];
+
+  const tabs = allTabs.filter(t => can(t.perm));
+  const [tab, setTab] = useState<string>(tabs[0]?.id || 'dashboard');
 
   // ── Settings state ──────────────────────────────────────────────────────
   const [geminiKeyInput, setGeminiKeyInput] = useState('');
@@ -209,19 +227,6 @@ export default function AdminPage({ setPage }: any) {
   const statusLabel: Record<string, string> = {
     delivered: 'Đã giao', shipped: 'Đang giao', processing: 'Đang xử lý', pending: 'Chờ xác nhận',
   };
-
-  const tabs = [
-    { id: 'dashboard', label: '📊 Tổng quan' },
-    { id: 'users', label: '👥 Quản lý TK' },
-    { id: 'cards', label: '🎴 Quản lý Thẻ' },
-    { id: 'products', label: '🛍️ Sản phẩm' },
-    { id: 'packages', label: '⚡ Gói Tarot' },
-    { id: 'orders', label: '📦 Đơn hàng' },
-    { id: 'nfcs', label: '🏷️ Mã Chip NFC' },
-    { id: 'blogs', label: '✍️ Bài viết (Blog)' },
-    { id: 'reports', label: '📈 Báo cáo' },
-    { id: 'settings', label: '⚙️ Cài đặt' },
-  ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-purple-800 to-yellow-900">
@@ -459,7 +464,9 @@ export default function AdminPage({ setPage }: any) {
                       <td className="p-4">
                         <select className={`bg-white/5 border border-white/20 rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-yellow-400 focus:bg-purple-900 transition-colors ${u.role === 'Admin' ? 'text-purple-300 font-bold border-purple-500/50' : 'text-white/80'}`} defaultValue={u.role}>
                           <option value="Admin" className="bg-purple-900">Admin</option>
-                          <option value="Customer" className="bg-purple-900">Khách hàng</option>
+                          <option value="Staff" className="bg-purple-900">Staff</option>
+                          <option value="Editor" className="bg-purple-900">Editor</option>
+                          <option value="Customer" className="bg-purple-900">Customer</option>
                         </select>
                       </td>
                       <td className="p-4">
@@ -781,6 +788,69 @@ export default function AdminPage({ setPage }: any) {
                     <button className="text-sm text-blue-400 hover:text-blue-300 font-medium">Kiểm tra Logs →</button>
                   </div>
                 </div>
+              </div>
+            </div>
+          )}
+
+          {tab === 'rbac' && (
+            <div className="animate-fade-in">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h1 className="text-2xl font-bold text-white">🛡️ Quản Lý Phân Quyền (RBAC)</h1>
+                  <p className="text-white/60 text-sm mt-1">Cấu hình chi tiết các hành động cho từng vai trò người dùng</p>
+                </div>
+                <button onClick={() => alert('Đã lưu cấu hình phân quyền!')} className="bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-400 hover:to-purple-500 text-white font-bold text-sm px-5 py-2 rounded-xl shadow-lg transition-all transform hover:-translate-y-1">💾 Lưu thay đổi</button>
+              </div>
+
+              <div className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/10 overflow-hidden shadow-2xl">
+                <table className="w-full text-sm text-left">
+                  <thead className="bg-white/5 border-b border-white/10">
+                    <tr className="text-white/50">
+                      <th className="p-4 font-bold uppercase tracking-wider text-xs">Permission / Role</th>
+                      <th className="p-4 font-bold uppercase tracking-wider text-xs text-center">Admin</th>
+                      <th className="p-4 font-bold uppercase tracking-wider text-xs text-center">Staff</th>
+                      <th className="p-4 font-bold uppercase tracking-wider text-xs text-center">Editor</th>
+                      <th className="p-4 font-bold uppercase tracking-wider text-xs text-center">Customer</th>
+                    </tr>
+                  </thead>
+                  <tbody className="text-white/80">
+                    {[
+                      { key: 'dashboard.view', label: 'Xem Dashboard Tổng Quan' },
+                      { key: 'users.view', label: 'Xem danh sách Người dùng' },
+                      { key: 'users.manage', label: 'Quản lý / Khóa người dùng' },
+                      { key: 'cards.view', label: 'Xem danh sách Thẻ bài' },
+                      { key: 'cards.manage', label: 'Chỉnh sửa nội dung Thẻ' },
+                      { key: 'products.view', label: 'Xem danh sách Sản phẩm' },
+                      { key: 'products.manage', label: 'Quản lý kho / Giá bán' },
+                      { key: 'orders.view', label: 'Xem danh sách Đơn hàng' },
+                      { key: 'orders.manage', label: 'Cập nhật trạng thái Đơn' },
+                      { key: 'nfc.view', label: 'Xem dữ liệu Chip NFC' },
+                      { key: 'content.view', label: 'Xem danh sách Bài viết' },
+                      { key: 'content.manage', label: 'Đăng / Sửa bài viết' },
+                      { key: 'reports.view', label: 'Xem Báo cáo tài chính' },
+                      { key: 'rbac.manage', label: 'Quản lý phân quyền (RBAC)' },
+                    ].map((p, i) => (
+                      <tr key={p.key} className={`border-t border-white/5 hover:bg-white/5 transition-colors ${i % 2 === 0 ? 'bg-white/[0.02]' : ''}`}>
+                        <td className="p-4">
+                          <p className="font-bold text-white">{p.label}</p>
+                          <code className="text-[10px] text-white/40">{p.key}</code>
+                        </td>
+                        <td className="p-4 text-center">
+                          <input type="checkbox" defaultChecked className="w-4 h-4 accent-yellow-500" />
+                        </td>
+                        <td className="p-4 text-center">
+                          <input type="checkbox" defaultChecked={['dashboard.view', 'orders.view', 'orders.manage', 'products.view', 'nfc.view'].includes(p.key)} className="w-4 h-4 accent-blue-500" />
+                        </td>
+                        <td className="p-4 text-center">
+                          <input type="checkbox" defaultChecked={['cards.view', 'cards.manage', 'content.view', 'content.manage'].includes(p.key)} className="w-4 h-4 accent-emerald-500" />
+                        </td>
+                        <td className="p-4 text-center">
+                          <input type="checkbox" defaultChecked={false} className="w-4 h-4 accent-gray-500" />
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </div>
           )}

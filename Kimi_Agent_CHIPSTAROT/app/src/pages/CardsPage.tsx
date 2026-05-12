@@ -26,6 +26,15 @@ export default function CardsPage() {
   const [filter, setFilter] = useState('all');
   const [selectedCard, setSelectedCard] = useState<TarotCard | null>(null);
 
+  useEffect(() => {
+    if (selectedCard) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => { document.body.style.overflow = 'unset'; };
+  }, [selectedCard]);
+
   const filtered = cards.filter(c => {
     const matchSearch = c.name.toLowerCase().includes(search.toLowerCase());
     const matchFilter = filter === 'all' || c.arcana?.toLowerCase() === filter.toLowerCase();
@@ -85,27 +94,63 @@ export default function CardsPage() {
         )}
       </div>
 
-      {/* Card Detail Modal */}
+      {/* Premium Card Detail Modal */}
       {selectedCard && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setSelectedCard(null)}>
-          <div className="bg-white rounded-3xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-6 relative" onClick={e => e.stopPropagation()}>
-            <button onClick={() => setSelectedCard(null)} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
-            <div className="flex gap-4 mb-6">
-              <img src={selectedCard.image} alt={selectedCard.name} className="w-24 rounded-xl shadow-lg"
-                onError={e => (e.currentTarget.src = '/card-back.png')} />
-              <div>
-                <h2 className="text-xl font-bold text-gray-800">{selectedCard.name}</h2>
-                <p className="text-purple-500 text-sm">{selectedCard.arcana} Arcana</p>
-              </div>
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 sm:p-6 opacity-0 animate-[fadeIn_0.3s_forwards]" onClick={() => setSelectedCard(null)}>
+          <div className="bg-white border border-gray-100 shadow-[0_0_50px_rgba(0,0,0,0.1)] rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-hidden relative flex flex-col scale-95 animate-[scaleIn_0.3s_forwards]" onClick={e => e.stopPropagation()}>
+            {/* Header section with cover image background blur */}
+            <div className="relative h-48 sm:h-56 w-full flex-shrink-0 overflow-hidden border-b border-gray-100">
+               <div className="absolute inset-0 bg-cover bg-center blur-xl opacity-30 scale-110" style={{ backgroundImage: `url(${selectedCard.image || '/card-back.png'})` }}></div>
+               <div className="absolute inset-0 bg-gradient-to-t from-white via-white/80 to-transparent"></div>
+               <button onClick={() => setSelectedCard(null)} className="absolute top-4 right-4 text-gray-400 hover:text-gray-800 bg-white/50 hover:bg-white/80 w-8 h-8 rounded-full flex items-center justify-center transition-all z-20 shadow-sm">&times;</button>
+               
+               <div className="absolute bottom-0 left-0 w-full p-6 sm:p-8 flex items-end gap-5 sm:gap-6 z-10">
+                 <div className="relative group">
+                    <div className="absolute inset-0 bg-yellow-400/20 rounded-xl blur-md group-hover:bg-yellow-400/40 transition-all duration-500"></div>
+                    <img src={selectedCard.image} alt={selectedCard.name} className="w-24 sm:w-32 rounded-xl shadow-lg border-2 border-white relative z-10 transition-transform duration-500 group-hover:scale-105 group-hover:-translate-y-2" onError={e => (e.currentTarget.src = '/card-back.png')} />
+                 </div>
+                 <div className="pb-1 sm:pb-2">
+                   <h2 className="text-3xl sm:text-4xl font-black text-gray-800 drop-shadow-sm">{selectedCard.name}</h2>
+                   <p className="text-purple-600 font-bold mt-1 tracking-wider uppercase text-xs sm:text-sm">{selectedCard.arcana} Arcana</p>
+                 </div>
+               </div>
             </div>
-            <div className="space-y-3">
-              {Object.entries(selectedCard.meanings || {}).map(([key, val]) => (
-                <div key={key} className="bg-gradient-to-r from-yellow-50 to-purple-50 rounded-xl p-3">
-                  <p className="text-xs font-bold text-yellow-600 uppercase mb-1">{key}</p>
-                  <p className="text-gray-700 text-sm">{val as string}</p>
-                </div>
-              ))}
+
+            {/* Content section */}
+            <div className="p-6 sm:p-8 overflow-y-auto custom-scrollbar flex-1 space-y-4">
+              {Object.entries(selectedCard.meanings || {}).map(([key, val]) => {
+                const getIcon = (k: string) => {
+                  const upperK = k.toUpperCase();
+                  if(upperK.includes('GENERAL')) return '✨';
+                  if(upperK.includes('LOVE') || upperK.includes('MARRIAGE')) return '❤️';
+                  if(upperK.includes('CAREER') || upperK.includes('WORK')) return '💼';
+                  if(upperK.includes('STUDY') || upperK.includes('EDUCATION')) return '📚';
+                  if(upperK.includes('HEALTH')) return '🌿';
+                  if(upperK.includes('FINANCE') || upperK.includes('MONEY')) return '💰';
+                  return '🔮';
+                };
+                
+                return (
+                  <div key={key} className="bg-gray-50 hover:bg-yellow-50/50 transition-colors border border-gray-100 rounded-2xl p-4 sm:p-5">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-lg">{getIcon(key)}</span>
+                      <h3 className="text-xs sm:text-sm font-bold text-yellow-600 uppercase tracking-widest">{key}</h3>
+                    </div>
+                    <p className="text-gray-700 text-sm sm:text-base leading-relaxed">{val as string}</p>
+                  </div>
+                );
+              })}
             </div>
+            
+            {/* Custom scrollbar & animation styles */}
+            <style>{`
+              .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+              .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.02); }
+              .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.15); border-radius: 10px; }
+              .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(0, 0, 0, 0.3); }
+              @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+              @keyframes scaleIn { from { transform: scale(0.95); } to { transform: scale(1); } }
+            `}</style>
           </div>
         </div>
       )}

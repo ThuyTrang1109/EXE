@@ -1,0 +1,3 @@
+C:\Users\VicTus\Desktop\EXE_Project\EXE - Copy\Kimi_Agent_CHIPSTAROT\backend\src\ChipStarot.Domain\bin\Release\net9.0\publish\ChipStarot.Domain.dll
+C:\Users\VicTus\Desktop\EXE_Project\EXE - Copy\Kimi_Agent_CHIPSTAROT\backend\src\ChipStarot.Domain\bin\Release\net9.0\publish\ChipStarot.Domain.deps.json
+C:\Users\VicTus\Desktop\EXE_Project\EXE - Copy\Kimi_Agent_CHIPSTAROT\backend\src\ChipStarot.Domain\bin\Release\net9.0\publish\ChipStarot.Domain.pdb
