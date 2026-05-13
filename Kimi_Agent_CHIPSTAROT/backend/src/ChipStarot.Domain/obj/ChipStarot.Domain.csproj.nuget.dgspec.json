@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\VicTus\\Desktop\\EXE_Project\\EXE - Copy\\Kimi_Agent_CHIPSTAROT\\backend\\src\\ChipStarot.Domain\\ChipStarot.Domain.csproj": {}
+    "C:\\Users\\VicTus\\Desktop\\EXE_Project\\EXE\\Kimi_Agent_CHIPSTAROT\\backend\\src\\ChipStarot.Domain\\ChipStarot.Domain.csproj": {}
   },
   "projects": {
-    "C:\\Users\\VicTus\\Desktop\\EXE_Project\\EXE - Copy\\Kimi_Agent_CHIPSTAROT\\backend\\src\\ChipStarot.Domain\\ChipStarot.Domain.csproj": {
+    "C:\\Users\\VicTus\\Desktop\\EXE_Project\\EXE\\Kimi_Agent_CHIPSTAROT\\backend\\src\\ChipStarot.Domain\\ChipStarot.Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\VicTus\\Desktop\\EXE_Project\\EXE - Copy\\Kimi_Agent_CHIPSTAROT\\backend\\src\\ChipStarot.Domain\\ChipStarot.Domain.csproj",
+        "projectUniqueName": "C:\\Users\\VicTus\\Desktop\\EXE_Project\\EXE\\Kimi_Agent_CHIPSTAROT\\backend\\src\\ChipStarot.Domain\\ChipStarot.Domain.csproj",
         "projectName": "ChipStarot.Domain",
-        "projectPath": "C:\\Users\\VicTus\\Desktop\\EXE_Project\\EXE - Copy\\Kimi_Agent_CHIPSTAROT\\backend\\src\\ChipStarot.Domain\\ChipStarot.Domain.csproj",
+        "projectPath": "C:\\Users\\VicTus\\Desktop\\EXE_Project\\EXE\\Kimi_Agent_CHIPSTAROT\\backend\\src\\ChipStarot.Domain\\ChipStarot.Domain.csproj",
         "packagesPath": "C:\\Users\\VicTus\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\VicTus\\Desktop\\EXE_Project\\EXE - Copy\\Kimi_Agent_CHIPSTAROT\\backend\\src\\ChipStarot.Domain\\obj\\",
+        "outputPath": "C:\\Users\\VicTus\\Desktop\\EXE_Project\\EXE\\Kimi_Agent_CHIPSTAROT\\backend\\src\\ChipStarot.Domain\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

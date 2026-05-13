@@ -12,6 +12,8 @@ public interface IAccountRepository
     Task<CustomerProfile?> GetCustomerProfileAsync(Guid accountId);
     Task UpdateCustomerProfileAsync(CustomerProfile profile);
     Task<(int TotalCount, IEnumerable<Account> Items)> GetAllCustomersAsync(int page, int pageSize);
+    /// <summary>Lấy Account kèm theo Role và Permissions cho endpoint /profile/me</summary>
+    Task<Account?> GetByIdWithPermissionsAsync(Guid id);
 }
 
 public interface INfcRepository
@@ -69,6 +71,8 @@ public interface ITarotRepository
     Task<TarotCard?> GetCardByIdAsync(int id);
     Task<TarotReading?> GetReadingByIdAsync(Guid id);
     Task<IEnumerable<TarotReading>> GetReadingsByAccountAsync(Guid accountId, int page, int pageSize);
+    /// <summary>Trả về tổng số bài reading của account (dùng cho phân trang chính xác)</summary>
+    Task<int> GetReadingsCountByAccountAsync(Guid accountId);
     Task AddReadingAsync(TarotReading reading);
     Task UpdateReadingAsync(TarotReading reading);
     Task<IEnumerable<TarotCreditPackage>> GetCreditPackagesAsync();
@@ -102,6 +106,12 @@ public interface IAuthRepository
     Task<OtpVerification?> GetValidOtpAsync(string email, string code, string type);
     Task MarkOtpUsedAsync(int otpId);
     Task ExpireOldOtpsAsync(string email, string type);
+
+    // ── Refresh Token (DB-backed, survives server restarts) ──
+    Task SaveRefreshTokenAsync(Guid accountId, string token, int expireDays);
+    Task<Guid?> GetAccountIdByRefreshTokenAsync(string token);
+    Task RevokeRefreshTokenAsync(string token);
+    Task CleanupExpiredRefreshTokensAsync();
 }
 
 public interface ISystemSettingRepository

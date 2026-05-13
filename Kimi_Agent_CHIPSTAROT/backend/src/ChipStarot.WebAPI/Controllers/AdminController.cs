@@ -148,42 +148,8 @@ public class AdminController : BaseApiController
     }
 
     // ─── Voucher Management ───
-
-    /// <summary>Danh sách tất cả voucher</summary>
-    [HttpGet("vouchers")]
-    [HasPermission("products.manage")]
-    public async Task<IActionResult> GetVouchers()
-    {
-        var vouchers = await _orderRepo.GetAllVouchersAsync();
-        return Ok(new { success = true, data = vouchers });
-    }
-
-    /// <summary>Tạo voucher mới</summary>
-    [HttpPost("vouchers")]
-    [HasPermission("products.manage")]
-    public async Task<IActionResult> CreateVoucher([FromBody] CreateVoucherRequest request)
-    {
-        var voucher = new Domain.Entities.Voucher
-        {
-            Code = request.Code.ToUpperInvariant(),
-            DiscountPercent = (int)request.DiscountPercent,
-            MaxDiscountAmount = request.MaxDiscountAmount,
-            MinOrderAmount = request.MinOrderAmount,
-            UsageLimit = request.UsageLimit,
-            EndDate = request.EndDate
-        };
-        await _orderRepo.AddVoucherAsync(voucher);
-        return StatusCode(201, new { success = true, data = voucher });
-    }
-
-    /// <summary>Xoá voucher</summary>
-    [HttpDelete("vouchers/{id:int}")]
-    [HasPermission("products.manage")]
-    public async Task<IActionResult> DeleteVoucher(int id)
-    {
-        await _orderRepo.DeleteVoucherAsync(id);
-        return Ok(new { success = true, message = "Voucher đã được xoá." });
-    }
+    // NOTE: Voucher CRUD đầy đủ được xử lý tại VouchersController (GET/POST/PUT/DELETE /api/vouchers)
+    // Đã xóa duplicate endpoints khỏi AdminController để tránh nhầm lẫn.
 
     // ─── Inventory Management ───
 

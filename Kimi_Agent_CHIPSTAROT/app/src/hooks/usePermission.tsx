@@ -75,11 +75,11 @@ export function RequirePermission({
 
 export function RequireAdmin({ children, fallback }: { children: ReactNode; fallback?: ReactNode }) {
   const { isAdmin } = usePermission();
-  const { loading } = useAuth();
+  const { user, loading } = useAuth();
   
   if (loading) return null;
   
-  if (!isAdmin()) {
+  if (!isAdmin() || user?.status !== 'active') {
     return fallback ? <>{fallback}</> : <ForbiddenPage />;
   }
   
@@ -96,7 +96,7 @@ export function RequireAuth({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
 
   if (loading) return null;
-  if (!user) {
+  if (!user || user.status !== 'active') {
     navigate('/auth', { replace: true });
     return null;
   }

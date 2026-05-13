@@ -3,22 +3,25 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using ChipStarot.Application.Services;
-using Microsoft.Extensions.Caching.Memory;
+using ChipStarot.Domain.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
 namespace ChipStarot.Infrastructure.Services;
 
+/// <summary>
+/// JwtService — Refresh token được lưu bền vững trong PostgreSQL (IAuthRepository),
+/// không còn dùng IMemoryCache nên không bị mất khi server restart.
+/// </summary>
 public class JwtService : IJwtService
 {
     private readonly IConfiguration _config;
-    private readonly IMemoryCache _cache;
-    private const string RefreshTokenPrefix = "rt:";
+    private readonly IAuthRepository _authRepo;
 
-    public JwtService(IConfiguration config, IMemoryCache cache)
+    public JwtService(IConfiguration config, IAuthRepository authRepo)
     {
         _config = config;
-        _cache = cache;
+        _authRepo = authRepo;
     }
 
     public string GenerateAccessToken(Guid accountId, string email, string role)
@@ -53,25 +56,19 @@ public class JwtService : IJwtService
         return Convert.ToBase64String(bytes);
     }
 
-    public Task SaveRefreshTokenAsync(Guid accountId, string refreshToken)
+    public async Task SaveRefreshTokenAsync(Guid accountId, string refreshToken)
     {
         var expireDays = int.Parse(_config["Jwt:RefreshTokenExpireDays"] ?? "30");
-        // Store: refreshToken -> accountId
-        _cache.Set(RefreshTokenPrefix + refreshToken, accountId,
-            TimeSpan.FromDays(expireDays));
-        return Task.CompletedTask;
+        await _authRepo.SaveRefreshTokenAsync(accountId, refreshToken, expireDays);
     }
 
-    public Task<Guid?> ValidateRefreshTokenAsync(string refreshToken)
+    public async Task<Guid?> ValidateRefreshTokenAsync(string refreshToken)
     {
-        if (_cache.TryGetValue(RefreshTokenPrefix + refreshToken, out Guid accountId))
-            return Task.FromResult<Guid?>(accountId);
-        return Task.FromResult<Guid?>(null);
+        return await _authRepo.GetAccountIdByRefreshTokenAsync(refreshToken);
     }
 
-    public Task RevokeRefreshTokenAsync(string refreshToken)
+    public async Task RevokeRefreshTokenAsync(string refreshToken)
     {
-        _cache.Remove(RefreshTokenPrefix + refreshToken);
-        return Task.CompletedTask;
+        await _authRepo.RevokeRefreshTokenAsync(refreshToken);
     }
 }

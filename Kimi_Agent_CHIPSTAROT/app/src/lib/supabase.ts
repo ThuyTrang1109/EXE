@@ -81,6 +81,7 @@ export interface AppUser {
   petName: string | null;
   petStatus: string;
   petClaimedLevels: string; // JSON string
+  status: string;           // 'active' | 'banned' | 'unverified'
 }
 
 // ─────────────────────────────────────────────
@@ -217,6 +218,7 @@ export async function fetchUserProfile(userId: string): Promise<AppUser | null> 
     petName: profile.pet_name,
     petStatus: profile.pet_status || 'egg',
     petClaimedLevels: JSON.stringify(profile.pet_claimed_levels || []),
+    status: 'active'
   };
 }
 

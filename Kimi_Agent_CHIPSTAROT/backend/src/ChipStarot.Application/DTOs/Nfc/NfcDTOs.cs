@@ -27,3 +27,5 @@ public record NfcChipDto(
 );
 
 public record GenerateNfcRequest(string NfcTagId, int ProductId);
+
+public record BulkGenerateNfcRequest(int ProductId, int Quantity);

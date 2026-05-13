@@ -36,7 +36,8 @@ public record CustomerProfileDto(
     string? PetType,
     string? PetName,
     string PetStatus,
-    string PetClaimedLevels
+    string PetClaimedLevels,
+    string AccountStatus
 );
 
 public record PetFeedRequest(int FoodAmount);
@@ -48,7 +49,8 @@ public record MeResponse(
     Guid AccountId,
     string Email,
     string Role,              // 'super_admin' | 'admin' | 'customer'
-    IEnumerable<string> Permissions  // ['users.view', 'products.manage', ...]
+    IEnumerable<string> Permissions,  // ['users.view', 'products.manage', ...]
+    string AccountStatus
 );
 
 public record NotificationDto(

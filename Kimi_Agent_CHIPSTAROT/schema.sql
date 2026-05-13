@@ -1,46 +1,83 @@
 -- ==========================================
--- 1. PHÂN VÙNG TIỆN ÍCH & BẢO MẬT (UTILITIES & SECURITY)
+-- CHIPSTAROT DATABASE SCHEMA
+-- Phiên bản: v2.0 — Đồng bộ hoàn toàn với EF Core AppDbContext
+-- Cập nhật: 2026-05-13
+-- Lưu ý: Ưu tiên dùng EF Core Migrations. File này chỉ dùng để tham khảo / reset thủ công.
+-- ==========================================
+
+-- Kích hoạt UUID extension (PostgreSQL)
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+
+-- ==========================================
+-- 1. PHÂN VÙNG PHÂN QUYỀN (RBAC)
 -- ==========================================
 
 CREATE TABLE roles (
     id SERIAL PRIMARY KEY,
-    role_name VARCHAR(50) UNIQUE NOT NULL
+    key VARCHAR(50) UNIQUE NOT NULL,             -- 'super_admin', 'admin', 'customer', 'staff', 'editor'
+    name VARCHAR(100) NOT NULL,
+    description TEXT,
+    is_system BOOLEAN DEFAULT FALSE              -- Vai trò hệ thống, không thể xóa
 );
 
-CREATE TABLE otp_verifications (
+CREATE TABLE permissions (
     id SERIAL PRIMARY KEY,
-    email VARCHAR(255) NOT NULL,
-    otp_code VARCHAR(6) NOT NULL,
-    type VARCHAR(20) NOT NULL,
-    status VARCHAR(20) DEFAULT 'pending',
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    expires_at TIMESTAMP WITH TIME ZONE NOT NULL
+    key VARCHAR(100) UNIQUE NOT NULL,            -- 'dashboard.view', 'users.manage'...
+    resource VARCHAR(50) NOT NULL,               -- 'dashboard', 'users', 'products'...
+    action VARCHAR(50) NOT NULL,                 -- 'view', 'manage', 'create', 'delete'
+    display_name VARCHAR(150) NOT NULL
 );
 
-CREATE TABLE subscription_plans (
-    id SERIAL PRIMARY KEY,
-    plan_name VARCHAR(50) NOT NULL,
-    price DECIMAL(12,2) NOT NULL,
-    duration_days INT NOT NULL,
-    description TEXT
+CREATE TABLE role_permissions (
+    role_id INT REFERENCES roles(id) ON DELETE CASCADE,
+    permission_id INT REFERENCES permissions(id) ON DELETE CASCADE,
+    PRIMARY KEY (role_id, permission_id)
 );
 
--- Quản lý thông báo người dùng
-CREATE TABLE notifications (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    account_id UUID REFERENCES accounts(id) ON DELETE CASCADE,
-    title VARCHAR(255) NOT NULL,
-    message TEXT NOT NULL,
-    is_read BOOLEAN DEFAULT FALSE,
-    type VARCHAR(50), -- 'system', 'order', 'subscription'
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
+-- Seed: Roles
+INSERT INTO roles (id, key, name, description, is_system) VALUES
+    (1, 'super_admin', 'Super Admin', 'Quản trị viên tối cao - bypass mọi kiểm tra quyền', TRUE),
+    (2, 'admin',       'Admin',       'Quản trị viên hệ thống - có toàn quyền quản lý', TRUE),
+    (3, 'customer',    'Customer',    'Khách hàng sử dụng dịch vụ Tarot', TRUE),
+    (4, 'staff',       'Nhân viên kho', 'Nhân viên xử lý đơn hàng và quản lý sản phẩm', TRUE),
+    (5, 'editor',      'Biên tập viên', 'Biên tập viên quản lý bài viết và nội dung Tarot', TRUE);
 
-INSERT INTO roles (role_name) VALUES ('Admin'), ('Customer');
-INSERT INTO subscription_plans (plan_name, price, duration_days, description) 
-VALUES 
-('Monthly', 19000, 30, 'Gói trải nghiệm tháng'),
-('Yearly', 149000, 365, 'Gói năm tiết kiệm 35%');
+-- Seed: Permissions (20 quyền)
+INSERT INTO permissions (id, key, resource, action, display_name) VALUES
+    (1,  'dashboard.view',    'dashboard', 'view',   'Xem thống kê tổng quan'),
+    (2,  'users.view',        'users',     'view',   'Xem DS người dùng'),
+    (3,  'users.manage',      'users',     'manage', 'Quản lý người dùng'),
+    (4,  'cards.view',        'cards',     'view',   'Xem DS lá bài'),
+    (5,  'cards.manage',      'cards',     'manage', 'Quản lý lá bài'),
+    (6,  'products.view',     'products',  'view',   'Xem DS sản phẩm'),
+    (7,  'products.manage',   'products',  'manage', 'Quản lý sản phẩm'),
+    (8,  'packages.view',     'packages',  'view',   'Xem DS gói Tarot'),
+    (9,  'packages.manage',   'packages',  'manage', 'Quản lý gói Tarot'),
+    (10, 'orders.view',       'orders',    'view',   'Xem DS đơn hàng'),
+    (11, 'orders.manage',     'orders',    'manage', 'Quản lý đơn hàng'),
+    (12, 'nfc.view',          'nfc',       'view',   'Xem DS thẻ NFC'),
+    (13, 'nfc.manage',        'nfc',       'manage', 'Quản lý thẻ NFC'),
+    (14, 'content.view',      'content',   'view',   'Xem DS bài viết'),
+    (15, 'content.manage',    'content',   'manage', 'Quản lý bài viết'),
+    (16, 'reports.view',      'reports',   'view',   'Xem báo cáo hệ thống'),
+    (17, 'settings.manage',   'settings',  'manage', 'Quản lý cấu hình'),
+    (18, 'rbac.manage',       'rbac',      'manage', 'Quản lý phân quyền'),
+    (19, 'vouchers.view',     'vouchers',  'view',   'Xem danh sách Voucher'),
+    (20, 'vouchers.manage',   'vouchers',  'manage', 'Quản lý Voucher');
+
+-- Seed: Super Admin & Admin có tất cả 20 quyền
+INSERT INTO role_permissions (role_id, permission_id)
+SELECT 1, id FROM permissions;  -- super_admin
+
+INSERT INTO role_permissions (role_id, permission_id)
+SELECT 2, id FROM permissions;  -- admin
+
+-- Staff: products.view/manage + orders.view/manage
+INSERT INTO role_permissions (role_id, permission_id) VALUES (4,6),(4,7),(4,10),(4,11);
+
+-- Editor: cards.view/manage + content.view/manage
+INSERT INTO role_permissions (role_id, permission_id) VALUES (5,4),(5,5),(5,14),(5,15);
+
 
 -- ==========================================
 -- 2. PHÂN VÙNG DANH TÍNH (IDENTITY)
@@ -50,9 +87,9 @@ CREATE TABLE accounts (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     email VARCHAR(255) UNIQUE NOT NULL,
     password_hash TEXT NOT NULL,
-    role_id INT REFERENCES roles(id) DEFAULT 2,
+    role_id INT REFERENCES roles(id) DEFAULT 3,   -- DEFAULT: customer
     is_verified BOOLEAN DEFAULT FALSE,
-    account_status VARCHAR(20) DEFAULT 'active', -- 'active', 'banned', 'unverified'
+    account_status VARCHAR(20) DEFAULT 'active',  -- 'active' | 'banned' | 'unverified'
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -69,16 +106,16 @@ CREATE TABLE customer_profiles (
     zodiac_sign VARCHAR(50),
     life_path_number INT,
     avatar_url TEXT,
-    credits INT DEFAULT 0,                              -- Lượt bốc bài có sẵn cho ngày hôm nay (reset hàng ngày hoặc từ NFC)
-    daily_allowance INT DEFAULT 0,                      -- Định mức lượt nhận được MỖI NGÀY từ Gói
-    last_reset_date DATE,                               -- Ngày reset lượt bốc bài gần nhất (YYYY-MM-DD)
-    credits_expires_at TIMESTAMP WITH TIME ZONE,        -- Thời hạn sử dụng gói (NULL = không có gói)
-    pet_exp INT DEFAULT 0,                              -- Kinh nghiệm thú ảo
-    pet_food INT DEFAULT 0,                             -- Thức ăn thú ảo
-    pet_type VARCHAR(50),                               -- Loại thú ảo (VD: 'cat', 'dog')
-    pet_name VARCHAR(100),                              -- Tên thú ảo
-    pet_status VARCHAR(50) DEFAULT 'egg',               -- Trạng thái (VD: 'egg', 'baby', 'adult')
-    pet_claimed_levels JSONB DEFAULT '[]'::jsonb,       -- Mảng các cấp độ đã nhận thưởng
+    credits INT DEFAULT 0,                              -- Lượt bốc bài hiện có
+    daily_allowance INT DEFAULT 0,                      -- Lượt nhận được mỗi ngày từ gói
+    last_reset_date DATE,                               -- Ngày reset gần nhất
+    credits_expires_at TIMESTAMP WITH TIME ZONE,        -- Hết hạn gói
+    pet_exp INT DEFAULT 0,
+    pet_food INT DEFAULT 0,
+    pet_type VARCHAR(50),
+    pet_name VARCHAR(100),
+    pet_status VARCHAR(50) DEFAULT 'egg',               -- 'egg' | 'hatched' | 'teen' | 'adult'
+    pet_claimed_levels JSONB DEFAULT '[]'::jsonb,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -91,22 +128,32 @@ CREATE TABLE admin_profiles (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- ==========================================
--- 3. PHÂN VÙNG PREMIUM (SUBSCRIPTIONS)
--- ==========================================
+CREATE TABLE otp_verifications (
+    id SERIAL PRIMARY KEY,
+    email VARCHAR(255) NOT NULL,
+    otp_code VARCHAR(6) NOT NULL,
+    type VARCHAR(20) NOT NULL,             -- 'register' | 'reset_password'
+    status VARCHAR(20) DEFAULT 'pending', -- 'pending' | 'used' | 'expired'
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    expires_at TIMESTAMP WITH TIME ZONE NOT NULL
+);
 
-CREATE TABLE user_subscriptions (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    account_id UUID REFERENCES accounts(id) ON DELETE CASCADE,
-    plan_id INT REFERENCES subscription_plans(id),
-    start_date TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    end_date TIMESTAMP WITH TIME ZONE NOT NULL,
-    status VARCHAR(20) DEFAULT 'active',
+-- JWT Refresh Tokens (DB-backed, tồn tại sau khi server restart)
+CREATE TABLE refresh_tokens (
+    id SERIAL PRIMARY KEY,
+    account_id UUID NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
+    token TEXT UNIQUE NOT NULL,
+    expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    is_revoked BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE UNIQUE INDEX idx_refresh_tokens_token ON refresh_tokens(token);
+CREATE INDEX idx_refresh_tokens_account ON refresh_tokens(account_id);
+
+
 -- ==========================================
--- 4. PHÂN VÙNG SẢN PHẨM & ĐÁNH GIÁ (LOGISTICS & REVIEWS)
+-- 3. PHÂN VÙNG SẢN PHẨM (PRODUCTS)
 -- ==========================================
 
 CREATE TABLE product_categories (
@@ -125,16 +172,16 @@ CREATE TABLE products (
     gemstone_type VARCHAR(50),
     description TEXT,
     base_price DECIMAL(12,2) NOT NULL,
-    old_price DECIMAL(12,2),                    -- Giá cũ để hiển thị % giảm giá
+    old_price DECIMAL(12,2),
     image_url TEXT,
-    stock_quantity INT DEFAULT 0,                -- Quản lý kho hàng
-    is_featured BOOLEAN DEFAULT FALSE,           -- Sản phẩm nổi bật trang chủ
-    tag_text VARCHAR(50),                        -- VD: 'Bán chạy', 'Mới'
-    tag_color VARCHAR(50),                       -- VD: 'bg-red-500'
-    average_rating DECIMAL(2,1) DEFAULT 0.0,     -- Cache sao trung bình (tính từ product_reviews)
-    review_count INT DEFAULT 0,                  -- Cache số lượng đánh giá
-    nfc_credits_bonus INT DEFAULT 10,            -- Số credits tặng khi kích hoạt NFC sản phẩm này
-    is_active BOOLEAN DEFAULT TRUE,              -- Ẩn/hiện sản phẩm (soft delete)
+    stock_quantity INT DEFAULT 0,
+    is_featured BOOLEAN DEFAULT FALSE,
+    tag_text VARCHAR(50),
+    tag_color VARCHAR(50),
+    average_rating DECIMAL(2,1) DEFAULT 0.0,
+    review_count INT DEFAULT 0,
+    nfc_credits_bonus INT DEFAULT 10,        -- Credits tặng khi kích hoạt NFC lần đầu
+    is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -152,17 +199,29 @@ CREATE TABLE nfc_chips (
     product_id INT REFERENCES products(id),
     account_id UUID REFERENCES accounts(id),
     status VARCHAR(20) DEFAULT 'unactivated', -- 'unactivated' | 'activated' | 'transferred'
-    credits_granted INT DEFAULT 0,            -- Số credits đã tặng khi kích hoạt
-    scan_count INT DEFAULT 0,                 -- Số lần chip được quét
-    last_scanned_at TIMESTAMP WITH TIME ZONE, -- Lần quét gần nhất
+    credits_granted INT DEFAULT 0,
+    scan_count INT DEFAULT 0,
+    last_scanned_at TIMESTAMP WITH TIME ZONE,
     activated_at TIMESTAMP WITH TIME ZONE
 );
 
+-- Nhật ký biến động tồn kho
+CREATE TABLE inventory_logs (
+    id SERIAL PRIMARY KEY,
+    product_id INT NOT NULL REFERENCES products(id),
+    change_amount INT NOT NULL,              -- Dương = nhập, Âm = xuất
+    balance_after INT NOT NULL,
+    type VARCHAR(30) NOT NULL,              -- 'restock' | 'damage' | 'audit' | 'sale'
+    note TEXT,
+    actor_id UUID REFERENCES accounts(id), -- Admin thực hiện
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+
 -- ==========================================
--- 5. PHÂN VÙNG BÁN HÀNG & KHUYẾN MÃI (SALES & PROMOTIONS)
+-- 4. PHÂN VÙNG BÁN HÀNG (SALES)
 -- ==========================================
 
--- Mã giảm giá
 CREATE TABLE vouchers (
     id SERIAL PRIMARY KEY,
     code VARCHAR(20) UNIQUE NOT NULL,
@@ -173,10 +232,9 @@ CREATE TABLE vouchers (
     end_date TIMESTAMP WITH TIME ZONE,
     usage_limit INT DEFAULT 100,
     used_count INT DEFAULT 0,
-    assigned_to_account UUID REFERENCES accounts(id) -- NULL = Public voucher, có ID = Voucher cá nhân hóa
+    assigned_to_account UUID REFERENCES accounts(id) -- NULL = public voucher
 );
 
--- Banner trang chủ
 CREATE TABLE hero_banners (
     id SERIAL PRIMARY KEY,
     title VARCHAR(255),
@@ -189,59 +247,12 @@ CREATE TABLE hero_banners (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- ─────────────────────────────────────────────
--- Gói Mua Lượt Tarot (Digital Credit Packages)
--- Người dùng mua gói → credits cộng tức thì, expires_at = NOW() + expiry_days
--- ─────────────────────────────────────────────
-CREATE TABLE tarot_credit_packages (
-    id VARCHAR(30) PRIMARY KEY,              -- VD: 'cp_starter', 'cp_popular', 'cp_premium'
-    name VARCHAR(100) NOT NULL,              -- Tên gói hiển thị
-    credits_per_day INT NOT NULL,           -- Số lượt bốc bài MỖI NGÀY
-    price DECIMAL(12,2) NOT NULL,           -- Giá bán
-    old_price DECIMAL(12,2),               -- Giá gốc (để hiện % giảm giá)
-    expiry_days INT NOT NULL DEFAULT 30,   -- *** THỜI HẠN SỬ DỤNG LỢT (ngày kể từ ngày mua) ***
-    icon VARCHAR(10),                       -- Emoji icon hiển thị
-    description TEXT,                       -- Mô tả ngắn
-    is_active BOOLEAN DEFAULT TRUE,
-    display_order INT DEFAULT 0,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
-
--- Lịch sử giao dịch mua gói lượt Tarot
-CREATE TABLE credit_package_purchases (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    account_id UUID REFERENCES accounts(id) ON DELETE CASCADE,
-    package_id VARCHAR(30) REFERENCES tarot_credit_packages(id),
-    credits_per_day_granted INT NOT NULL,           -- Số lượt MỖI NGÀY đã cấp vào tài khoản
-    expires_at TIMESTAMP WITH TIME ZONE NOT NULL, -- *** Gói này hết hạn lúc nào ***
-    amount_paid DECIMAL(12,2) NOT NULL,
-    payment_method VARCHAR(50),            -- 'momo', 'vnpay', 'demo'
-    transaction_id VARCHAR(100),
-    status VARCHAR(20) DEFAULT 'completed', -- 'pending', 'completed', 'refunded'
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
-
--- Index để query nhanh giao dịch theo account
-CREATE INDEX idx_credit_pkg_purchases_account ON credit_package_purchases(account_id);
-CREATE INDEX idx_credit_pkg_purchases_expires ON credit_package_purchases(expires_at);
-
--- Seed dữ liệu ban đầu cho các gói lượt
--- expiry_days: Gói Khởi Đầu = 30 ngày, Gói Phổ Biến = 90 ngày, Gói Cao Cấp = 365 ngày
-INSERT INTO tarot_credit_packages (id, name, credits_per_day, price, old_price, expiry_days, icon, description, display_order)
-VALUES
-    ('cp_starter', 'Gói Khởi Đầu',   3,  29000,  39000,  30,  '🌙', '3 lượt bốc bài/ngày trong suốt 30 ngày, phù hợp người mới.',              1),
-    ('cp_popular', 'Gói Phổ Biến',  5,  69000,  99000,  90,  '🔮', '5 lượt bốc bài/ngày trong 90 ngày — tối đa hiệu quả tâm linh.',         2),
-    ('cp_premium', 'Gói Cao Cấp',   10, 179000, 290000,  365, '✨', '10 lượt bốc bài/ngày trong cả năm — dành cho tín đồ Tarot.',        3);
-
-
--- Giỏ hàng (Carts)
 CREATE TABLE carts (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    account_id UUID REFERENCES accounts(id) ON DELETE CASCADE,
+    account_id UUID UNIQUE REFERENCES accounts(id) ON DELETE CASCADE, -- 1 user 1 giỏ hàng
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- Chi tiết giỏ hàng (Cart Items)
 CREATE TABLE cart_items (
     cart_id UUID REFERENCES carts(id) ON DELETE CASCADE,
     product_id INT REFERENCES products(id) ON DELETE CASCADE,
@@ -249,30 +260,28 @@ CREATE TABLE cart_items (
     PRIMARY KEY (cart_id, product_id)
 );
 
--- Đơn hàng
 CREATE TABLE orders (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     account_id UUID REFERENCES accounts(id),
     voucher_id INT REFERENCES vouchers(id),
-    subtotal_amount DECIMAL(12,2) NOT NULL,       -- Tổng tiền hàng trước giảm giá
-    discount_amount DECIMAL(12,2) DEFAULT 0,      -- Số tiền được giảm
-    shipping_fee DECIMAL(12,2) DEFAULT 0,         -- Phí vận chuyển
-    total_amount DECIMAL(12,2) NOT NULL,          -- Tổng thanh toán cuối cùng
+    subtotal_amount DECIMAL(12,2) NOT NULL,
+    discount_amount DECIMAL(12,2) DEFAULT 0,
+    shipping_fee DECIMAL(12,2) DEFAULT 0,
+    total_amount DECIMAL(12,2) NOT NULL,
     shipping_province VARCHAR(100) NOT NULL,
     shipping_district VARCHAR(100) NOT NULL,
     shipping_ward VARCHAR(100) NOT NULL,
     shipping_street VARCHAR(255) NOT NULL,
-    recipient_name VARCHAR(100),                  -- Tên người nhận
-    recipient_phone VARCHAR(20),                  -- SĐT người nhận
-    recipient_email VARCHAR(255),                 -- Email người nhận (Hỗ trợ Guest Checkout)
-    notes TEXT,                                   -- Ghi chú đơn hàng
-    status VARCHAR(20) DEFAULT 'pending',         -- 'pending'|'processing'|'shipped'|'delivered'|'cancelled'
-    payment_status VARCHAR(20) DEFAULT 'unpaid',  -- 'unpaid'|'paid'|'refunded'
+    recipient_name VARCHAR(100),
+    recipient_phone VARCHAR(20),
+    recipient_email VARCHAR(255),
+    notes TEXT,
+    status VARCHAR(20) DEFAULT 'pending',        -- 'pending'|'processing'|'shipped'|'delivered'|'cancelled'
+    payment_status VARCHAR(20) DEFAULT 'unpaid', -- 'unpaid'|'paid'|'refunded'
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- Chi tiết đơn hàng
 CREATE TABLE order_items (
     order_id UUID REFERENCES orders(id) ON DELETE CASCADE,
     product_id INT REFERENCES products(id),
@@ -281,20 +290,96 @@ CREATE TABLE order_items (
     PRIMARY KEY (order_id, product_id)
 );
 
+CREATE TABLE order_status_history (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    order_id UUID REFERENCES orders(id) ON DELETE CASCADE,
+    old_status VARCHAR(20),
+    new_status VARCHAR(20) NOT NULL,
+    changed_by UUID REFERENCES accounts(id),
+    note TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE payments (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     account_id UUID REFERENCES accounts(id),
-    order_id UUID REFERENCES orders(id), -- Liên kết với đơn hàng
+    order_id UUID REFERENCES orders(id),
     amount DECIMAL(12,2) NOT NULL,
     payment_method VARCHAR(50),
     transaction_id VARCHAR(100) UNIQUE,
-    payment_type VARCHAR(20), -- 'product_purchase', 'subscription'
+    payment_type VARCHAR(20),  -- 'product_purchase' | 'subscription'
     status VARCHAR(20),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+
 -- ==========================================
--- 6. PHÂN VÙNG TAROT & AI INTERACTION
+-- 5. PHÂN VÙNG GÓI TAROT (SUBSCRIPTIONS)
+-- ==========================================
+
+CREATE TABLE subscription_plans (
+    id SERIAL PRIMARY KEY,
+    plan_name VARCHAR(50) NOT NULL,
+    price DECIMAL(12,2) NOT NULL,
+    duration_days INT NOT NULL,
+    description TEXT
+);
+
+CREATE TABLE user_subscriptions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    account_id UUID REFERENCES accounts(id) ON DELETE CASCADE,
+    plan_id INT REFERENCES subscription_plans(id),
+    start_date TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    end_date TIMESTAMP WITH TIME ZONE NOT NULL,
+    status VARCHAR(20) DEFAULT 'active',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Gói mua lượt Tarot
+CREATE TABLE tarot_credit_packages (
+    id VARCHAR(30) PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    credits_per_day INT NOT NULL,
+    price DECIMAL(12,2) NOT NULL,
+    old_price DECIMAL(12,2),
+    expiry_days INT NOT NULL DEFAULT 30,
+    icon VARCHAR(10),
+    description TEXT,
+    is_active BOOLEAN DEFAULT TRUE,
+    display_order INT DEFAULT 0,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE credit_package_purchases (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    account_id UUID REFERENCES accounts(id) ON DELETE CASCADE,
+    package_id VARCHAR(30) REFERENCES tarot_credit_packages(id),
+    credits_per_day_granted INT NOT NULL,
+    expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    amount_paid DECIMAL(12,2) NOT NULL,
+    payment_method VARCHAR(50),
+    transaction_id VARCHAR(100),
+    status VARCHAR(20) DEFAULT 'completed',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Seed: Gói lượt Tarot (khớp AppDbContext)
+INSERT INTO tarot_credit_packages (id, name, credits_per_day, price, old_price, expiry_days, icon, description, display_order) VALUES
+    ('cp_starter', 'Gói Khởi Đầu',  3,  29000,  39000,  30,  '🌙', '3 lượt/ngày trong 30 ngày', 1),
+    ('cp_popular', 'Gói Phổ Biến',  5,  69000,  99000,  90,  '🔮', '5 lượt/ngày trong 90 ngày', 2),
+    ('cp_premium', 'Gói Cao Cấp',   10, 179000, 290000, 365, '✨', '10 lượt/ngày trong 365 ngày', 3);
+
+-- Seed: Voucher mẫu (khớp AppDbContext)
+INSERT INTO vouchers (id, code, discount_percent, usage_limit, start_date) VALUES
+    (1, 'CHIPSTAROT2024', 10, 100, NOW()),
+    (2, 'HELLOSUMMER',    20, 50,  NOW());
+
+-- Reset sequences sau seed
+SELECT setval('vouchers_id_seq', 2);
+
+
+-- ==========================================
+-- 6. PHÂN VÙNG TAROT & AI
 -- ==========================================
 
 CREATE TABLE tarot_cards (
@@ -302,29 +387,29 @@ CREATE TABLE tarot_cards (
     name VARCHAR(50) NOT NULL,
     suit VARCHAR(20),
     arcana_type VARCHAR(20),
-    element VARCHAR(20),                  -- 'Fire', 'Water', 'Earth', 'Air', 'Spirit'
-    meaning_general TEXT,                 -- Ý nghĩa tổng quan
-    meaning_upright TEXT,                 -- Ý nghĩa xuôi
-    meaning_reversed TEXT,                -- Ý nghĩa ngược
-    image_url TEXT,                       -- Link ảnh lá bài
-    status VARCHAR(20) DEFAULT 'active'   -- 'active' (đã xuất bản), 'draft' (nháp)
+    element VARCHAR(20),
+    meaning_general TEXT,
+    meaning_upright TEXT,
+    meaning_reversed TEXT,
+    image_url TEXT,
+    status VARCHAR(20) DEFAULT 'active'  -- 'active' | 'draft'
 );
 
 CREATE TABLE tarot_readings (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     account_id UUID REFERENCES accounts(id),
     nfc_tag_id VARCHAR(100) REFERENCES nfc_chips(nfc_tag_id),
-    topic VARCHAR(50),                       -- 'love'|'career'|'finance'|'health'|'study'|'general'...
-    topic_sub_answer VARCHAR(100),           -- Câu trả lời câu hỏi phụ (VD: 'crush', 'stuck')
-    user_question TEXT,                      -- Câu hỏi cụ thể người dùng nhập
-    mood_input VARCHAR(50),                  -- Tâm trạng: 'happy'|'anxious'|'tired'...
-    card_count INT DEFAULT 1,                -- 1 hoặc 3 lá
-    ai_model_used VARCHAR(50),               -- VD: 'gemini-1.5-flash', 'gpt-4o'
-    ai_prompt_tokens INT,                    -- Số token prompt (tính chi phí)
-    ai_response_tokens INT,                  -- Số token response
-    ai_response_story TEXT,                  -- Lời giải AI sinh ra (cache - không gọi lại)
-    user_rating INT CHECK (user_rating >= 1 AND user_rating <= 5), -- Đánh giá lời giải
-    is_saved BOOLEAN DEFAULT FALSE,          -- User đánh dấu lưu lại
+    topic VARCHAR(50),
+    topic_sub_answer VARCHAR(100),
+    user_question TEXT,
+    mood_input VARCHAR(50),
+    card_count INT DEFAULT 1,
+    ai_model_used VARCHAR(50),
+    ai_prompt_tokens INT,
+    ai_response_tokens INT,
+    ai_response_story TEXT,
+    user_rating INT CHECK (user_rating >= 1 AND user_rating <= 5),
+    is_saved BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -336,66 +421,108 @@ CREATE TABLE reading_details (
     PRIMARY KEY (reading_id, position_order)
 );
 
+
 -- ==========================================
--- 7. PHÂN VÙNG NỘI DUNG (CONTENT/BLOG)
+-- 7. PHÂN VÙNG NỘI DUNG (BLOG)
 -- ==========================================
 
 CREATE TABLE blog_posts (
     id SERIAL PRIMARY KEY,
-    admin_id UUID REFERENCES accounts(id), -- Tác giả (phải là Admin)
+    admin_id UUID REFERENCES accounts(id),
     title VARCHAR(255) NOT NULL,
     slug VARCHAR(255) UNIQUE NOT NULL,
     content TEXT NOT NULL,
     summary TEXT,
     thumbnail_url TEXT,
-    view_count INT DEFAULT 0,              -- Số lượt xem
-    tags VARCHAR(255),                     -- Tags phân cách bằng dấu phẩy: 'tarot,tình yêu'
-    status VARCHAR(20) DEFAULT 'draft',    -- 'draft' | 'published'
+    view_count INT DEFAULT 0,
+    tags VARCHAR(255),
+    status VARCHAR(20) DEFAULT 'draft',   -- 'draft' | 'published'
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+
 -- ==========================================
--- 8. PHÂN VÙNG PHÂN TÍCH & THEO DÕI (ANALYTICS)
+-- 8. PHÂN VÙNG PHÂN TÍCH (ANALYTICS)
 -- ==========================================
 
--- Lịch sử thay đổi trạng thái đơn hàng
-CREATE TABLE order_status_history (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    order_id UUID REFERENCES orders(id) ON DELETE CASCADE,
-    old_status VARCHAR(20),
-    new_status VARCHAR(20) NOT NULL,
-    changed_by UUID REFERENCES accounts(id), -- Admin thay đổi
-    note TEXT,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
-
--- Lịch sử biến động Credits
 CREATE TABLE credit_transactions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     account_id UUID REFERENCES accounts(id) ON DELETE CASCADE,
-    amount INT NOT NULL,                          -- Dương = cộng, Âm = trừ
-    balance_after INT NOT NULL,                   -- Số dư sau giao dịch
-    type VARCHAR(30) NOT NULL,                    -- 'nfc_activation'|'tarot_reading'|'admin_grant'|'subscription'
-    reference_id VARCHAR(100),                    -- ID liên quan (reading_id, order_id...)
+    amount INT NOT NULL,              -- Dương = cộng, Âm = trừ
+    balance_after INT NOT NULL,
+    type VARCHAR(30) NOT NULL,       -- 'nfc_activation'|'tarot_reading'|'admin_grant'|'daily_reset'
+    reference_id VARCHAR(100),
     note TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- Lịch sử hoạt động thú ảo (Chống cheat game)
 CREATE TABLE pet_game_logs (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     account_id UUID REFERENCES accounts(id) ON DELETE CASCADE,
-    action_type VARCHAR(50) NOT NULL,             -- 'feed', 'gain_exp_from_reading', 'claim_reward'
-    amount INT NOT NULL,                          -- Số lượng exp/food thay đổi
+    action_type VARCHAR(50) NOT NULL, -- 'feed'|'gain_exp_from_reading'|'claim_reward'|'hatch'|'evolution'
+    amount INT NOT NULL DEFAULT 0,
     current_exp INT NOT NULL,
     current_food INT NOT NULL,
-    reference_id VARCHAR(100),                    -- ID bài reading hoặc id reward
+    reference_id VARCHAR(100),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE notifications (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    account_id UUID REFERENCES accounts(id) ON DELETE CASCADE,
+    title VARCHAR(255) NOT NULL,
+    message TEXT NOT NULL,
+    is_read BOOLEAN DEFAULT FALSE,
+    type VARCHAR(50),                -- 'system'|'order'|'subscription'
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Audit trail cho các thao tác RBAC / Admin nhạy cảm
+CREATE TABLE access_audit (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    actor_id UUID REFERENCES accounts(id),
+    action VARCHAR(100) NOT NULL,
+    resource VARCHAR(100),
+    resource_id VARCHAR(100),
+    ip_address VARCHAR(50),
+    user_agent TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+
 -- ==========================================
--- 9. INDEX TỐI ƯU HIỆU NĂNG (PERFORMANCE INDEXES)
+-- 9. CẤU HÌNH HỆ THỐNG (SYSTEM SETTINGS)
+-- ==========================================
+
+CREATE TABLE system_settings (
+    setting_key VARCHAR(100) PRIMARY KEY,
+    setting_value TEXT NOT NULL,
+    description TEXT,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_by UUID REFERENCES accounts(id)
+);
+
+-- Seed: System Settings — key lowercase để khớp với code (ProfileController, DailyCreditsResetJob)
+INSERT INTO system_settings (setting_key, setting_value, description) VALUES
+    -- Gemini AI
+    ('gemini_api_key',                  '',      'Google Gemini API Key'),
+    -- Pet Game
+    ('pet_evolution_teen_exp',          '200',   'EXP cần để thú cưng tiến hóa giai đoạn Teen'),
+    ('pet_evolution_adult_exp',         '1000',  'EXP cần để thú cưng tiến hóa giai đoạn Adult'),
+    ('chipstarot_admin_pet_food_cost',  '1',     'Số thức ăn tiêu thụ mỗi lần cho ăn'),
+    ('chipstarot_admin_pet_exp_gain',   '10',    'EXP nhận được mỗi lần cho ăn'),
+    ('chipstarot_admin_pet_rare_rate',  '5',     'Tỷ lệ % ra thú hiếm (golden) khi nở trứng'),
+    ('nfc_activation_pet_exp',          '50',    'EXP nhận được khi kích hoạt NFC'),
+    ('pet_exp_per_turn',                '20',    'Số EXP nhận được mỗi lần bốc bài'),
+    ('chipstarot_admin_pet_food_daily', '5',     'Số thức ăn tặng mỗi ngày'),
+    ('chipstarot_shipping_fee',         '30000', 'Phí vận chuyển mặc định'),
+    -- System
+    ('maintenance_mode',                'false', 'Bật/Tắt chế độ bảo trì (true/false)');
+
+
+-- ==========================================
+-- 10. INDEX TỐI ƯU HIỆU NĂNG
 -- ==========================================
 
 CREATE INDEX idx_accounts_email ON accounts(email);
@@ -404,36 +531,17 @@ CREATE INDEX idx_otp_email_status ON otp_verifications(email, status);
 CREATE INDEX idx_products_category ON products(category_id);
 CREATE INDEX idx_products_featured ON products(is_featured) WHERE is_featured = TRUE;
 CREATE INDEX idx_products_active ON products(is_active) WHERE is_active = TRUE;
-CREATE INDEX idx_nfc_chips_tag ON nfc_chips(nfc_tag_id);
 CREATE INDEX idx_nfc_chips_account ON nfc_chips(account_id);
 CREATE INDEX idx_cart_items_cart ON cart_items(cart_id);
 CREATE INDEX idx_orders_account ON orders(account_id);
 CREATE INDEX idx_orders_status ON orders(status);
 CREATE INDEX idx_tarot_readings_account ON tarot_readings(account_id);
-CREATE INDEX idx_tarot_readings_topic ON tarot_readings(topic);
 CREATE INDEX idx_reading_details_reading ON reading_details(reading_id);
 CREATE INDEX idx_notifications_account ON notifications(account_id, is_read);
 CREATE INDEX idx_credit_transactions_account ON credit_transactions(account_id);
 CREATE INDEX idx_blog_posts_slug ON blog_posts(slug);
 CREATE INDEX idx_blog_posts_status ON blog_posts(status);
 CREATE INDEX idx_pet_game_logs_account ON pet_game_logs(account_id);
-CREATE INDEX idx_vouchers_account ON vouchers(assigned_to_account);
-
--- ==========================================
--- 10. PHÂN VÙNG CẤU HÌNH HỆ THỐNG (SYSTEM SETTINGS)
--- ==========================================
-
-CREATE TABLE system_settings (
-    setting_key VARCHAR(50) PRIMARY KEY,
-    setting_value TEXT NOT NULL,
-    description TEXT,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_by UUID REFERENCES accounts(id)
-);
-
--- Dữ liệu khởi tạo (Seed Data)
-INSERT INTO system_settings (setting_key, setting_value, description) VALUES 
-('GEMINI_API_KEY', '', 'Google Gemini API Key dùng cho toàn hệ thống'),
-('PET_CREDIT_COST', '10', 'Số Credit bị trừ khi bốc 1 quẻ Tarot'),
-('PET_EXP_PER_TURN', '20', 'Số EXP thú cưng nhận được mỗi lần bốc bài'),
-('MAINTENANCE_MODE', 'false', 'Bật/Tắt chế độ bảo trì hệ thống (true/false)');
+CREATE INDEX idx_credit_pkg_purchases_account ON credit_package_purchases(account_id);
+CREATE INDEX idx_credit_pkg_purchases_expires ON credit_package_purchases(expires_at);
+CREATE INDEX idx_inventory_logs_product ON inventory_logs(product_id);

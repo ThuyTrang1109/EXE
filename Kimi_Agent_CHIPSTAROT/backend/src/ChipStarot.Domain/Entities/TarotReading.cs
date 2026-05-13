@@ -10,6 +10,17 @@ public class TarotCard
     public string? MeaningGeneral { get; set; }
     public string? MeaningUpright { get; set; }
     public string? MeaningReversed { get; set; }
+    
+    // Detailed Meanings
+    public string? MeaningLove { get; set; }
+    public string? MeaningMarriage { get; set; }
+    public string? MeaningCareer { get; set; }
+    public string? MeaningStudy { get; set; }
+    public string? MeaningFinance { get; set; }
+    public string? MeaningInvestment { get; set; }
+    public string? MeaningHealth { get; set; }
+    public string? MeaningSelf { get; set; }
+
     public string? ImageUrl { get; set; }
     public string Status { get; set; } = "active"; // active | draft
 }

@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "oAUDP2nUcMA=",
+  "dgSpecHash": "i0X+EDfU7eE=",
   "success": true,
-  "projectFilePath": "C:\\Users\\VicTus\\Desktop\\EXE_Project\\EXE - Copy\\Kimi_Agent_CHIPSTAROT\\backend\\src\\ChipStarot.Infrastructure\\ChipStarot.Infrastructure.csproj",
+  "projectFilePath": "C:\\Users\\VicTus\\Desktop\\EXE_Project\\EXE\\Kimi_Agent_CHIPSTAROT\\backend\\src\\ChipStarot.Infrastructure\\ChipStarot.Infrastructure.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\VicTus\\.nuget\\packages\\dapper\\2.1.66\\dapper.2.1.66.nupkg.sha512",
     "C:\\Users\\VicTus\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",

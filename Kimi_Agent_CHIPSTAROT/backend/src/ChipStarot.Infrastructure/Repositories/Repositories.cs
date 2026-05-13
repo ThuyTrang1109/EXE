@@ -58,13 +58,24 @@ public class AccountRepository : IAccountRepository
 
     public async Task<(int TotalCount, IEnumerable<Account> Items)> GetAllCustomersAsync(int page, int pageSize)
     {
-        var query = _ctx.Accounts.AsNoTracking().Where(a => a.RoleId == 3) // 3 = customer
+        // FIX: Dùng role.Key thay vì hardcoded RoleId == 3 để tránh lỗi khi seed data thay đổi
+        var query = _ctx.Accounts.AsNoTracking()
+            .Include(a => a.Role)
             .Include(a => a.CustomerProfile)
+            .Where(a => a.Role != null && a.Role.Key == "customer")
             .OrderByDescending(a => a.CreatedAt);
         var total = await query.CountAsync();
         var items = await query.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
         return (total, items);
     }
+
+    // FIX: Thay thế inject AppDbContext trực tiếp trong ProfileController
+    public async Task<Account?> GetByIdWithPermissionsAsync(Guid id) =>
+        await _ctx.Accounts
+            .Include(a => a.Role)
+            .ThenInclude(r => r!.RolePermissions)
+            .ThenInclude(rp => rp.Permission)
+            .FirstOrDefaultAsync(a => a.Id == id);
 }
 
 public class NfcRepository : INfcRepository
@@ -205,6 +216,9 @@ public class TarotRepository : ITarotRepository
         await _ctx.TarotReadings.AsNoTracking().Include(r => r.Details).ThenInclude(d => d.Card)
             .Where(r => r.AccountId == accountId).OrderByDescending(r => r.CreatedAt)
             .Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+    // FIX: Đếm tổng số reading thực sự cho phân trang chính xác
+    public async Task<int> GetReadingsCountByAccountAsync(Guid accountId) =>
+        await _ctx.TarotReadings.CountAsync(r => r.AccountId == accountId);
     public async Task AddReadingAsync(TarotReading reading) { _ctx.TarotReadings.Add(reading); await _ctx.SaveChangesAsync(); }
     public async Task UpdateReadingAsync(TarotReading reading) { _ctx.TarotReadings.Update(reading); await _ctx.SaveChangesAsync(); }
     public async Task<IEnumerable<TarotCreditPackage>> GetCreditPackagesAsync() =>
@@ -276,6 +290,40 @@ public class AuthRepository : IAuthRepository
         var otps = await _ctx.OtpVerifications
             .Where(o => o.Email == email && o.Type == type && o.Status == "pending").ToListAsync();
         otps.ForEach(o => o.Status = "expired");
+        await _ctx.SaveChangesAsync();
+    }
+
+    // ── Refresh Token — DB-backed, bền vững qua server restart ──
+    public async Task SaveRefreshTokenAsync(Guid accountId, string token, int expireDays)
+    {
+        _ctx.RefreshTokens.Add(new Domain.Entities.RefreshToken
+        {
+            AccountId = accountId,
+            Token = token,
+            ExpiresAt = DateTime.UtcNow.AddDays(expireDays)
+        });
+        await _ctx.SaveChangesAsync();
+    }
+
+    public async Task<Guid?> GetAccountIdByRefreshTokenAsync(string token)
+    {
+        var rt = await _ctx.RefreshTokens.FirstOrDefaultAsync(rt =>
+            rt.Token == token && !rt.IsRevoked && rt.ExpiresAt > DateTime.UtcNow);
+        return rt?.AccountId;
+    }
+
+    public async Task RevokeRefreshTokenAsync(string token)
+    {
+        var rt = await _ctx.RefreshTokens.FirstOrDefaultAsync(rt => rt.Token == token);
+        if (rt != null) { rt.IsRevoked = true; await _ctx.SaveChangesAsync(); }
+    }
+
+    public async Task CleanupExpiredRefreshTokensAsync()
+    {
+        var expired = await _ctx.RefreshTokens
+            .Where(rt => rt.ExpiresAt <= DateTime.UtcNow || rt.IsRevoked)
+            .ToListAsync();
+        _ctx.RefreshTokens.RemoveRange(expired);
         await _ctx.SaveChangesAsync();
     }
 }

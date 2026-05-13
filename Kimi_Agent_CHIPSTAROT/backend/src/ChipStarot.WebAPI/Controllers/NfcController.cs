@@ -30,6 +30,11 @@ public class NfcController : BaseApiController
     public async Task<IActionResult> GenerateChip([FromBody] GenerateNfcRequest request) =>
         ToResponse(await _nfcService.GenerateChipAsync(request, CurrentUserId));
 
+    [HttpPost("bulk-generate")]
+    [HasPermission("nfc.manage")]
+    public async Task<IActionResult> BulkGenerate([FromBody] BulkGenerateNfcRequest request) =>
+        ToResponse(await _nfcService.BulkGenerateNfcsAsync(request));
+
     [HttpGet("all")]
     [HasPermission("nfc.manage")]
     public async Task<IActionResult> GetAllChips() =>

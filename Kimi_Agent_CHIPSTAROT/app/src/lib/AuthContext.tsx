@@ -35,6 +35,10 @@ interface AuthContextValue {
   consumeCredit: () => Promise<boolean>;
   refreshCredits: () => Promise<void>;
   updateUserSession: (updates: Partial<AppUser>) => void;
+  
+  // NFC tracking
+  lastScannedTagId: string | null;
+  setLastScannedTagId: (id: string | null) => void;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -48,6 +52,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [credits, setCredits] = useState(0);
   const [creditsExpiresAt, setCreditsExpiresAt] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [lastScannedTagId, setLastScannedTagId] = useState<string | null>(null);
 
   // ── Derived state ──
   const creditsExpired =
@@ -86,7 +91,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           roleId: p.roleId, role: p.roleName, permissions: p.permissions || [],
           avatarUrl: p.avatarUrl,
           petExp: p.petExp, petFood: p.petFood, petType: p.petType, petName: p.petName,
-          petStatus: p.petStatus, petClaimedLevels: JSON.stringify(p.petClaimedLevels || [])
+          petStatus: p.petStatus, petClaimedLevels: JSON.stringify(p.petClaimedLevels || []),
+          status: p.accountStatus || 'active'
         };
         syncFromProfile(mappedUser);
       }
@@ -99,28 +105,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const token = localStorage.getItem('chipstarot_token');
       if (token) {
         try {
-          const res = await api.getMe();
-          if (res.success) {
-            const p = res.data;
+          // FIX: getMe() chỉ trả role+permissions, gọi thêm getProfile() để lấy credits/pet data
+          const [meRes, profileRes] = await Promise.all([
+            api.getMe(),
+            api.getProfile()
+          ]);
+          if (meRes.success && profileRes.success) {
+            const me = meRes.data;
+            const p = profileRes.data;
             const mappedUser: AppUser = {
-              id: p.accountId, email: p.email, name: p.fullName || 'Người dùng',
-              credits: p.credits, creditsExpiresAt: p.creditsExpiresAt,
-              dailyAllowance: p.dailyAllowance, lastResetDate: p.lastResetDate,
+              id: me.id,
+              email: me.email,
+              name: p.fullName || 'Người dùng',
+              credits: p.credits,
+              creditsExpiresAt: p.creditsExpiresAt,
+              dailyAllowance: p.dailyAllowance,
+              lastResetDate: p.lastResetDate,
               phoneNumber: p.phoneNumber,
               province: p.province, district: p.district, ward: p.ward, streetAddress: p.streetAddress,
               dateOfBirth: p.dateOfBirth, gender: p.gender, zodiacSign: p.zodiacSign, lifePathNumber: p.lifePathNumber,
-              roleId: p.roleId, role: p.roleName, permissions: p.permissions || [],
+              roleId: p.roleId, role: me.role, permissions: me.permissions || [],
               avatarUrl: p.avatarUrl,
               petExp: p.petExp, petFood: p.petFood, petType: p.petType, petName: p.petName,
-              petStatus: p.petStatus, petClaimedLevels: JSON.stringify(p.petClaimedLevels || [])
+              petStatus: p.petStatus, petClaimedLevels: JSON.stringify(p.petClaimedLevels || []),
+              status: me.accountStatus || 'active'
             };
             syncFromProfile(mappedUser);
           } else {
             localStorage.removeItem('chipstarot_token');
+            localStorage.removeItem('chipstarot_refresh_token');
           }
         } catch (err) {
           console.error("Bootstrap failed", err);
           localStorage.removeItem('chipstarot_token');
+          localStorage.removeItem('chipstarot_refresh_token');
         }
       }
       setLoading(false);
@@ -177,7 +195,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             : (demo.role === 'staff' ? ['dashboard.view', 'orders.view', 'orders.manage', 'products.view', 'nfc.view'] : (demo.role === 'editor' ? ['cards.view', 'cards.manage', 'content.view', 'content.manage'] : [])),
           avatarUrl: null,
           petExp: 150, petFood: 5, petType: 'chicken_classic', petName: 'Chíp Chíp',
-          petStatus: 'hatched', petClaimedLevels: '[]'
+          petStatus: 'hatched', petClaimedLevels: '[]',
+          status: 'active'
         };
         
         syncFromProfile(mockUser);
@@ -189,22 +208,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const res = await api.login({ email, password });
       if (res.success) {
-        localStorage.setItem('chipstarot_token', res.data.token);
-        // Sau khi login thành công, bootstrap sẽ tự chạy hoặc mình gọi fetch profile ở đây
-        const profileRes = await api.getMe();
-        if (profileRes.success) {
+        // FIX: backend trả về accessToken/refreshToken, không phải token
+        localStorage.setItem('chipstarot_token', res.data.accessToken);
+        localStorage.setItem('chipstarot_refresh_token', res.data.refreshToken);
+
+        // FIX: Lấy đủ dữ liệu profile (getMe chỉ có role+permissions)
+        const [meRes, profileRes] = await Promise.all([
+          api.getMe(),
+          api.getProfile()
+        ]);
+        if (meRes.success && profileRes.success) {
+          const me = meRes.data;
           const p = profileRes.data;
           const mappedUser: AppUser = {
-            id: p.accountId, email: p.email, name: p.fullName || 'Người dùng',
-            credits: p.credits, creditsExpiresAt: p.creditsExpiresAt,
-            dailyAllowance: p.dailyAllowance, lastResetDate: p.lastResetDate,
+            id: me.id,
+            email: me.email,
+            name: p.fullName || 'Người dùng',
+            credits: p.credits,
+            creditsExpiresAt: p.creditsExpiresAt,
+            dailyAllowance: p.dailyAllowance,
+            lastResetDate: p.lastResetDate,
             phoneNumber: p.phoneNumber,
             province: p.province, district: p.district, ward: p.ward, streetAddress: p.streetAddress,
             dateOfBirth: p.dateOfBirth, gender: p.gender, zodiacSign: p.zodiacSign, lifePathNumber: p.lifePathNumber,
-            roleId: p.roleId, role: p.roleName, permissions: p.permissions || [],
+            roleId: p.roleId, role: me.role, permissions: me.permissions || [],
             avatarUrl: p.avatarUrl,
             petExp: p.petExp, petFood: p.petFood, petType: p.petType, petName: p.petName,
-            petStatus: p.petStatus, petClaimedLevels: JSON.stringify(p.petClaimedLevels || [])
+            petStatus: p.petStatus, petClaimedLevels: JSON.stringify(p.petClaimedLevels || []),
+            status: me.accountStatus || 'active'
           };
           syncFromProfile(mappedUser);
         }
@@ -236,7 +267,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         permissions: [],
         avatarUrl: null,
         petExp: 0, petFood: 0, petType: 'egg', petName: 'Chưa đặt tên',
-        petStatus: 'egg', petClaimedLevels: '[]'
+        petStatus: 'egg', petClaimedLevels: '[]',
+        status: 'active'
       };
       
       // Tự động đăng nhập sau khi đăng ký thành công trong demo mode
@@ -256,6 +288,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // ── Logout ──
   const logout = useCallback(async () => {
+    const refreshToken = localStorage.getItem('chipstarot_refresh_token');
+
+    // FIX: Gọi backend để revoke refresh token trong DB
+    if (refreshToken) {
+      try { await api.logout({ refreshToken }); } catch { /* ignore */ }
+    }
+
+    // Xóa cả Supabase session nếu có
     try {
       if (isSupabaseConfigured) {
         await supabase.auth.signOut();
@@ -265,38 +305,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     
     localStorage.removeItem('chipstarot_token');
+    localStorage.removeItem('chipstarot_refresh_token'); // FIX: xóa refresh token
     localStorage.removeItem('chipstarot_demo_user');
     setUser(null);
     setCredits(0);
     setCreditsExpiresAt(null);
-  }, []);
+  }, [isSupabaseConfigured]);
 
   // ── Add credits (NFC scan — có thời hạn 6 tháng) ──
   const addCredits = useCallback(async (amount: number, nfcTagId?: string) => {
-    if (!user) return;
+    if (!user || !nfcTagId) return;
 
     if (!isSupabaseConfigured) {
+      // Demo mode
       const newBalance = credits + amount;
-      // Demo mode: tính 6 tháng kể từ hôm nay
-      const base = creditsExpiresAt && new Date(creditsExpiresAt) > new Date()
-        ? new Date(creditsExpiresAt)
-        : new Date();
-      base.setDate(base.getDate() + 180); // 6 tháng
+      const base = creditsExpiresAt && new Date(creditsExpiresAt) > new Date() ? new Date(creditsExpiresAt) : new Date();
+      base.setDate(base.getDate() + 180);
       const newExpiresAt = base.toISOString();
-      const todayStr = new Date().toISOString().split('T')[0];
       setCredits(newBalance);
       setCreditsExpiresAt(newExpiresAt);
-      setUser(prev => prev ? { ...prev, credits: newBalance, creditsExpiresAt: newExpiresAt, dailyAllowance: amount, lastResetDate: todayStr } : null);
       return;
     }
 
-    const { newBalance, newExpiresAt, error } = await addCreditsToUser(user.id, amount, nfcTagId);
-    if (!error) {
-      setCredits(newBalance);
-      setCreditsExpiresAt(newExpiresAt || null);
-      setUser(prev => prev ? { ...prev, credits: newBalance, creditsExpiresAt: newExpiresAt || null } : null);
+    try {
+      const res = await api.activateNfc({ nfcTagId });
+      if (res.success) {
+        await refreshCredits(); // Tải lại thông tin user từ backend để đồng bộ
+      } else {
+        console.error("NFC Activation failed:", res.message);
+      }
+    } catch (err) {
+      console.error("NFC Activation error:", err);
     }
-  }, [user, credits, creditsExpiresAt]);
+  }, [user, credits, creditsExpiresAt, isSupabaseConfigured, refreshCredits]);
 
   // ── Buy credit package (Digital) ──
   const buyPackage = useCallback(async (packageId: string): Promise<{ success: boolean; message: string }> => {
@@ -452,7 +493,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     user, loading, isConfigured: isSupabaseConfigured,
     login, register, logout,
     credits, creditsExpiresAt, creditsExpired, expiryLabel,
-    addCredits, buyPackage, consumeCredit, refreshCredits, updateUserSession,
+    addCredits, buyPackage, consumeCredit, refreshCredits,
+    updateUserSession,
+    lastScannedTagId,
+    setLastScannedTagId
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

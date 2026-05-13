@@ -74,11 +74,11 @@ public class AuthService : IAuthService
         if (account == null || !VerifyPassword(request.Password, account.PasswordHash))
             return Result<AuthResponse>.Failure("Email hoặc mật khẩu không đúng.", 401);
 
-        if (account.AccountStatus == "banned")
-            return Result<AuthResponse>.Failure("Tài khoản của bạn đã bị khóa.", 403);
-
         if (!account.IsVerified)
             return Result<AuthResponse>.Failure("Vui lòng xác thực email trước khi đăng nhập.", 403);
+
+        if (account.AccountStatus != "active")
+            return Result<AuthResponse>.Failure($"Tài khoản của bạn đang ở trạng thái '{account.AccountStatus}' và không thể đăng nhập.", 403);
 
         var profile = await _accountRepo.GetCustomerProfileAsync(account.Id);
         var roleName = account.Role?.Key ?? "customer";
@@ -154,6 +154,9 @@ public class AuthService : IAuthService
         var account = await _accountRepo.GetByIdAsync(accountId.Value);
         if (account == null) return Result<AuthResponse>.Failure("Tài khoản không tồn tại.", 404);
 
+        if (account.AccountStatus != "active")
+            return Result<AuthResponse>.Failure("Tài khoản đã bị khóa hoặc không còn hoạt động.", 403);
+
         var profile = await _accountRepo.GetCustomerProfileAsync(account.Id);
         var roleName = account.Role?.Key ?? "customer";
 
@@ -191,8 +194,13 @@ public class AuthService : IAuthService
         await _emailService.SendOtpEmailAsync(email, code, type);
     }
 
-    private static string GenerateOtpCode() =>
-        Random.Shared.Next(100000, 999999).ToString();
+    // FIX: Dùng RandomNumberGenerator thay vì Random.Shared (cần cryptographically secure entropy cho OTP)
+    private static string GenerateOtpCode()
+    {
+        var bytes = RandomNumberGenerator.GetBytes(4);
+        var value = (Math.Abs(BitConverter.ToInt32(bytes, 0)) % 900000) + 100000;
+        return value.ToString();
+    }
 
     public static string HashPassword(string password)
     {

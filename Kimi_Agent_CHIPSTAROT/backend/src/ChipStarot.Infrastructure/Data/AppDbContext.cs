@@ -15,6 +15,7 @@ public class AppDbContext : DbContext
     public DbSet<CustomerProfile> CustomerProfiles => Set<CustomerProfile>();
     public DbSet<AdminProfile> AdminProfiles => Set<AdminProfile>();
     public DbSet<OtpVerification> OtpVerifications => Set<OtpVerification>();
+    public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
     // Products
     public DbSet<ProductCategory> ProductCategories => Set<ProductCategory>();
@@ -97,6 +98,8 @@ public class AppDbContext : DbContext
         {
             e.ToTable("accounts");
             e.HasIndex(a => a.Email).IsUnique();
+            e.Property(a => a.Email).IsRequired().HasMaxLength(255);
+            e.Property(a => a.PasswordHash).IsRequired();
             e.HasOne(a => a.Role).WithMany().HasForeignKey(a => a.RoleId);
             e.HasOne(a => a.CustomerProfile).WithOne(p => p.Account).HasForeignKey<CustomerProfile>(p => p.AccountId);
             e.HasOne(a => a.AdminProfile).WithOne(p => p.Account).HasForeignKey<AdminProfile>(p => p.AccountId);
@@ -107,6 +110,7 @@ public class AppDbContext : DbContext
         {
             e.ToTable("customer_profiles");
             e.HasKey(p => p.AccountId);
+            e.Property(p => p.FullName).HasMaxLength(255);
             e.Property(p => p.PetClaimedLevels).HasColumnType("jsonb");
         });
 
@@ -120,11 +124,26 @@ public class AppDbContext : DbContext
         // ── OtpVerification ──
         modelBuilder.Entity<OtpVerification>().ToTable("otp_verifications");
 
+        // ── RefreshToken ──
+        modelBuilder.Entity<RefreshToken>(e =>
+        {
+            e.ToTable("refresh_tokens");
+            e.HasIndex(rt => rt.Token).IsUnique();
+            e.HasIndex(rt => rt.AccountId);
+            e.HasOne(rt => rt.Account).WithMany().HasForeignKey(rt => rt.AccountId).OnDelete(DeleteBehavior.Cascade);
+        });
+
         // ── Products ──
-        modelBuilder.Entity<ProductCategory>().ToTable("product_categories");
+        modelBuilder.Entity<ProductCategory>(e =>
+        {
+            e.ToTable("product_categories");
+            e.Property(c => c.Name).IsRequired().HasMaxLength(100);
+        });
+        
         modelBuilder.Entity<Product>(e =>
         {
             e.ToTable("products");
+            e.Property(p => p.Name).IsRequired().HasMaxLength(255);
             e.HasOne(p => p.Category).WithMany(c => c.Products).HasForeignKey(p => p.CategoryId);
         });
         modelBuilder.Entity<ProductReview>(e =>
@@ -203,7 +222,22 @@ public class AppDbContext : DbContext
         });
 
         // ── Tarot ──
-        modelBuilder.Entity<TarotCard>().ToTable("tarot_cards");
+        modelBuilder.Entity<TarotCard>(e =>
+        {
+            e.ToTable("tarot_cards");
+            e.Property(c => c.Name).IsRequired().HasMaxLength(100);
+            e.Property(c => c.MeaningGeneral).HasMaxLength(2000);
+            e.Property(c => c.MeaningUpright).HasMaxLength(2000);
+            e.Property(c => c.MeaningReversed).HasMaxLength(2000);
+            e.Property(c => c.MeaningLove).HasMaxLength(2000);
+            e.Property(c => c.MeaningMarriage).HasMaxLength(2000);
+            e.Property(c => c.MeaningCareer).HasMaxLength(2000);
+            e.Property(c => c.MeaningStudy).HasMaxLength(2000);
+            e.Property(c => c.MeaningFinance).HasMaxLength(2000);
+            e.Property(c => c.MeaningInvestment).HasMaxLength(2000);
+            e.Property(c => c.MeaningHealth).HasMaxLength(2000);
+            e.Property(c => c.MeaningSelf).HasMaxLength(2000);
+        });
         modelBuilder.Entity<TarotReading>(e =>
         {
             e.ToTable("tarot_readings");
@@ -237,6 +271,9 @@ public class AppDbContext : DbContext
         {
             e.ToTable("blog_posts");
             e.HasIndex(b => b.Slug).IsUnique();
+            e.Property(b => b.Title).IsRequired().HasMaxLength(255);
+            e.Property(b => b.Slug).IsRequired().HasMaxLength(255);
+            e.Property(b => b.Content).IsRequired();
             e.HasOne(b => b.Admin).WithMany().HasForeignKey(b => b.AdminId);
         });
         modelBuilder.Entity<SystemSetting>(e =>
@@ -328,6 +365,20 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Voucher>().HasData(
             new Voucher { Id = 1, Code = "CHIPSTAROT2024", DiscountPercent = 10, UsageLimit = 100, StartDate = DateTime.UtcNow },
             new Voucher { Id = 2, Code = "HELLOSUMMER", DiscountPercent = 20, UsageLimit = 50, StartDate = DateTime.UtcNow }
+        );
+
+        modelBuilder.Entity<SystemSetting>().HasData(
+            new SystemSetting { SettingKey = "gemini_api_key", SettingValue = "", Description = "Google Gemini API Key" },
+            new SystemSetting { SettingKey = "pet_evolution_teen_exp", SettingValue = "200", Description = "EXP cần để thú cưng tiến hóa giai đoạn Teen" },
+            new SystemSetting { SettingKey = "pet_evolution_adult_exp", SettingValue = "1000", Description = "EXP cần để thú cưng tiến hóa giai đoạn Adult" },
+            new SystemSetting { SettingKey = "pet_exp_per_turn", SettingValue = "20", Description = "Số EXP nhận được mỗi lần bốc bài" },
+            new SystemSetting { SettingKey = "chipstarot_admin_pet_food_daily", SettingValue = "5", Description = "Số thức ăn tặng mỗi ngày" },
+            new SystemSetting { SettingKey = "chipstarot_admin_pet_food_cost", SettingValue = "1", Description = "Số thức ăn tiêu thụ mỗi lần cho ăn" },
+            new SystemSetting { SettingKey = "chipstarot_admin_pet_exp_gain", SettingValue = "10", Description = "EXP nhận được mỗi lần cho ăn" },
+            new SystemSetting { SettingKey = "chipstarot_admin_pet_rare_rate", SettingValue = "5", Description = "Tỷ lệ % ra thú hiếm (golden) khi nở trứng" },
+            new SystemSetting { SettingKey = "nfc_activation_pet_exp", SettingValue = "50", Description = "EXP nhận được khi kích hoạt NFC" },
+            new SystemSetting { SettingKey = "chipstarot_shipping_fee", SettingValue = "30000", Description = "Phí vận chuyển mặc định" },
+            new SystemSetting { SettingKey = "maintenance_mode", SettingValue = "false", Description = "Bật/Tắt chế độ bảo trì (true/false)" }
         );
     }
 

@@ -28,6 +28,9 @@ export const api = {
   // Auth
   login: (data: any) => request('/auth/login', { method: 'POST', body: JSON.stringify(data) }),
   register: (data: any) => request('/auth/register', { method: 'POST', body: JSON.stringify(data) }),
+  verifyOtp: (data: any) => request('/auth/verify-otp', { method: 'POST', body: JSON.stringify(data) }),
+  forgotPassword: (email: string) => request('/auth/forgot-password', { method: 'POST', body: JSON.stringify({ email }) }),
+  resetPassword: (data: any) => request('/auth/reset-password', { method: 'POST', body: JSON.stringify(data) }),
   refreshToken: (data: any) => request('/auth/refresh-token', { method: 'POST', body: JSON.stringify(data) }),
   logout: (data: any) => request('/auth/logout', { method: 'POST', body: JSON.stringify(data) }),
 
@@ -42,23 +45,51 @@ export const api = {
   // Tarot
   getCards: () => request('/tarot/cards'),
   startReading: (data: any) => request('/tarot/readings', { method: 'POST', body: JSON.stringify(data) }),
-  getMyReadings: (page = 1, pageSize = 10) => request(`/tarot/readings?page=${page}&pageSize=${pageSize}`),
+  getMyReadings: (page = 1, pageSize = 10) => request(`/tarot/readings/my?page=${page}&pageSize=${pageSize}`),
+  getReadingById: (id: string) => request(`/tarot/readings/${id}`),
+  rateReading: (readingId: string, rating: number) => request('/tarot/readings/rate', { method: 'POST', body: JSON.stringify({ readingId, rating }) }),
+  saveReading: (readingId: string, isSaved: boolean) => request('/tarot/readings/save', { method: 'POST', body: JSON.stringify({ readingId, isSaved }) }),
+  // Admin Tarot Cards
+  createTarotCard: (data: any) => request('/tarot/cards', { method: 'POST', body: JSON.stringify(data) }),
+  updateTarotCard: (id: number, data: any) => request(`/tarot/cards/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  deleteTarotCard: (id: number) => request(`/tarot/cards/${id}`, { method: 'DELETE' }),
 
   // Shop / Products
   getProducts: (page = 1, pageSize = 12) => request(`/products?page=${page}&pageSize=${pageSize}`),
   getProductDetail: (id: number) => request(`/products/${id}`),
   getCategories: () => request('/products/categories'),
 
+  // Cart (Backend-synced)
+  getCart: () => request('/cart'),
+  addToCart: (productId: number, quantity = 1) => request('/cart/items', { method: 'POST', body: JSON.stringify({ productId, quantity }) }),
+  updateCartItem: (productId: number, quantity: number) => request('/cart/items', { method: 'PUT', body: JSON.stringify({ productId, quantity }) }),
+  removeFromCart: (productId: number) => request(`/cart/items/${productId}`, { method: 'DELETE' }),
+  clearCart: () => request('/cart', { method: 'DELETE' }),
+
   // Orders
-  createOrder: (data: any) => request('/orders', { method: 'POST', body: JSON.stringify(data) }),
-  getMyOrders: () => request('/orders/my'),
+  createOrder: (data: any) => request('/orders/checkout', { method: 'POST', body: JSON.stringify(data) }), // FIX: was /orders
+  getMyOrders: (page = 1, pageSize = 10) => request(`/orders/my?page=${page}&pageSize=${pageSize}`), // FIX: was /orders/my (no params)
 
   // Blog
-  getBlogs: (page = 1) => request(`/blogs?page=${page}`),
+  getBlogs: (page = 1, pageSize = 10) => request(`/blogs?page=${page}&pageSize=${pageSize}`),
   getBlogBySlug: (slug: string) => request(`/blogs/${slug}`),
+  // Admin Blog CRUD
+  getAdminBlogs: (page = 1, pageSize = 20) => request(`/blogs/admin?page=${page}&pageSize=${pageSize}`),
+  createBlog: (data: any) => request('/blogs', { method: 'POST', body: JSON.stringify(data) }),
+  updateBlog: (id: number, data: any) => request(`/blogs/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  deleteBlog: (id: number) => request(`/blogs/${id}`, { method: 'DELETE' }),
 
   // NFC
-  activateNfc: (data: any) => request('/nfc/activate', { method: 'POST', body: JSON.stringify(data) }),
+  activateNfc: (data: any) => request('/nfc/scan', { method: 'POST', body: JSON.stringify(data) }),
+  getMyNfcChips: () => request('/nfc/my-chips'),
+  // Admin NFC
+  generateNfcChip: (data: any) => request('/nfc/generate', { method: 'POST', body: JSON.stringify(data) }),
+  bulkGenerateNfc: (data: any) => request('/nfc/bulk-generate', { method: 'POST', body: JSON.stringify(data) }),
+  getAllNfcChips: () => request('/nfc/all'),
+
+  // Tarot Packages
+  getTarotPackages: () => request('/tarot/packages'),
+  purchaseTarotPackage: (packageId: string) => request('/tarot/packages/purchase', { method: 'POST', body: JSON.stringify({ packageId }) }),
 
   // RBAC Admin
   getRbacMatrix: () => request('/rbac'),
@@ -74,8 +105,11 @@ export const api = {
   deleteVoucher: (id: number) => request(`/vouchers/${id}`, { method: 'DELETE' }),
   validateVoucher: (code: string, orderAmount: number) => request(`/vouchers/validate?code=${encodeURIComponent(code)}&orderAmount=${orderAmount}`),
 
-  // Payments
+  // Payments (VNPay)
   vnpayCreate: (orderId: string) => request(`/payments/vnpay/create/${orderId}`, { method: 'POST' }),
+  // Note: vnpay/callback và vnpay/ipn được VNPAY gọi trực tiếp, không cần gọi từ FE
+  // Tuy nhiên FE cần đọc query params từ URL khi user được redirect về từ VNPAY
+  getOrderById: (id: string) => request(`/orders/${id}`),
 
   // Admin & Inventory
   getAdminStats: () => request('/admin/dashboard'),

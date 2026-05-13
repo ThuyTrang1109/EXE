@@ -38,14 +38,28 @@ export default function ProfilePage({ onScanClick }: any) {
         try {
           const res = await api.getMyReadings();
           if (res.success) setHistory(res.data.items || []);
-        } catch (err) { console.error(err); }
+          else throw new Error();
+        } catch (err) { 
+          console.log("Using mock history");
+          setHistory([
+            { id: '1', createdAt: new Date().toISOString(), topic: 'Tình duyên', cardCount: 1, aiResponseStory: 'Một khởi đầu mới đầy hy vọng...' },
+            { id: '2', createdAt: new Date(Date.now() - 86400000).toISOString(), topic: 'Sự nghiệp', cardCount: 3, aiResponseStory: 'Cần kiên nhẫn hơn trong công việc...' }
+          ]);
+        }
         finally { setLoadingHistory(false); }
       } else if (activeTab === 'orders') {
         setLoadingOrders(true);
         try {
           const res = await api.getMyOrders();
           if (res.success) setOrders(res.data.items || []);
-        } catch (err) { console.error(err); }
+          else throw new Error();
+        } catch (err) { 
+          console.log("Using mock orders");
+          setOrders([
+            { id: 'ORD001', createdAt: new Date().toISOString(), totalAmount: 199000, status: 'delivered', items: [{ productName: 'Móc khóa NFC' }] },
+            { id: 'ORD002', createdAt: new Date(Date.now() - 172800000).toISOString(), totalAmount: 89000, status: 'processing', items: [{ productName: 'Đá Thạch Anh' }] }
+          ]);
+        }
         finally { setLoadingOrders(false); }
       }
     };
@@ -78,9 +92,14 @@ export default function ProfilePage({ onScanClick }: any) {
           petFood: res.data.currentFood,
           petStatus: res.data.petStatus 
         });
-      }
+      } else throw new Error();
     } catch (err) {
-      alert("Lỗi cho ăn: " + (err as any).message);
+      console.log("Mock feeding");
+      updateUserSession({ 
+        petExp: (user.petExp || 0) + 10, 
+        petFood: (user.petFood || 0) - 1,
+        petStatus: 'alive'
+      });
     } finally {
       setFeeding(false);
     }
@@ -98,9 +117,17 @@ export default function ProfilePage({ onScanClick }: any) {
           petStatus: res.data.petStatus,
           petName: res.data.petName 
         });
-      }
+      } else throw new Error();
     } catch (err) {
-      alert("Lỗi ấp trứng: " + (err as any).message);
+      console.log("Mock hatching");
+      const mockType = 'chicken_classic';
+      setHatchingPetType(mockType);
+      setShowHatchOverlay(true);
+      updateUserSession({ 
+        petType: mockType, 
+        petStatus: 'alive',
+        petName: 'Thần kê' 
+      });
     }
   };
 

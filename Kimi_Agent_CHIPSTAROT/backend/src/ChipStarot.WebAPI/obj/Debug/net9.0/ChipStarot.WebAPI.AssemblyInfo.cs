@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ChipStarot.WebAPI")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ab6a2b4bb011cf11e5d9c361d2053b9621182147")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+03cce02d022e60aacc295245530a177c3a45a088")]
 [assembly: System.Reflection.AssemblyProductAttribute("ChipStarot.WebAPI")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ChipStarot.WebAPI")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace ChipStarot.Application.DTOs.Tarot;
 
 public record TarotCardDto(
@@ -9,17 +11,33 @@ public record TarotCardDto(
     string? MeaningGeneral,
     string? MeaningUpright,
     string? MeaningReversed,
+    string? MeaningLove,
+    string? MeaningMarriage,
+    string? MeaningCareer,
+    string? MeaningStudy,
+    string? MeaningFinance,
+    string? MeaningInvestment,
+    string? MeaningHealth,
+    string? MeaningSelf,
     string? ImageUrl
 );
 
-public record SelectedCardInput(int CardId, bool IsReversed);
+public record SelectedCardInput(
+    [Required] int CardId, 
+    bool IsReversed
+);
 
 public record StartReadingRequest(
+    [Required(ErrorMessage = "Chủ đề bốc bài là bắt buộc")]
     string Topic,
+    
     string? TopicSubAnswer,
     string? UserQuestion,
     string? MoodInput,
-    int CardCount, // 1 or 3
+    
+    [Range(1, 3, ErrorMessage = "Số lượng lá bài phải từ 1 đến 3")]
+    int CardCount,
+    
     string? NfcTagId,
     IEnumerable<SelectedCardInput>? SelectedCards
 );
@@ -33,6 +51,7 @@ public record TarotReadingDto(
     string? AiResponseStory,
     int? UserRating,
     bool IsSaved,
+    string? NfcTagId,
     DateTime CreatedAt,
     IEnumerable<DrawnCardDto> Cards
 );
@@ -46,36 +65,42 @@ public record DrawnCardDto(
     string? Meaning
 );
 
-public record RateReadingRequest(Guid ReadingId, int Rating);
+public record RateReadingRequest(
+    [Required] Guid ReadingId, 
+    [Range(1, 5)] int Rating
+);
 
-public record SaveReadingRequest(Guid ReadingId, bool IsSaved);
+public record SaveReadingRequest(
+    [Required] Guid ReadingId, 
+    bool IsSaved
+);
 
 public record CreditPackageDto(
-    string Id,
-    string Name,
-    int CreditsPerDay,
-    decimal Price,
-    decimal? OldPrice,
-    int ExpiryDays,
-    string? Icon,
-    string? Description,
-    bool IsActive,
-    int DisplayOrder
+    string Id, string Name, int CreditsPerDay, decimal Price, decimal? OldPrice,
+    int ExpiryDays, string? Icon, string? Description, bool IsActive, int DisplayOrder
 );
 
 public record PurchaseCreditPackageRequest(
-    string PackageId,
-    string PaymentMethod // demo | momo | vnpay
+    [Required] string PackageId,
+    [Required] string PaymentMethod // demo | momo | vnpay
 );
 
 public record CreateTarotCardRequest(
-    string Name,
+    [Required] string Name,
     string? Suit,
     string? ArcanaType,
     string? Element,
     string? MeaningGeneral,
     string? MeaningUpright,
     string? MeaningReversed,
+    string? MeaningLove,
+    string? MeaningMarriage,
+    string? MeaningCareer,
+    string? MeaningStudy,
+    string? MeaningFinance,
+    string? MeaningInvestment,
+    string? MeaningHealth,
+    string? MeaningSelf,
     string? ImageUrl
 );
 
@@ -87,6 +112,14 @@ public record UpdateTarotCardRequest(
     string? MeaningGeneral,
     string? MeaningUpright,
     string? MeaningReversed,
+    string? MeaningLove,
+    string? MeaningMarriage,
+    string? MeaningCareer,
+    string? MeaningStudy,
+    string? MeaningFinance,
+    string? MeaningInvestment,
+    string? MeaningHealth,
+    string? MeaningSelf,
     string? ImageUrl,
     string? Status
 );

@@ -23,11 +23,13 @@ public class OrderService : IOrderService
 {
     private readonly IOrderRepository _orderRepo;
     private readonly IProductRepository _productRepo;
+    private readonly ISystemSettingRepository _sysRepo;
 
-    public OrderService(IOrderRepository orderRepo, IProductRepository productRepo)
+    public OrderService(IOrderRepository orderRepo, IProductRepository productRepo, ISystemSettingRepository sysRepo)
     {
         _orderRepo = orderRepo;
         _productRepo = productRepo;
+        _sysRepo = sysRepo;
     }
 
     public async Task<Result<CartDto>> GetCartAsync(Guid accountId)
@@ -141,7 +143,8 @@ public class OrderService : IOrderService
                 voucher.MaxDiscountAmount ?? decimal.MaxValue);
         }
 
-        const decimal shippingFee = 30000;
+        var shipFeeStr = await _sysRepo.GetValueAsync("chipstarot_shipping_fee") ?? "30000";
+        var shippingFee = decimal.TryParse(shipFeeStr, out var sf) ? sf : 30000m;
         var total = subtotal - discount + shippingFee;
 
         var order = new Order

@@ -50,6 +50,10 @@ public class DailyCreditsResetJob : BackgroundService
         using var scope = _scopeFactory.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         var creditRepo = scope.ServiceProvider.GetRequiredService<ICreditRepository>();
+        var sysRepo = scope.ServiceProvider.GetRequiredService<ISystemSettingRepository>();
+
+        var foodDailyStr = await sysRepo.GetValueAsync("chipstarot_admin_pet_food_daily") ?? "5";
+        var foodDaily = int.TryParse(foodDailyStr, out var fd) ? fd : 5;
 
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
         int resetCount = 0;
@@ -72,7 +76,7 @@ public class DailyCreditsResetJob : BackgroundService
                 // Tặng thêm thức ăn hàng ngày nếu đã có thú cưng
                 if (profile.PetStatus != "egg")
                 {
-                    profile.PetFood += 5; // Mặc định 5 thức ăn mỗi ngày
+                    profile.PetFood += foodDaily;
                 }
 
                 profile.LastResetDate = today;
@@ -85,7 +89,7 @@ public class DailyCreditsResetJob : BackgroundService
                     Amount = profile.DailyAllowance,
                     BalanceAfter = profile.Credits,
                     Type = "daily_reset",
-                    Note = $"Cộng lượt hàng ngày ({profile.DailyAllowance} lượt) + 5 Thức ăn"
+                    Note = $"Cộng lượt hàng ngày ({profile.DailyAllowance} lượt) + {foodDaily} Thức ăn"
                 });
 
                 resetCount++;

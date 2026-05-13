@@ -2,6 +2,7 @@ using ChipStarot.Application.DTOs.Tarot;
 using ChipStarot.Domain.Common;
 using ChipStarot.Domain.Entities;
 using ChipStarot.Domain.Interfaces;
+using Microsoft.Extensions.Logging;
 
 namespace ChipStarot.Application.Services;
 
@@ -30,10 +31,12 @@ public class TarotService : ITarotService
     private readonly IPetRepository _petRepo;
     private readonly ISystemSettingRepository _settingRepo;
     private readonly IGeminiService _geminiService;
+    private readonly ILogger<TarotService> _logger;
 
     public TarotService(ITarotRepository tarotRepo, IAccountRepository accountRepo,
         ICreditRepository creditRepo, IPetRepository petRepo,
-        ISystemSettingRepository settingRepo, IGeminiService geminiService)
+        ISystemSettingRepository settingRepo, IGeminiService geminiService,
+        ILogger<TarotService> logger)
     {
         _tarotRepo = tarotRepo;
         _accountRepo = accountRepo;
@@ -41,6 +44,7 @@ public class TarotService : ITarotService
         _petRepo = petRepo;
         _settingRepo = settingRepo;
         _geminiService = geminiService;
+        _logger = logger;
     }
 
     public async Task<Result<IEnumerable<TarotCardDto>>> GetAllCardsAsync()
@@ -131,15 +135,21 @@ public class TarotService : ITarotService
         string? aiStory = null;
         try
         {
-            var cardNames = drawnCards.Select((c, i) =>
-                $"Vị trí {i + 1}: {c.Name}{(details[i].IsReversed ? " (Ngược)" : " (Xuôi)")}").ToList();
+            var cardsWithMeanings = drawnCards.Select((c, i) => new CardWithMeaning
+            {
+                Name = c.Name,
+                IsReversed = details[i].IsReversed,
+                Meaning = GetMeaningForTopic(c, request.Topic, details[i].IsReversed)
+            }).ToList();
+
             aiStory = await _geminiService.GenerateTarotReadingAsync(
-                request.Topic, request.UserQuestion, request.MoodInput, cardNames);
+                request.Topic, request.UserQuestion, request.MoodInput, cardsWithMeanings);
             reading.AiModelUsed = "gemini-2.0-flash-lite";
             reading.AiResponseStory = aiStory;
         }
-        catch
+        catch (Exception ex)
         {
+            _logger.LogError(ex, "Error generating AI reading");
             // Rollback credit nếu AI lỗi
             profile.Credits += 1;
             await _accountRepo.UpdateCustomerProfileAsync(profile);
@@ -156,10 +166,29 @@ public class TarotService : ITarotService
 
         await _tarotRepo.AddReadingAsync(reading);
 
-        // 6. Cộng EXP thú cưng
-        var expGain = 20;
+        // 6. Cộng EXP thú cưng & Tiến hóa (Evolution)
+        var expPerTurnStr = await _settingRepo.GetValueAsync("pet_exp_per_turn") ?? "20";
+        var expGain = int.TryParse(expPerTurnStr, out var eg) ? eg : 20;
+        
         profile.PetExp += expGain;
+
+        // Logic tiến hóa
+        var teenExpStr = await _settingRepo.GetValueAsync("pet_evolution_teen_exp") ?? "200";
+        var adultExpStr = await _settingRepo.GetValueAsync("pet_evolution_adult_exp") ?? "1000";
+        var teenExp = int.TryParse(teenExpStr, out var te) ? te : 200;
+        var adultExp = int.TryParse(adultExpStr, out var ae) ? ae : 1000;
+
+        if (profile.PetStatus == "hatched" && profile.PetExp >= teenExp)
+        {
+            profile.PetStatus = "teen";
+        }
+        else if (profile.PetStatus == "teen" && profile.PetExp >= adultExp)
+        {
+            profile.PetStatus = "adult";
+        }
+
         await _accountRepo.UpdateCustomerProfileAsync(profile);
+        
         await _petRepo.AddLogAsync(new PetGameLog
         {
             AccountId = accountId,
@@ -185,8 +214,9 @@ public class TarotService : ITarotService
 
     public async Task<Result<PagedResult<TarotReadingDto>>> GetMyReadingsAsync(Guid accountId, int page, int pageSize)
     {
+        // FIX: Lấy tổng số thực từ DB trước (tránh trả về count của page hiện tại)
+        var total = await _tarotRepo.GetReadingsCountByAccountAsync(accountId);
         var readings = (await _tarotRepo.GetReadingsByAccountAsync(accountId, page, pageSize)).ToList();
-        var total = readings.Count;
         var items = readings.Select(r => MapReading(r, r.Details.Select(d => d.Card!).ToList(), r.Details.ToList()));
         return Result<PagedResult<TarotReadingDto>>.Success(new PagedResult<TarotReadingDto>
         {
@@ -275,6 +305,14 @@ public class TarotService : ITarotService
             MeaningGeneral = request.MeaningGeneral,
             MeaningUpright = request.MeaningUpright,
             MeaningReversed = request.MeaningReversed,
+            MeaningLove = request.MeaningLove,
+            MeaningMarriage = request.MeaningMarriage,
+            MeaningCareer = request.MeaningCareer,
+            MeaningStudy = request.MeaningStudy,
+            MeaningFinance = request.MeaningFinance,
+            MeaningInvestment = request.MeaningInvestment,
+            MeaningHealth = request.MeaningHealth,
+            MeaningSelf = request.MeaningSelf,
             ImageUrl = request.ImageUrl,
             Status = "active"
         };
@@ -294,6 +332,14 @@ public class TarotService : ITarotService
         if (request.MeaningGeneral != null) card.MeaningGeneral = request.MeaningGeneral;
         if (request.MeaningUpright != null) card.MeaningUpright = request.MeaningUpright;
         if (request.MeaningReversed != null) card.MeaningReversed = request.MeaningReversed;
+        if (request.MeaningLove != null) card.MeaningLove = request.MeaningLove;
+        if (request.MeaningMarriage != null) card.MeaningMarriage = request.MeaningMarriage;
+        if (request.MeaningCareer != null) card.MeaningCareer = request.MeaningCareer;
+        if (request.MeaningStudy != null) card.MeaningStudy = request.MeaningStudy;
+        if (request.MeaningFinance != null) card.MeaningFinance = request.MeaningFinance;
+        if (request.MeaningInvestment != null) card.MeaningInvestment = request.MeaningInvestment;
+        if (request.MeaningHealth != null) card.MeaningHealth = request.MeaningHealth;
+        if (request.MeaningSelf != null) card.MeaningSelf = request.MeaningSelf;
         if (request.ImageUrl != null) card.ImageUrl = request.ImageUrl;
         if (request.Status != null) card.Status = request.Status;
 
@@ -307,13 +353,42 @@ public class TarotService : ITarotService
         return Result.Success();
     }
 
+    private static string GetMeaningForTopic(TarotCard card, string? topic, bool isReversed)
+    {
+        // 1. Lấy ý nghĩa theo chủ đề cụ thể trước
+        string? specificMeaning = topic?.ToLower() switch
+        {
+            "love" => card.MeaningLove,
+            "marriage" => card.MeaningMarriage,
+            "career" => card.MeaningCareer,
+            "study" => card.MeaningStudy,
+            "finance" => card.MeaningFinance,
+            "investment" => card.MeaningInvestment,
+            "health" => card.MeaningHealth,
+            "self" => card.MeaningSelf,
+            _ => null
+        };
+
+        if (!string.IsNullOrEmpty(specificMeaning)) return specificMeaning;
+
+        // 2. Nếu không có ý nghĩa chủ đề, dùng ý nghĩa chiều xuôi/ngược
+        string? orientationMeaning = isReversed ? card.MeaningReversed : card.MeaningUpright;
+        if (!string.IsNullOrEmpty(orientationMeaning)) return orientationMeaning;
+
+        // 3. Cuối cùng dùng ý nghĩa tổng quan
+        return card.MeaningGeneral ?? "Thông điệp đang ẩn giấu...";
+    }
+
     private static TarotCardDto MapCard(TarotCard c) =>
         new(c.Id, c.Name, c.Suit, c.ArcanaType, c.Element,
-            c.MeaningGeneral, c.MeaningUpright, c.MeaningReversed, c.ImageUrl);
+            c.MeaningGeneral, c.MeaningUpright, c.MeaningReversed,
+            c.MeaningLove, c.MeaningMarriage, c.MeaningCareer, c.MeaningStudy,
+            c.MeaningFinance, c.MeaningInvestment, c.MeaningHealth, c.MeaningSelf,
+            c.ImageUrl);
 
     private static TarotReadingDto MapReading(TarotReading r, List<TarotCard> cards, List<ReadingDetail> details) =>
         new(r.Id, r.Topic, r.UserQuestion, r.MoodInput, r.CardCount, r.AiResponseStory,
-            r.UserRating, r.IsSaved, r.CreatedAt,
+            r.UserRating, r.IsSaved, r.NfcTagId, r.CreatedAt,
             details.Select((d, i) => new DrawnCardDto(
                 cards[i].Id, cards[i].Name, cards[i].ImageUrl,
                 d.PositionOrder, d.IsReversed,

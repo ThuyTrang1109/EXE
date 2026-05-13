@@ -59,10 +59,10 @@ public class PaymentsController : BaseApiController
                 await _orderRepo.UpdateAsync(order);
             }
             // Redirect về trang thành công của Frontend
-            return Redirect(_config["VnPay:FrontendReturnUrl"] + "?status=success&orderId=" + orderId);
+            return Redirect(_config["VnPay:ReturnUrl"] + "?status=success&orderId=" + orderId);
         }
 
-        return Redirect(_config["VnPay:FrontendReturnUrl"] + "?status=failed");
+        return Redirect(_config["VnPay:ReturnUrl"] + "?status=failed");
     }
 
     /// <summary>VNPAY IPN - VNPAY gọi ngầm để cập nhật trạng thái đơn hàng (an toàn hơn callback)</summary>

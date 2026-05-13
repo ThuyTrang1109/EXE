@@ -1,9 +1,7 @@
 using ChipStarot.Application.DTOs.Profile;
 using ChipStarot.Domain.Interfaces;
-using ChipStarot.Infrastructure.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace ChipStarot.WebAPI.Controllers;
 
@@ -15,26 +13,20 @@ public class ProfileController : BaseApiController
     private readonly IAccountRepository _accountRepo;
     private readonly IPetRepository _petRepo;
     private readonly ISystemSettingRepository _sysRepo;
-    private readonly AppDbContext _ctx;
 
-    public ProfileController(IAccountRepository accountRepo, IPetRepository petRepo, ISystemSettingRepository sysRepo, AppDbContext ctx)
+    public ProfileController(IAccountRepository accountRepo, IPetRepository petRepo, ISystemSettingRepository sysRepo)
     {
         _accountRepo = accountRepo;
         _petRepo = petRepo;
         _sysRepo = sysRepo;
-        _ctx = ctx;
     }
 
     /// <summary>Trả về vai trò + quyền của user hiện tại (RBAC.md — mục 6)</summary>
     [HttpGet("me")]
     public async Task<IActionResult> GetMe()
     {
-        var account = await _ctx.Accounts
-            .Include(a => a.Role)
-            .ThenInclude(r => r!.RolePermissions)
-            .ThenInclude(rp => rp.Permission)
-            .FirstOrDefaultAsync(a => a.Id == CurrentUserId);
-
+        // FIX: Dùng GetByIdWithPermissionsAsync thay vì inject DbContext trực tiếp
+        var account = await _accountRepo.GetByIdWithPermissionsAsync(CurrentUserId);
         if (account == null) return NotFound(new { error = "Tài khoản không tồn tại." });
 
         var roleKey = account.Role?.Key ?? "customer";
@@ -43,7 +35,7 @@ public class ProfileController : BaseApiController
             .Select(rp => rp.Permission!.Key)
             .ToList() ?? new List<string>();
 
-        return Ok(new { success = true, data = new MeResponse(account.Id, account.Email, roleKey, permissions) });
+        return Ok(new { success = true, data = new MeResponse(account.Id, account.Email, roleKey, permissions, account.AccountStatus) });
     }
 
     /// <summary>Lấy thông tin hồ sơ cá nhân</summary>
@@ -87,7 +79,8 @@ public class ProfileController : BaseApiController
             profile.LastResetDate, profile.CreditsExpiresAt,
             profile.PetExp, profile.PetFood,
             profile.PetType, profile.PetName, profile.PetStatus,
-            profile.PetClaimedLevels);
+            profile.PetClaimedLevels,
+            account.AccountStatus);
 
         return Ok(new { success = true, data = dto });
     }
@@ -138,6 +131,22 @@ public class ProfileController : BaseApiController
 
         profile.PetFood -= totalFoodCost;
         profile.PetExp += totalExpGain;
+
+        // Logic tiến hóa (Evolution)
+        var teenExpStr = await _sysRepo.GetValueAsync("pet_evolution_teen_exp") ?? "200";
+        var adultExpStr = await _sysRepo.GetValueAsync("pet_evolution_adult_exp") ?? "1000";
+        var teenExp = int.TryParse(teenExpStr, out var te) ? te : 200;
+        var adultExp = int.TryParse(adultExpStr, out var ae) ? ae : 1000;
+
+        if (profile.PetStatus == "hatched" && profile.PetExp >= teenExp)
+        {
+            profile.PetStatus = "teen";
+        }
+        else if (profile.PetStatus == "teen" && profile.PetExp >= adultExp)
+        {
+            profile.PetStatus = "adult";
+        }
+
         profile.UpdatedAt = DateTime.UtcNow;
         await _accountRepo.UpdateCustomerProfileAsync(profile);
 

@@ -43,6 +43,7 @@ public static class DependencyInjection
         services.AddScoped<IBlogRepository, BlogRepository>();
 
         // ── Infrastructure Services ──
+        // JwtService is Scoped (not Singleton) because it depends on IAuthRepository (Scoped)
         services.AddScoped<IJwtService, JwtService>();
         services.AddScoped<IEmailService, EmailService>();
         services.AddScoped<IGeminiService, GeminiService>();
@@ -57,11 +58,8 @@ public static class DependencyInjection
         // ── HTTP Client for Gemini ──
         services.AddHttpClient("Gemini", client =>
         {
-            client.Timeout = TimeSpan.FromSeconds(30);
+            client.Timeout = TimeSpan.FromSeconds(60); // Tăng lên 60s cho 3-card reading
         });
-
-        // ── Caching ──
-        services.AddMemoryCache();
 
         // ── Background Jobs ──
         services.AddHostedService<DailyCreditsResetJob>();
@@ -74,7 +72,8 @@ public static class DependencyInjection
     {
         using var scope = services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        // await db.Database.MigrateAsync();
-        await db.Database.EnsureCreatedAsync();
+        // MigrateAsync: áp dụng migration mới, an toàn cho production
+        // EnsureCreatedAsync: KHÔNG dùng vì không track schema changes
+        await db.Database.MigrateAsync();
     }
 }

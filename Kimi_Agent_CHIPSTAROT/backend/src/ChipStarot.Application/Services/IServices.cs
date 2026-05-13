@@ -22,5 +22,12 @@ public interface IGeminiService
         string? topic,
         string? userQuestion,
         string? mood,
-        IList<string> cardNames);
+        IList<CardWithMeaning> cards);
+}
+
+public class CardWithMeaning
+{
+    public string Name { get; set; } = "";
+    public bool IsReversed { get; set; }
+    public string Meaning { get; set; } = "";
 }

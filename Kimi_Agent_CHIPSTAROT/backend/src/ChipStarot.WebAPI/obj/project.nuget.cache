@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "XeAgHJ+V5Rs=",
+  "dgSpecHash": "dNuFP7hcUAA=",
   "success": true,
-  "projectFilePath": "C:\\Users\\VicTus\\Desktop\\EXE_Project\\EXE - Copy\\Kimi_Agent_CHIPSTAROT\\backend\\src\\ChipStarot.WebAPI\\ChipStarot.WebAPI.csproj",
+  "projectFilePath": "C:\\Users\\VicTus\\Desktop\\EXE_Project\\EXE\\Kimi_Agent_CHIPSTAROT\\backend\\src\\ChipStarot.WebAPI\\ChipStarot.WebAPI.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\VicTus\\.nuget\\packages\\dapper\\2.1.66\\dapper.2.1.66.nupkg.sha512",
     "C:\\Users\\VicTus\\.nuget\\packages\\microsoft.aspnetcore.authentication.jwtbearer\\9.0.2\\microsoft.aspnetcore.authentication.jwtbearer.9.0.2.nupkg.sha512",

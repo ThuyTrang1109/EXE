@@ -5,6 +5,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>ChipStarot.WebAPI</RootNamespace>
+    <RuntimeFrameworkVersion>9.0.13</RuntimeFrameworkVersion>
   </PropertyGroup>
 
   <ItemGroup>

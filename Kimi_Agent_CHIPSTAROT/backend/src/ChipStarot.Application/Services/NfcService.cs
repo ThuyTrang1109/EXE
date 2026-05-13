@@ -11,6 +11,7 @@ public interface INfcService
     Task<Result<NfcChipDto>> GenerateChipAsync(GenerateNfcRequest request, Guid adminId);
     Task<Result<IEnumerable<NfcChipDto>>> GetAllChipsAsync();
     Task<Result<IEnumerable<NfcChipDto>>> GetChipsByAccountAsync(Guid accountId);
+    Task<Result<int>> BulkGenerateNfcsAsync(BulkGenerateNfcRequest request);
 }
 
 public class NfcService : INfcService
@@ -20,15 +21,18 @@ public class NfcService : INfcService
     private readonly IProductRepository _productRepo;
     private readonly ICreditRepository _creditRepo;
     private readonly IPetRepository _petRepo;
+    private readonly ISystemSettingRepository _settingRepo;
 
     public NfcService(INfcRepository nfcRepo, IAccountRepository accountRepo,
-        IProductRepository productRepo, ICreditRepository creditRepo, IPetRepository petRepo)
+        IProductRepository productRepo, ICreditRepository creditRepo, 
+        IPetRepository petRepo, ISystemSettingRepository settingRepo)
     {
         _nfcRepo = nfcRepo;
         _accountRepo = accountRepo;
         _productRepo = productRepo;
         _creditRepo = creditRepo;
         _petRepo = petRepo;
+        _settingRepo = settingRepo;
     }
 
     public async Task<Result<NfcActivationResult>> ScanAsync(ScanNfcRequest request)
@@ -73,13 +77,32 @@ public class NfcService : INfcService
                     Note = $"Kích hoạt thẻ NFC {chip.NfcTagId}"
                 });
 
-                profile.PetExp += 50;
+                var nfcExpStr = await _settingRepo.GetValueAsync("nfc_activation_pet_exp") ?? "50";
+                var nfcExp = int.TryParse(nfcExpStr, out var ne) ? ne : 50;
+
+                profile.PetExp += nfcExp;
+
+                // Logic tiến hóa (Evolution)
+                var teenExpStr = await _settingRepo.GetValueAsync("pet_evolution_teen_exp") ?? "200";
+                var adultExpStr = await _settingRepo.GetValueAsync("pet_evolution_adult_exp") ?? "1000";
+                var teenExp = int.TryParse(teenExpStr, out var te) ? te : 200;
+                var adultExp = int.TryParse(adultExpStr, out var ae) ? ae : 1000;
+
+                if (profile.PetStatus == "hatched" && profile.PetExp >= teenExp)
+                {
+                    profile.PetStatus = "teen";
+                }
+                else if (profile.PetStatus == "teen" && profile.PetExp >= adultExp)
+                {
+                    profile.PetStatus = "adult";
+                }
+
                 await _accountRepo.UpdateCustomerProfileAsync(profile);
                 await _petRepo.AddLogAsync(new PetGameLog
                 {
                     AccountId = request.AccountId,
                     ActionType = "nfc_activation",
-                    Amount = 50,
+                    Amount = nfcExp,
                     CurrentExp = profile.PetExp,
                     CurrentFood = profile.PetFood,
                     ReferenceId = chip.NfcTagId
@@ -132,5 +155,31 @@ public class NfcService : INfcService
         return Result<IEnumerable<NfcChipDto>>.Success(chips.Select(c =>
             new NfcChipDto(c.NfcTagId, c.ProductId, c.Product?.Name, c.AccountId,
                 c.Account?.Email, c.Status, c.CreditsGranted, c.ScanCount, c.LastScannedAt, c.ActivatedAt)));
+    }
+    public async Task<Result<int>> BulkGenerateNfcsAsync(BulkGenerateNfcRequest request)
+    {
+        var product = await _productRepo.GetByIdAsync(request.ProductId);
+        if (product == null)
+            return Result<int>.Failure("Sản phẩm không tồn tại.", 404);
+
+        int count = 0;
+        for (int i = 0; i < request.Quantity; i++)
+        {
+            // Tạo mã ngẫu nhiên: TAROT-XXXX-XXXX
+            var tagId = $"TAROT-{Guid.NewGuid().ToString("N").Substring(0, 4).ToUpper()}-{Guid.NewGuid().ToString("N").Substring(0, 4).ToUpper()}";
+            
+            if (!await _nfcRepo.ExistsAsync(tagId))
+            {
+                await _nfcRepo.AddAsync(new NfcChip 
+                { 
+                    NfcTagId = tagId, 
+                    ProductId = request.ProductId, 
+                    Status = "unactivated" 
+                });
+                count++;
+            }
+        }
+
+        return Result<int>.Success(count);
     }
 }

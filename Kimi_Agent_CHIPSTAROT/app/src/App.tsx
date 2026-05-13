@@ -1,7 +1,8 @@
-import { useState, useEffect, Suspense, lazy } from 'react';
+import { useState, useEffect, Suspense, lazy, useCallback } from 'react';
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import './App.css';
 import { useAuth } from '@/lib/AuthContext';
+import { api } from '@/lib/api';
 import { RequirePermission, RequireAdmin, RequireAuth } from '@/hooks/usePermission';
 
 // Components
@@ -29,7 +30,7 @@ const PaymentPage = lazy(() => import('@/pages/PaymentPage'));
 
 export default function App() {
   // ── Auth (từ AuthContext — persistent qua reload) ──
-  const { user, loading, credits, creditsExpired, expiryLabel, addCredits, consumeCredit, refreshCredits, logout } = useAuth();
+  const { user, loading, credits, creditsExpired, expiryLabel, addCredits, consumeCredit, refreshCredits, logout, setLastScannedTagId } = useAuth();
 
   // ── Navigation ──
   const navigate = useNavigate();
@@ -50,6 +51,37 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem('chipstarot_cart', JSON.stringify(cart));
   }, [cart]);
+
+  // ── FIX: Load giỏ hàng từ backend khi user đăng nhập (sync giỮa thiết bị) ──
+  const syncCartFromBackend = useCallback(async () => {
+    if (!user || user.id.startsWith('demo-')) return; // bỏ qua demo mode
+    try {
+      const res = await api.getCart();
+      if (res.success && res.data?.items?.length > 0) {
+        const backendCart = res.data.items.map((item: any) => ({
+          id: item.productId,
+          name: item.productName,
+          price: item.price,
+          image: item.imageUrl,
+          qty: item.quantity,
+        }));
+        setCart(backendCart);
+      }
+    } catch {
+      // giữ nguyên giỏ hàng local nếu backend bị lỗi
+    }
+  }, [user]);
+
+  // Load cart từ backend mỗi khi user thay đổi (login/logout)
+  useEffect(() => {
+    if (user) {
+      syncCartFromBackend();
+    } else {
+      // Logout: xóa giỏ hàng local
+      setCart([]);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
 
   // ── Handle NFC tagId from URL ──
   useEffect(() => {
@@ -72,6 +104,7 @@ export default function App() {
   // ── NFC scan success: cộng credits vào DB ──
   const handleScanSuccess = async (addedCredits: number, nfcTagId?: string) => {
     await addCredits(addedCredits, nfcTagId);
+    if (nfcTagId) setLastScannedTagId(nfcTagId);
     setShowScanner(false);
   };
 
@@ -89,16 +122,36 @@ export default function App() {
     return true;
   };
 
-  // ── Cart helpers ──
-  const addToCart = (p: any) => {
+  // ── FIX: Cart helpers — optimistic update + backend sync ──
+  const addToCart = async (p: any) => {
+    // Optimistic: cập nhật local state trước
     const existing = cart.find(c => c.id === p.id);
     if (existing) setCart(cart.map(c => c.id === p.id ? { ...c, qty: c.qty + 1 } : c));
     else setCart([...cart, { ...p, qty: 1 }]);
+
+    // Backend sync cho user thật (không phải demo)
+    if (user && !user.id.startsWith('demo-')) {
+      try { await api.addToCart(p.id, 1); }
+      catch { /* giữ optimistic update nếu backend lỗi */ }
+    }
   };
-  const removeFromCart = (id: number) => setCart(cart.filter(c => c.id !== id));
-  const updateQty = (id: number, qty: number) => {
-    if (qty <= 0) removeFromCart(id);
-    else setCart(cart.map(c => c.id === id ? { ...c, qty } : c));
+
+  const removeFromCart = async (id: number) => {
+    setCart(cart.filter(c => c.id !== id));
+    if (user && !user.id.startsWith('demo-')) {
+      try { await api.removeFromCart(id); } catch { }
+    }
+  };
+
+  const updateQty = async (id: number, qty: number) => {
+    if (qty <= 0) {
+      await removeFromCart(id);
+    } else {
+      setCart(cart.map(c => c.id === id ? { ...c, qty } : c));
+      if (user && !user.id.startsWith('demo-')) {
+        try { await api.updateCartItem(id, qty); } catch { }
+      }
+    }
   };
   const cartTotal = cart.reduce((s, c) => s + c.price * c.qty, 0);
   const cartCount = cart.reduce((s, c) => s + c.qty, 0);
@@ -138,7 +191,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<HomePage setPage={(p: any) => navigate(p === 'home' ? '/' : `/${p}`)} />} />
           <Route path="/home" element={<HomePage setPage={(p: any) => navigate(p === 'home' ? '/' : `/${p}`)} />} />
-          <Route path="/reading" element={<ReadingPage user={user} consumeCredit={handleConsumeCredit} refreshCredits={refreshCredits} />} />
+          <Route path="/reading" element={<ReadingPage user={user} consumeCredit={handleConsumeCredit} refreshCredits={refreshCredits} onScanClick={() => setShowScanner(true)} />} />
           <Route path="/cards" element={<CardsPage />} />
           <Route path="/shop" element={<ShopPage addToCart={addToCart} viewProduct={viewProduct} />} />
           <Route path="/product/:productId" element={<ProductDetailPage addToCart={addToCart} />} />
