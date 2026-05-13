@@ -52,6 +52,10 @@ export default function GamePage() {
   const [showHatchingOverlay, setShowHatchingOverlay] = useState(false);
   const [isAscending, setIsAscending] = useState(false);
   const [prevLevel, setPrevLevel] = useState<number | null>(null);
+  const [isPetting, setIsPetting] = useState(false);
+  const [isBathing, setIsBathing] = useState(false);
+  const [petNeed, setPetNeed] = useState<'none' | 'pet' | 'bathe'>('none');
+  const [lastInteractExp, setLastInteractExp] = useState(0);
 
   // [FIX] Chỉ chạy khi user thay đổi (mount / login) — không để `food` và `claimedLevels` vào deps
   // vì mỗi lần cho ăn sẽ trigger sync lại líễu gây ra "sync loop" vô hạn.
@@ -97,14 +101,24 @@ export default function GamePage() {
   const progressPercent = currentInfo.level === 3 ? 100 : ((exp - prevMaxExp) / (targetExp - prevMaxExp)) * 100;
   const hasUnclaimedReward = currentInfo.level > 0 && !claimedLevels.includes(currentInfo.level);
 
-  // Effect: Detect Level Up for Ascension
-  useEffect(() => {
-    if (prevLevel !== null && currentInfo.level > prevLevel) {
+  const checkLevelUp = (oldExp: number, newExp: number) => {
+    const oldLevel = getLevelInfo(oldExp).level;
+    const newLevel = getLevelInfo(newExp).level;
+    if (newLevel > oldLevel) {
       setIsAscending(true);
       setTimeout(() => setIsAscending(false), 3000);
     }
-    setPrevLevel(currentInfo.level);
-  }, [currentInfo.level]);
+  };
+
+  // Effect: Randomly generate pet needs
+  useEffect(() => {
+    if (petStatus === 'egg' || petNeed !== 'none' || currentInfo.level === 3) return;
+    const timer = setTimeout(() => {
+      const needs: ('pet' | 'bathe')[] = ['pet', 'bathe'];
+      setPetNeed(needs[Math.floor(Math.random() * needs.length)]);
+    }, 15000 + Math.random() * 15000); // 15-30s
+    return () => clearTimeout(timer);
+  }, [petStatus, petNeed, currentInfo.level]);
 
   const handleFeed = async () => {
     const foodCost = Number(localStorage.getItem('chipstarot_admin_pet_food_cost')) || 1;
@@ -119,6 +133,7 @@ export default function GamePage() {
       try {
         const res = await api.feedPet(foodCost);
         if (res.success) {
+          checkLevelUp(exp, res.data.petExp);
           setExp(res.data.petExp);
           setFood(res.data.petFood);
         }
@@ -127,14 +142,37 @@ export default function GamePage() {
       }
     } else {
       const newExp = exp + expGain;
+      checkLevelUp(exp, newExp);
       saveState(newExp, food - foodCost);
     }
 
     setTimeout(() => setIsFeeding(false), 800);
   };
 
+  const handleInteract = (type: 'pet' | 'bathe') => {
+    if (isPetting || isBathing || isAscending || petStatus === 'egg' || isFeeding) return;
+    
+    if (type === 'pet') {
+      setIsPetting(true);
+      setTimeout(() => setIsPetting(false), 2000);
+    } else {
+      setIsBathing(true);
+      setTimeout(() => setIsBathing(false), 4000);
+    }
+
+    if (petNeed === type) {
+      const newExp = exp + 2;
+      checkLevelUp(exp, newExp);
+      saveState(newExp, food);
+      setPetNeed('none');
+      setLastInteractExp(2);
+    } else {
+      setLastInteractExp(0);
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-[#0d0029] py-12 px-4 relative overflow-hidden flex flex-col items-center justify-center">
+    <div className="min-h-screen py-12 px-4 relative overflow-hidden flex flex-col items-center justify-center">
       {/* Fullscreen Hatching Overlay */}
       {showHatchingOverlay && petType && (
         <HatchingOverlay
@@ -283,26 +321,27 @@ export default function GamePage() {
             </div>
 
             <div className="transition-all duration-300 relative z-10 flex items-center justify-center">
-              {/* Ascension Effect Overlay */}
+              {/* Ascension Effect Overlay (Localized around pet) */}
               {isAscending && (
-                <div className="absolute inset-0 flex items-center justify-center z-50 pointer-events-none">
-                  <div className="absolute bottom-0 w-32 bg-gradient-to-t from-yellow-400/80 via-yellow-200/40 to-transparent animate-ascension-beam" />
-                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-white/20 rounded-full blur-[80px] animate-pulse" />
-                  {[...Array(12)].map((_, i) => (
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 flex items-center justify-center z-50 pointer-events-none">
+                  <div className="absolute inset-0 bg-yellow-400/40 rounded-full blur-[40px] animate-pulse" />
+                  <div className="absolute inset-0 border-[6px] border-yellow-300/80 rounded-full animate-[spin_3s_linear_infinite] border-t-transparent border-b-transparent" />
+                  <div className="absolute inset-0 border-[3px] border-yellow-100/60 rounded-full animate-[spin_2s_linear_infinite_reverse] border-l-transparent border-r-transparent" />
+                  {[...Array(8)].map((_, i) => (
                     <div
                       key={`asc-${i}`}
-                      className="absolute text-2xl animate-particle-float"
+                      className="absolute text-3xl animate-particle-float"
                       style={{
                         left: `${20 + Math.random() * 60}%`,
-                        bottom: '0',
+                        bottom: `${20 + Math.random() * 40}%`,
                         animationDelay: `${i * 0.2}s`,
-                        animationDuration: '2.5s'
+                        animationDuration: '1.5s'
                       }}
                     >
-                      {['✨', '⭐', '🕊️', '🔥'][i % 4]}
+                      {['✨', '⭐', '🌟'][i % 3]}
                     </div>
                   ))}
-                  <div className="absolute -top-20 text-4xl font-black text-yellow-400 animate-bounce-slow drop-shadow-[0_0_15px_rgba(250,204,21,0.8)]">
+                  <div className="absolute -top-12 text-3xl font-black text-yellow-400 animate-bounce whitespace-nowrap drop-shadow-[0_0_10px_rgba(250,204,21,1)]">
                     THĂNG CẤP! 🆙
                   </div>
                 </div>
@@ -312,21 +351,58 @@ export default function GamePage() {
                 <div className={`text-8xl ${isHatching ? 'animate-pet-shake scale-150' : 'animate-pet-float'}`}>🥚</div>
               ) : petStatus === 'hatched' ? (
                 <div className={`relative cursor-pointer ${isAscending ? 'animate-ascension-glow' : ''}`} onClick={handleFeed}>
-                  <PetChicken
-                    type={testType || petType || 'chicken_classic'}
-                    className="w-64 h-64 md:w-80 md:h-80 mx-auto"
-                    isFeeding={isFeeding}
-                    level={testLevel !== null ? testLevel : currentInfo.level}
-                    isAscending={isAscending}
-                  />
+                  {/* Bathtub Behind Pet */}
+                  {isBathing && (
+                    <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 w-64 h-32 bg-blue-200/40 rounded-[100px] border-b-8 border-blue-300/60 z-0 flex items-end justify-center overflow-hidden backdrop-blur-sm">
+                      <div className="w-full h-1/2 bg-cyan-300/40 animate-pulse"></div>
+                    </div>
+                  )}
+
+                  <div className={`transition-all duration-300 relative z-10 flex items-center justify-center`}>
+                    <PetChicken
+                      type={testType || petType || 'chicken_classic'}
+                      className="w-64 h-64 md:w-80 md:h-80 mx-auto z-10 relative"
+                      isFeeding={isFeeding || isPetting || isBathing}
+                      level={testLevel !== null ? testLevel : currentInfo.level}
+                      isAscending={isAscending}
+                    />
+                  </div>
+
+                  {/* Bubbles / Front Bathtub Elements */}
+                  {isBathing && (
+                     <div className="absolute inset-0 pointer-events-none z-20">
+                       <div className="absolute bottom-4 left-10 text-3xl animate-bounce" style={{animationDelay: '0.1s'}}>🫧</div>
+                       <div className="absolute bottom-12 right-8 text-2xl animate-float" style={{animationDelay: '0.3s'}}>🫧</div>
+                       <div className="absolute top-1/2 left-1/4 text-4xl animate-pulse" style={{animationDelay: '0.5s'}}>🛁</div>
+                       <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-72 h-16 bg-white/20 rounded-full blur-md"></div>
+                     </div>
+                  )}
+                  {/* Petting Hearts */}
+                  {isPetting && (
+                    <div className="absolute inset-0 pointer-events-none z-20">
+                       <div className="absolute -top-4 left-1/4 text-3xl animate-ping text-pink-400">❤️</div>
+                       <div className="absolute top-8 right-1/4 text-4xl animate-float text-pink-500" style={{animationDelay: '0.2s'}}>💖</div>
+                    </div>
+                  )}
+                  {/* Needs Bubble */}
+                  {petNeed !== 'none' && !isBathing && !isPetting && !isFeeding && (
+                    <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-white text-purple-900 px-4 py-2 rounded-2xl rounded-bl-none shadow-[0_0_15px_rgba(255,255,255,0.5)] font-bold text-sm z-30 animate-bounce whitespace-nowrap">
+                      {petNeed === 'pet' ? '💭 Cần vuốt ve!' : '💭 Muốn tắm!'}
+                    </div>
+                  )}
                 </div>
               ) : null}
 
               {isFeeding && petStatus !== 'egg' && (
                 <>
                   <div className="absolute -top-4 -right-4 text-3xl animate-bounce z-20">😋</div>
-                  <div className="absolute -top-10 left-1/2 -translate-x-1/2 text-2xl animate-ping text-yellow-400 z-20 whitespace-nowrap font-black">✨+10 EXP</div>
+                  <div className="absolute -top-10 left-1/2 -translate-x-1/2 text-2xl animate-ping text-yellow-400 z-20 whitespace-nowrap font-black">✨+{Number(localStorage.getItem('chipstarot_admin_pet_exp_gain')) || 10} EXP</div>
                 </>
+              )}
+              {(isPetting || isBathing) && petStatus !== 'egg' && (
+                <div className="absolute -top-10 left-1/2 -translate-x-1/2 text-2xl animate-ping text-pink-400 z-20 whitespace-nowrap font-black">
+                  {lastInteractExp > 0 ? `✨+${lastInteractExp} EXP` : '✨Vui vẻ!'}
+                </div>
               )}
             </div>
 
@@ -394,16 +470,30 @@ export default function GamePage() {
           </div>
 
           {/* Actions */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <button
               onClick={handleFeed}
-              disabled={food < (Number(localStorage.getItem('chipstarot_admin_pet_food_cost')) || 1) || currentInfo.level === 3}
-              className={`py-4 px-6 rounded-2xl font-bold text-lg flex items-center justify-center gap-2 transition-all ${food >= (Number(localStorage.getItem('chipstarot_admin_pet_food_cost')) || 1) && currentInfo.level < 3
+              disabled={food < (Number(localStorage.getItem('chipstarot_admin_pet_food_cost')) || 1) || currentInfo.level === 3 || isAscending || isBathing || isPetting}
+              className={`py-4 px-2 rounded-2xl font-bold text-sm lg:text-base flex items-center justify-center gap-1 transition-all ${food >= (Number(localStorage.getItem('chipstarot_admin_pet_food_cost')) || 1) && currentInfo.level < 3 && !isAscending && !isBathing && !isPetting
                 ? 'bg-gradient-to-r from-green-500 to-emerald-400 text-white hover:scale-105 shadow-lg shadow-green-500/30 cursor-pointer'
                 : 'bg-white/5 text-white/40 cursor-not-allowed border border-white/10'
                 }`}
             >
-              🍎 Cho ăn (-{Number(localStorage.getItem('chipstarot_admin_pet_food_cost')) || 1} Thức ăn)
+              🍎 Cho ăn
+            </button>
+            <button
+              onClick={() => handleInteract('pet')}
+              disabled={isPetting || isBathing || petStatus === 'egg' || isAscending || currentInfo.level === 3}
+              className={`py-4 px-2 rounded-2xl font-bold text-sm lg:text-base transition-all shadow-lg flex items-center justify-center gap-1 ${!(isPetting || isBathing || petStatus === 'egg' || isAscending || currentInfo.level === 3) ? 'bg-pink-500/30 text-pink-100 border border-pink-500/50 hover:bg-pink-500/50 hover:scale-105 shadow-pink-500/30' : 'bg-white/5 text-white/40 border border-white/10 cursor-not-allowed'}`}
+            >
+              👋 Vuốt ve
+            </button>
+            <button
+              onClick={() => handleInteract('bathe')}
+              disabled={isPetting || isBathing || petStatus === 'egg' || isAscending || currentInfo.level === 3}
+              className={`py-4 px-2 rounded-2xl font-bold text-sm lg:text-base transition-all shadow-lg flex items-center justify-center gap-1 ${!(isPetting || isBathing || petStatus === 'egg' || isAscending || currentInfo.level === 3) ? 'bg-blue-500/30 text-blue-100 border border-blue-500/50 hover:bg-blue-500/50 hover:scale-105 shadow-blue-500/30' : 'bg-white/5 text-white/40 border border-white/10 cursor-not-allowed'}`}
+            >
+              🛁 Tắm thú
             </button>
 
             {hasUnclaimedReward ? (
@@ -428,23 +518,23 @@ export default function GamePage() {
                     saveState(exp, food, newClaimed);
                   }
                 }}
-                className="py-4 px-6 rounded-2xl font-bold text-lg bg-gradient-to-r from-yellow-500 to-amber-500 text-white hover:scale-105 shadow-lg shadow-yellow-500/30 flex items-center justify-center gap-2 animate-pulse"
+                className="py-4 px-2 rounded-2xl font-bold text-sm lg:text-base bg-gradient-to-r from-yellow-500 to-amber-500 text-white hover:scale-105 shadow-lg shadow-yellow-500/30 flex items-center justify-center gap-1 animate-pulse"
               >
-                🎁 Nhận Quà Cấp {currentInfo.level + 1}!
+                🎁 Nhận Quà!
               </button>
             ) : currentInfo.level === 3 ? (
               <button
                 onClick={() => navigate('/shop')}
-                className="py-4 px-6 rounded-2xl font-bold text-lg bg-gradient-to-r from-purple-600 to-indigo-500 text-white hover:scale-105 shadow-lg shadow-purple-500/30 flex items-center justify-center gap-2"
+                className="py-4 px-2 rounded-2xl font-bold text-sm lg:text-base bg-gradient-to-r from-purple-600 to-indigo-500 text-white hover:scale-105 shadow-lg shadow-purple-500/30 flex items-center justify-center gap-1"
               >
-                🛍️ Mua sắm ngay
+                🛍️ Mua sắm
               </button>
             ) : (
               <button
                 onClick={() => navigate('/reading')}
-                className="py-4 px-6 rounded-2xl font-bold text-lg bg-gradient-to-r from-purple-600 to-indigo-500 text-white hover:scale-105 shadow-lg shadow-purple-500/30 flex items-center justify-center gap-2"
+                className="py-4 px-2 rounded-2xl font-bold text-sm lg:text-base bg-gradient-to-r from-purple-600 to-indigo-500 text-white hover:scale-105 shadow-lg shadow-purple-500/30 flex items-center justify-center gap-1"
               >
-                🔮 Xem Tarot kiếm thức ăn
+                🔮 Tarot
               </button>
             )}
           </div>

@@ -8,6 +8,7 @@ import { RequirePermission, RequireAdmin, RequireAuth } from '@/hooks/usePermiss
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import NFCScannerOverlay from '@/components/NFCScannerOverlay';
+import { CosmosBackground } from './components/CosmosBackground';
 
 // Pages - Lazy Loaded for Performance
 const HomePage = lazy(() => import('@/pages/HomePage'));
@@ -115,7 +116,8 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-purple-50 to-yellow-100">
+    <div className="min-h-screen relative text-white">
+      <CosmosBackground />
       <Header
         user={user}
         credits={credits}

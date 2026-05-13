@@ -13,7 +13,9 @@ export default function Footer() {
   ];
 
   return (
-    <footer className="bg-gradient-to-br from-purple-900 via-purple-800 to-yellow-900 text-white py-12">
+    <footer className="relative text-white py-12 border-t border-white/10" style={{ background: 'linear-gradient(to bottom, rgba(11,10,31,0.7), rgba(11,10,31,0.95))' }}>
+      {/* Top gradient line */}
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-purple-500/40 to-transparent" />
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>

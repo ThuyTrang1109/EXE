@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { XCircle, Clock, Package, Wallet, Banknote, ShieldCheck, Sparkles } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { api } from '../lib/api';
 
@@ -117,7 +118,7 @@ export default function PaymentPage() {
       bgColor: 'bg-pink-50',
       borderColor: 'border-pink-200',
       textColor: 'text-pink-700',
-      icon: '💜',
+      icon: <Wallet className="w-8 h-8 text-pink-600" />,
       accountName: 'CHIPSTAROT',
       accountNumber: '0867774023',
       qrColor: '#d946ef',
@@ -128,7 +129,7 @@ export default function PaymentPage() {
       bgColor: 'bg-blue-50',
       borderColor: 'border-blue-200',
       textColor: 'text-blue-700',
-      icon: '🔵',
+      icon: <ShieldCheck className="w-8 h-8 text-blue-600" />,
       accountName: 'CHIPSTAROT JSC',
       accountNumber: '1234567890',
       qrColor: '#2563eb',
@@ -139,7 +140,7 @@ export default function PaymentPage() {
       bgColor: 'bg-green-50',
       borderColor: 'border-green-200',
       textColor: 'text-green-700',
-      icon: '💵',
+      icon: <Banknote className="w-8 h-8 text-green-600" />,
       accountName: '',
       accountNumber: '',
       qrColor: '#16a34a',
@@ -168,9 +169,12 @@ export default function PaymentPage() {
         <h2 className="text-3xl font-black text-gray-800 mb-2">Thanh toán thành công!</h2>
         <p className="text-gray-500 mb-1">Mã đơn hàng: <span className="font-bold text-yellow-600">{orderId}</span></p>
         <p className="text-gray-500 mb-6">Số tiền: <span className="font-black text-2xl text-green-600">{total.toLocaleString()}đ</span></p>
-        <div className="bg-gradient-to-r from-purple-50 to-yellow-50 rounded-2xl p-5 mb-8 border border-purple-100">
-          <p className="text-sm text-purple-700 font-medium">🔮 Credits đã được cộng vào tài khoản của bạn!</p>
-          <p className="text-xs text-gray-400 mt-1">Chúng tôi sẽ xác nhận qua email và SMS trong vài phút</p>
+        <div className="bg-gradient-to-r from-purple-50 to-yellow-50 rounded-2xl p-5 mb-8 border border-purple-100 flex items-center justify-center gap-2">
+          <Sparkles className="w-5 h-5 text-purple-600" />
+          <div className="text-left">
+            <p className="text-sm text-purple-700 font-medium">Credits đã được cộng vào tài khoản của bạn!</p>
+            <p className="text-xs text-gray-400 mt-1">Chúng tôi sẽ xác nhận qua email và SMS trong vài phút</p>
+          </div>
         </div>
         <button onClick={() => navigate('/')} className="btn-3d-yellow w-full mb-3">🏠 Về Trang Chủ</button>
         <button onClick={() => navigate('/profile')} className="w-full py-3 text-purple-600 font-semibold hover:underline text-sm">
@@ -184,7 +188,7 @@ export default function PaymentPage() {
   if (status === 'failed') return (
     <div className="min-h-screen bg-gradient-to-br from-red-50 to-pink-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-3xl shadow-xl p-10 max-w-md w-full text-center">
-        <div className="text-7xl mb-4">❌</div>
+        <div className="mb-4"><XCircle className="w-20 h-20 text-red-500 mx-auto" /></div>
         <h2 className="text-2xl font-bold text-gray-800 mb-2">Thanh toán thất bại</h2>
         <p className="text-red-500 font-medium mb-6">{errorMessage}</p>
         <button onClick={() => setStatus('waiting')} className="btn-3d-yellow w-full mb-3">🔄 Thử lại</button>
@@ -199,7 +203,7 @@ export default function PaymentPage() {
   if (status === 'expired') return (
     <div className="min-h-screen bg-gradient-to-br from-red-50 to-orange-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-3xl shadow-xl p-10 max-w-md w-full text-center">
-        <div className="text-7xl mb-4">⏰</div>
+        <div className="mb-4"><Clock className="w-20 h-20 text-orange-500 mx-auto" /></div>
         <h2 className="text-2xl font-bold text-gray-800 mb-2">Phiên thanh toán hết hạn</h2>
         <p className="text-gray-500 mb-6">QR code đã hết hiệu lực. Vui lòng tạo đơn hàng mới.</p>
         <button onClick={() => navigate('/cart')} className="btn-3d-yellow w-full">🛒 Quay lại giỏ hàng</button>
@@ -209,9 +213,9 @@ export default function PaymentPage() {
 
   // ── COD Screen ────────────────────────────────────────────────
   if (method === 'cod') return (
-    <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-green-50 to-yellow-100 flex items-center justify-center p-4">
+    <div className="min-h-screen flex items-center justify-center p-4">
       <div className="bg-white rounded-3xl shadow-2xl p-10 max-w-md w-full text-center">
-        <div className="text-7xl mb-6 animate-bounce">📦</div>
+        <div className="mb-6 animate-bounce"><Package className="w-20 h-20 text-green-500 mx-auto" /></div>
         <h2 className="text-2xl font-bold text-gray-800 mb-2">Đặt hàng thành công!</h2>
         <p className="text-gray-500 mb-6">Bạn chọn thanh toán <strong>Tiền mặt khi nhận hàng (COD)</strong>.</p>
         <div className="bg-green-50 border border-green-200 rounded-2xl p-5 mb-6 text-left space-y-2">
@@ -226,16 +230,16 @@ export default function PaymentPage() {
 
   // ── QR Payment Screen (MoMo / VNPay) ─────────────────────────
   return (
-    <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-purple-50 to-yellow-100 py-10 px-4">
+    <div className="min-h-screen py-10 px-4">
       <div className="max-w-lg mx-auto">
 
         {/* Header */}
         <div className="text-center mb-6">
-          <button onClick={() => navigate('/checkout')} className="text-gray-400 hover:text-gray-600 flex items-center gap-1 text-sm mx-auto mb-4">
+          <button onClick={() => navigate('/checkout')} className="text-purple-200 hover:text-white flex items-center gap-1 text-sm mx-auto mb-4">
             ← Quay lại
           </button>
-          <h1 className="text-2xl font-black text-gray-800">Thanh Toán {info.name}</h1>
-          <p className="text-gray-500 text-sm mt-1">Quét QR hoặc chuyển khoản thủ công</p>
+          <h1 className="text-2xl font-black text-white drop-shadow-md">Thanh Toán {info.name}</h1>
+          <p className="text-purple-200 text-sm mt-1">Quét QR hoặc chuyển khoản thủ công</p>
         </div>
 
         {/* Timer Banner */}
@@ -270,8 +274,8 @@ export default function PaymentPage() {
                 ))}
               </div>
               <div className="absolute inset-0 flex items-center justify-center">
-                <div className="bg-white rounded-xl p-2 shadow-lg">
-                  <div className="text-3xl">{info.icon}</div>
+                <div className="bg-white rounded-xl p-2 shadow-lg text-center">
+                  {info.icon}
                 </div>
               </div>
             </div>

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { User, Settings, LogOut, LogIn, ShoppingCart, Sparkles, AlertTriangle, Menu, X } from 'lucide-react';
 import { usePermission } from '../hooks/usePermission';
 
 interface HeaderProps {
@@ -32,15 +33,17 @@ export default function Header({ user, credits, creditsExpired, expiryLabel, log
   };
 
   return (
-    <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-yellow-200 shadow-sm">
-      <div className="bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-400 text-white text-center py-1.5 px-4 text-sm">
-        <span className="font-medium">Vũ trụ luôn ở bên bạn, tin tưởng vào hành trình của mình nhé!</span>
+    <header className="sticky top-0 z-50 bg-[#0B0A1F]/80 backdrop-blur-xl border-b border-white/10 shadow-[0_4px_30px_rgba(0,0,0,0.5)]">
+      <div className="bg-gradient-to-r from-purple-900 via-indigo-800 to-purple-900 text-purple-100 text-center py-1.5 px-4 text-sm border-b border-purple-500/30">
+        <span className="font-medium flex items-center justify-center gap-2">
+          <Sparkles className="w-4 h-4 text-yellow-300" /> Vũ trụ luôn ở bên bạn, tin tưởng vào hành trình của mình nhé! <Sparkles className="w-4 h-4 text-yellow-300" />
+        </span>
       </div>
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <Link to="/" className="flex items-center gap-2">
-            <img src="/chicken-mascot.png" alt="" className="w-10 h-10" />
-            <span className="text-xl font-bold bg-gradient-to-r from-yellow-600 to-yellow-500 bg-clip-text text-transparent">CHIPSTAROT</span>
+            <img src="/chicken-mascot.png" alt="" className="w-10 h-10 drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]" />
+            <span className="text-xl font-black tracking-wider bg-gradient-to-r from-yellow-300 to-yellow-600 bg-clip-text text-transparent drop-shadow-md">CHIPSTAROT</span>
           </Link>
 
           <nav className="hidden md:flex items-center gap-1">
@@ -48,8 +51,8 @@ export default function Header({ user, credits, creditsExpired, expiryLabel, log
               <button key={n.key} onClick={() => handleNav(n.path)}
                 className={`px-4 py-2 rounded-lg font-medium transition-all ${
                   (n.key === 'home' && location.pathname === '/') || location.pathname === n.path
-                    ? 'text-yellow-600 bg-yellow-100'
-                    : 'text-gray-600 hover:text-yellow-600 hover:bg-yellow-50'
+                    ? 'text-yellow-300 bg-white/10 shadow-[inset_0_0_10px_rgba(255,255,255,0.05)]'
+                    : 'text-purple-200 hover:text-yellow-300 hover:bg-white/5'
                 }`}>
                 {n.label}
               </button>
@@ -57,17 +60,21 @@ export default function Header({ user, credits, creditsExpired, expiryLabel, log
           </nav>
 
           <div className="flex items-center gap-3">
-            <button onClick={() => navigate('/cart')} className="relative p-2 hover:bg-yellow-50 rounded-lg">
-              <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <button onClick={() => navigate('/cart')} className="relative p-2 hover:bg-white/10 rounded-lg transition-colors">
+              <svg className="w-6 h-6 text-purple-200 hover:text-yellow-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
               </svg>
-              {cartCount > 0 && <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">{cartCount}</span>}
+              {cartCount > 0 && <span className="absolute -top-1 -right-1 bg-gradient-to-r from-pink-500 to-purple-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center shadow-lg border border-white/20">{cartCount}</span>}
             </button>
             {user ? (
               <div className="hidden md:flex items-center gap-3">
-                <button onClick={() => navigate('/profile')} className="text-sm font-medium text-blue-600 hover:text-blue-800 bg-blue-100 px-3 py-1 rounded-full">👤 Hồ sơ</button>
+                <button onClick={() => navigate('/profile')} className="text-sm font-medium text-blue-300 hover:text-blue-100 bg-white/10 px-3 py-1.5 rounded-full flex items-center gap-1.5">
+                  <User className="w-4 h-4" /> Hồ sơ
+                </button>
                 {isAdmin() && (
-                  <button onClick={() => navigate('/admin')} className="text-sm font-medium text-purple-600 hover:text-purple-800 bg-purple-100 px-3 py-1 rounded-full">Admin</button>
+                  <button onClick={() => navigate('/admin')} className="text-sm font-medium text-purple-300 hover:text-purple-100 bg-white/10 px-3 py-1.5 rounded-full flex items-center gap-1.5">
+                    <Settings className="w-4 h-4" /> Admin
+                  </button>
                 )}
                 <div className="relative group">
                   <span className={`px-3 py-1 rounded-full text-sm font-medium cursor-help flex items-center gap-1 ${
@@ -76,7 +83,7 @@ export default function Header({ user, credits, creditsExpired, expiryLabel, log
                     'bg-yellow-100 text-yellow-700'
                   }`}>
                     {creditsExpired ? 'Hết hạn' : `${credits} lượt`}
-                    {expiryLabel?.urgency === 'warning' && !creditsExpired && '⚠️'}
+                    {expiryLabel?.urgency === 'warning' && !creditsExpired && <AlertTriangle className="w-4 h-4" />}
                   </span>
                   {/* Tooltip */}
                   {expiryLabel && expiryLabel.urgency !== 'none' && (
@@ -93,31 +100,41 @@ export default function Header({ user, credits, creditsExpired, expiryLabel, log
                 </button>
               </div>
             ) : (
-              <button onClick={() => navigate('/auth')} className="hidden md:block px-4 py-2 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white rounded-full font-medium text-sm hover:from-yellow-600 hover:to-yellow-700 transition-all">Đăng nhập</button>
+              <button onClick={() => navigate('/auth')} className="hidden md:flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white rounded-full font-medium text-sm hover:from-yellow-600 hover:to-yellow-700 transition-all">
+                <LogIn className="w-4 h-4" /> Đăng nhập
+              </button>
             )}
-            <button onClick={() => setMenuOpen(!menuOpen)} className="md:hidden p-2">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
+            <button onClick={() => setMenuOpen(!menuOpen)} className="md:hidden p-2 text-purple-200 hover:text-yellow-300">
+              {menuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
           </div>
         </div>
         {menuOpen && (
-          <div className="md:hidden py-4 border-t border-yellow-100">
+          <div className="md:hidden py-4 border-t border-white/10">
             {navs.map(n => (
               <button key={n.key} onClick={() => handleNav(n.path)}
-                className="block w-full text-left px-4 py-3 text-gray-600 hover:bg-yellow-50 rounded-lg">{n.label}</button>
+                className="block w-full text-left px-4 py-3 text-purple-200 hover:text-yellow-300 hover:bg-white/5 rounded-lg">{n.label}</button>
             ))}
             {user && (
               <>
-                <button onClick={() => handleNav('/profile')} className="block w-full text-left px-4 py-3 text-blue-600 hover:bg-blue-50 rounded-lg font-medium">👤 Hồ sơ của tôi</button>
+                <button onClick={() => handleNav('/profile')} className="w-full text-left px-4 py-3 text-blue-300 hover:bg-white/5 rounded-lg font-medium flex items-center gap-3">
+                  <User className="w-5 h-5" /> Hồ sơ của tôi
+                </button>
                 {isAdmin() && (
-                  <button onClick={() => handleNav('/admin')} className="block w-full text-left px-4 py-3 text-purple-600 hover:bg-purple-50 rounded-lg font-medium">⚙️ Admin Dashboard</button>
+                  <button onClick={() => handleNav('/admin')} className="w-full text-left px-4 py-3 text-purple-300 hover:bg-white/5 rounded-lg font-medium flex items-center gap-3">
+                    <Settings className="w-5 h-5" /> Admin Dashboard
+                  </button>
                 )}
-                <button onClick={() => { logout(); navigate('/'); setMenuOpen(false); }} className="block w-full text-left px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg font-medium">🚪 Đăng xuất</button>
+                <button onClick={() => { logout(); navigate('/'); setMenuOpen(false); }} className="w-full text-left px-4 py-3 text-red-400 hover:bg-white/5 rounded-lg font-medium flex items-center gap-3">
+                  <LogOut className="w-5 h-5" /> Đăng xuất
+                </button>
               </>
             )}
-            {!user && <button onClick={() => handleNav('/auth')} className="block w-full text-left px-4 py-3 text-yellow-600 hover:bg-yellow-50 rounded-lg font-medium">🔑 Đăng nhập</button>}
+            {!user && (
+              <button onClick={() => handleNav('/auth')} className="w-full text-left px-4 py-3 text-yellow-400 hover:bg-white/5 rounded-lg font-medium flex items-center gap-3">
+                <LogIn className="w-5 h-5" /> Đăng nhập
+              </button>
+            )}
           </div>
         )}
       </div>

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';
 import { isSupabaseConfigured } from '@/lib/supabase';
+import { ScrollText, Flame, Eye, Sparkles, Moon, Star, Crown, Package, PenTool, User, AlertTriangle, CheckCircle, ArrowLeft } from 'lucide-react';
 
 type AuthMode = 'login' | 'register' | 'forgot' | 'verify';
 
@@ -99,21 +100,21 @@ export default function AuthPage() {
     switch (mode) {
       case 'register':
         return {
-          icon: '📜',
+          icon: <ScrollText className="w-16 h-16" />,
           title: 'Khế Ước Vì Sao',
           desc: 'Trở thành một phần của vũ trụ. Mở khóa những thông điệp bí ẩn được sắp đặt riêng cho linh hồn bạn.',
           orbColor: 'bg-yellow-500/20'
         };
       case 'forgot':
         return {
-          icon: '🕯️',
+          icon: <Flame className="w-16 h-16" />,
           title: 'Ánh Sáng Dẫn Lối',
           desc: 'Lạc bước trong màn đêm? Đừng lo, các vì sao sẽ gửi ánh sáng để dẫn đường bạn trở về.',
           orbColor: 'bg-blue-500/20'
         };
       case 'verify':
         return {
-          icon: '👁️',
+          icon: <Eye className="w-16 h-16" />,
           title: 'Nghi Thức Dấu Ấn',
           desc: 'Kết nối linh hồn đã sẵn sàng. Hãy nhập dấu ấn gồm 6 ký tự từ các vì sao để hoàn tất nghi thức.',
           orbColor: 'bg-cyan-500/20'
@@ -121,7 +122,7 @@ export default function AuthPage() {
       case 'login':
       default:
         return {
-          icon: '🔮',
+          icon: <Sparkles className="w-16 h-16" />,
           title: 'Vũ Trụ Gọi Tên',
           desc: 'Nhấc bức màn sương mù của định mệnh. Những thông điệp từ các vì sao đang chờ đón bạn.',
           orbColor: 'bg-purple-500/20'
@@ -197,7 +198,7 @@ export default function AuthPage() {
           
           <div className="inline-flex items-center justify-center p-6 bg-white/[0.02] backdrop-blur-2xl rounded-[2rem] border border-white/10 shadow-[0_0_50px_rgba(139,92,246,0.1)] mb-2 animate-float relative group cursor-pointer">
             <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/20 to-purple-500/20 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-all duration-700 transform group-hover:scale-150"></div>
-            <span className="text-7xl filter drop-shadow-[0_0_20px_rgba(250,204,21,0.6)] relative z-10 animate-pulse transition-all duration-500 ease-in-out">{currentContent.icon}</span>
+            <span className="flex items-center justify-center filter drop-shadow-[0_0_20px_rgba(250,204,21,0.6)] relative z-10 animate-pulse transition-all duration-500 ease-in-out text-yellow-200">{currentContent.icon}</span>
             
             {/* Orbiting rings */}
             <div className="absolute inset-[-20%] border border-white/5 rounded-full animate-spin-slow"></div>
@@ -216,13 +217,13 @@ export default function AuthPage() {
           
           <div className="flex gap-6 mt-10">
             {[
-              { icon: '✨', label: 'Trực Giác', color: 'hover:border-yellow-500/50 hover:shadow-[0_0_30px_rgba(234,179,8,0.3)] hover:text-yellow-200' },
-              { icon: '🌙', label: 'Tâm Linh', color: 'hover:border-purple-500/50 hover:shadow-[0_0_30px_rgba(168,85,247,0.3)] hover:text-purple-200' },
-              { icon: '⭐', label: 'Định Hướng', color: 'hover:border-yellow-500/50 hover:shadow-[0_0_30px_rgba(234,179,8,0.3)] hover:text-yellow-200' }
+              { icon: <Sparkles className="w-10 h-10" />, label: 'Trực Giác', color: 'hover:border-yellow-500/50 hover:shadow-[0_0_30px_rgba(234,179,8,0.3)] hover:text-yellow-200' },
+              { icon: <Moon className="w-10 h-10" />, label: 'Tâm Linh', color: 'hover:border-purple-500/50 hover:shadow-[0_0_30px_rgba(168,85,247,0.3)] hover:text-purple-200' },
+              { icon: <Star className="w-10 h-10" />, label: 'Định Hướng', color: 'hover:border-yellow-500/50 hover:shadow-[0_0_30px_rgba(234,179,8,0.3)] hover:text-yellow-200' }
             ].map((item, idx) => (
               <div key={idx} className={`flex flex-col items-center justify-center bg-white/[0.03] backdrop-blur-xl border border-white/10 rounded-2xl p-5 w-32 transition-all duration-500 cursor-default group hover:-translate-y-3 ${item.color} relative overflow-hidden`}>
                 <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                <span className="text-4xl mb-3 group-hover:scale-125 transition-transform duration-700 drop-shadow-[0_0_15px_rgba(255,255,255,0.5)] relative z-10">{item.icon}</span>
+                <span className="mb-3 group-hover:scale-125 transition-transform duration-700 drop-shadow-[0_0_15px_rgba(255,255,255,0.5)] relative z-10">{item.icon}</span>
                 <span className="text-sm text-white/70 font-medium transition-colors relative z-10">{item.label}</span>
               </div>
             ))}
@@ -247,7 +248,7 @@ export default function AuthPage() {
             <div className="text-center mb-12 relative z-10">
               <div className="lg:hidden w-24 h-24 bg-white/5 border border-white/10 rounded-3xl mx-auto flex items-center justify-center text-5xl shadow-2xl mb-6 backdrop-blur-xl relative transition-all duration-500">
                 <div className="absolute inset-0 bg-yellow-400/20 blur-xl rounded-full animate-pulse"></div>
-                <span className="relative z-10 filter drop-shadow-[0_0_15px_rgba(250,204,21,0.6)]">{currentContent.icon}</span>
+                <span className="relative z-10 flex items-center justify-center filter drop-shadow-[0_0_15px_rgba(250,204,21,0.6)] text-yellow-200">{currentContent.icon}</span>
               </div>
               <h2 className="text-4xl font-extrabold tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-white to-white/70 mb-3 drop-shadow-md">
                 {mode === 'login' && 'Cánh Cửa Mở'}
@@ -271,7 +272,7 @@ export default function AuthPage() {
                       onClick={() => { setEmail('admin@chipstarot.com'); setPassword('admin123'); setError(''); }}
                       className="flex flex-col items-center gap-1 px-2 py-3 bg-purple-500/10 hover:bg-purple-500/25 border border-purple-500/30 hover:border-purple-400/60 rounded-xl transition-all group"
                     >
-                      <span className="text-xl">👑</span>
+                      <Crown className="w-6 h-6 text-purple-300" />
                       <span className="text-purple-300 text-[10px] font-bold uppercase tracking-tighter">Admin</span>
                     </button>
                     <button
@@ -279,7 +280,7 @@ export default function AuthPage() {
                       onClick={() => { setEmail('staff@chipstarot.com'); setPassword('staff123'); setError(''); }}
                       className="flex flex-col items-center gap-1 px-2 py-3 bg-blue-500/10 hover:bg-blue-500/25 border border-blue-500/30 hover:border-blue-400/60 rounded-xl transition-all group"
                     >
-                      <span className="text-xl">📦</span>
+                      <Package className="w-6 h-6 text-blue-300" />
                       <span className="text-blue-300 text-[10px] font-bold uppercase tracking-tighter">Staff</span>
                     </button>
                     <button
@@ -287,7 +288,7 @@ export default function AuthPage() {
                       onClick={() => { setEmail('editor@chipstarot.com'); setPassword('editor123'); setError(''); }}
                       className="flex flex-col items-center gap-1 px-2 py-3 bg-emerald-500/10 hover:bg-emerald-500/25 border border-emerald-500/30 hover:border-emerald-400/60 rounded-xl transition-all group"
                     >
-                      <span className="text-xl">✍️</span>
+                      <PenTool className="w-6 h-6 text-emerald-300" />
                       <span className="text-emerald-300 text-[10px] font-bold uppercase tracking-tighter">Editor</span>
                     </button>
                     <button
@@ -295,7 +296,7 @@ export default function AuthPage() {
                       onClick={() => { setEmail('demo@chipstarot.com'); setPassword('123456'); setError(''); }}
                       className="flex flex-col items-center gap-1 px-2 py-3 bg-yellow-500/10 hover:bg-yellow-500/25 border border-yellow-500/30 hover:border-yellow-400/60 rounded-xl transition-all group"
                     >
-                      <span className="text-xl">👤</span>
+                      <User className="w-6 h-6 text-yellow-300" />
                       <span className="text-yellow-300 text-[10px] font-bold uppercase tracking-tighter">Customer</span>
                     </button>
                   </div>
@@ -307,12 +308,12 @@ export default function AuthPage() {
             <div className="relative z-10">
               {error && (
                 <div className="bg-red-900/30 border border-red-500/50 text-red-200 p-4 rounded-xl text-sm mb-6 text-center animate-fade-in flex items-center justify-center gap-2 backdrop-blur-md shadow-[0_0_20px_rgba(239,68,68,0.2)]">
-                  <span className="drop-shadow-[0_0_5px_rgba(239,68,68,0.8)]">⚠️</span> {error}
+                  <AlertTriangle className="w-5 h-5 drop-shadow-[0_0_5px_rgba(239,68,68,0.8)]" /> {error}
                 </div>
               )}
               {success && (
                 <div className="bg-green-900/30 border border-green-500/50 text-green-200 p-4 rounded-xl text-sm mb-6 text-center animate-fade-in flex items-center justify-center gap-2 backdrop-blur-md shadow-[0_0_20px_rgba(34,197,94,0.2)]">
-                  <span className="drop-shadow-[0_0_5px_rgba(34,197,94,0.8)]">✨</span> {success}
+                  <CheckCircle className="w-5 h-5 drop-shadow-[0_0_5px_rgba(34,197,94,0.8)]" /> {success}
                 </div>
               )}
             </div>
@@ -463,7 +464,7 @@ export default function AuthPage() {
                   onClick={() => { setMode('login'); setError(''); setSuccess(''); }}
                   className="text-white/60 font-medium hover:text-white transition-all flex items-center justify-center gap-3 mx-auto hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.8)] tracking-widest uppercase text-xs"
                 >
-                  <span className="text-xl">←</span> Quay lại
+                  <ArrowLeft className="w-5 h-5" /> Quay lại
                 </button>
               )}
             </div>

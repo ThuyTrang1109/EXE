@@ -5,6 +5,7 @@ import { api } from '@/lib/api';
 import { PET_LEVELS } from '@/data/constants';
 import { PetChicken } from '@/components/PetChicken';
 import { HatchingOverlay } from '@/components/HatchingOverlay';
+import { Lock, Edit3, X, Save, Egg, Sparkles, Apple, LogOut, Package, Smartphone, RadioTower, Loader2 } from 'lucide-react';
 
 export default function ProfilePage({ onScanClick }: any) {
   const navigate = useNavigate();
@@ -107,7 +108,7 @@ export default function ProfilePage({ onScanClick }: any) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-900 to-yellow-900 flex items-center justify-center p-4">
         <div className="bg-white rounded-3xl p-8 text-center max-w-md w-full shadow-2xl">
-          <div className="text-6xl mb-4 animate-bounce">🔒</div>
+          <Lock className="w-16 h-16 mx-auto mb-4 text-purple-500 animate-bounce" />
           <h2 className="text-2xl font-bold mb-2">Vui lòng đăng nhập</h2>
           <p className="text-gray-600 mb-6">Đăng nhập để xem nhật ký trải bài và quản lý thú cưng của bạn.</p>
           <button onClick={() => navigate('/auth')} className="btn-3d-yellow w-full">Đăng nhập ngay</button>
@@ -133,7 +134,7 @@ export default function ProfilePage({ onScanClick }: any) {
   const progressPercent = level === 3 ? 100 : (((user.petExp || 0) - prevMaxExp) / (targetExp - prevMaxExp)) * 100;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-purple-50 to-yellow-100 py-12 px-4">
+    <div className="min-h-screen py-12 px-4">
       {showHatchOverlay && (
         <HatchingOverlay 
           petType={hatchingPetType} 
@@ -143,39 +144,44 @@ export default function ProfilePage({ onScanClick }: any) {
       )}
 
       <div className="max-w-4xl mx-auto">
-        {/* Edit Profile Modal */}
         {editingProfile && (
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setEditingProfile(false)}>
-            <div className="bg-white rounded-3xl max-w-md w-full shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
-              <div className="bg-gradient-to-r from-purple-600 to-indigo-600 p-6 text-white flex justify-between items-center">
-                <h3 className="text-xl font-bold">✏️ Chỉnh sửa hồ sơ</h3>
-                <button onClick={() => setEditingProfile(false)} className="w-8 h-8 flex items-center justify-center bg-white/20 rounded-full hover:bg-white/40">✕</button>
+          <div
+            className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            onClick={() => setEditingProfile(false)}
+          >
+            <div
+              className="bg-[#0d0d2b]/95 backdrop-blur-xl border border-white/10 rounded-3xl max-w-md w-full shadow-[0_0_80px_rgba(139,92,246,0.2)] overflow-hidden"
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="bg-gradient-to-r from-purple-700 to-indigo-700 p-6 text-white flex justify-between items-center">
+                <h3 className="text-xl font-bold flex items-center"><Edit3 className="w-5 h-5 mr-2" /> Chỉnh sửa hồ sơ</h3>
+                <button onClick={() => setEditingProfile(false)} className="w-8 h-8 flex items-center justify-center bg-white/10 rounded-full hover:bg-white/30 transition-colors"><X className="w-4 h-4" /></button>
               </div>
               <div className="p-6 space-y-4">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">Họ và tên</label>
+                  <label className="block text-sm font-semibold text-purple-200/80 mb-1">Họ và tên</label>
                   <input type="text" value={editName} onChange={e => setEditName(e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-100" />
+                    className="w-full px-4 py-3 rounded-xl border border-white/10 bg-white/[0.06] text-white placeholder-white/30 focus:border-purple-400/60 focus:outline-none focus:bg-white/[0.10] transition-all" />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">Số điện thoại</label>
+                  <label className="block text-sm font-semibold text-purple-200/80 mb-1">Số điện thoại</label>
                   <input type="tel" value={editPhone} onChange={e => setEditPhone(e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-100" />
+                    className="w-full px-4 py-3 rounded-xl border border-white/10 bg-white/[0.06] text-white placeholder-white/30 focus:border-purple-400/60 focus:outline-none focus:bg-white/[0.10] transition-all" />
                 </div>
                 <div className="flex gap-3 pt-2">
                   <button onClick={handleSaveProfile} disabled={savingProfile}
-                    className="flex-1 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-bold transition-colors disabled:opacity-60">
-                    {savingProfile ? '⏳ Đang lưu...' : '💾 Lưu thay đổi'}
+                    className="flex-1 py-3 bg-purple-600 hover:bg-purple-500 text-white rounded-xl font-bold transition-colors disabled:opacity-60 flex items-center justify-center gap-2">
+                    {savingProfile ? <><Loader2 className="w-4 h-4 animate-spin" /> Đang lưu...</> : <><Save className="w-4 h-4" /> Lưu thay đổi</>}
                   </button>
                   <button onClick={() => setEditingProfile(false)}
-                    className="flex-1 py-3 bg-gray-100 text-gray-600 rounded-xl font-bold hover:bg-gray-200 transition-colors">Huỷ</button>
+                    className="flex-1 py-3 bg-white/10 hover:bg-white/20 text-white/70 rounded-xl font-bold transition-colors border border-white/10">Huỷ</button>
                 </div>
               </div>
             </div>
           </div>
         )}
 
-        <div className="bg-white rounded-3xl shadow-2xl overflow-hidden mb-8 border border-white/20">
+        <div className="bg-white/[0.06] backdrop-blur-xl rounded-3xl overflow-hidden mb-8 border border-white/10 shadow-[0_0_60px_rgba(139,92,246,0.1)]">
           <div className="bg-gradient-to-r from-purple-600 via-purple-700 to-indigo-800 p-8 text-white flex flex-col md:flex-row items-start gap-6 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl" />
             
@@ -183,7 +189,7 @@ export default function ProfilePage({ onScanClick }: any) {
             <div className="relative group">
               <div className="w-32 h-32 bg-white/10 backdrop-blur-md rounded-3xl flex items-center justify-center border-4 border-white/30 shadow-lg flex-shrink-0 relative overflow-hidden">
                 {user.petStatus === 'egg' ? (
-                  <div className="text-6xl animate-bounce">🥚</div>
+                  <Egg className="w-16 h-16 text-yellow-100 animate-bounce" />
                 ) : (
                   <PetChicken type={user.petType || 'chicken_classic'} level={level} className="w-24 h-24" />
                 )}
@@ -215,22 +221,22 @@ export default function ProfilePage({ onScanClick }: any) {
 
                   <div className="flex flex-wrap justify-center md:justify-start gap-2">
                     {user.petStatus === 'egg' ? (
-                      <button onClick={handleHatch} className="px-4 py-2 bg-yellow-400 text-purple-900 rounded-xl text-xs font-black uppercase tracking-wider hover:bg-yellow-300 transition-all shadow-lg active:scale-95">
-                        🐣 Ấp trứng ngay!
+                      <button onClick={handleHatch} className="px-4 py-2 bg-yellow-400 text-purple-900 rounded-xl text-xs font-black uppercase tracking-wider hover:bg-yellow-300 transition-all shadow-lg active:scale-95 flex items-center gap-1">
+                        <Sparkles className="w-4 h-4" /> Ấp trứng ngay!
                       </button>
                     ) : (
                       <button onClick={handleFeed} disabled={user.petFood <= 0 || feeding}
                         className="px-4 py-2 bg-orange-500 text-white rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-orange-400 transition-all shadow-lg disabled:opacity-50 active:scale-95 flex items-center gap-2">
-                        🍎 Cho ăn ({user.petFood}) {feeding && '...'}
+                        <Apple className="w-4 h-4" /> Cho ăn ({user.petFood}) {feeding && '...'}
                       </button>
                     )}
                     <button onClick={() => { logout(); navigate('/'); }}
                       className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-all shadow-lg active:scale-95 flex items-center gap-2">
-                      🚪 Đăng xuất
+                      <LogOut className="w-4 h-4" /> Đăng xuất
                     </button>
                     <button onClick={() => { setEditName(user.name); setEditPhone(user.phoneNumber || ''); setEditingProfile(true); }}
-                      className="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-xl text-xs font-bold uppercase tracking-wider backdrop-blur-sm border border-white/20 transition-all">
-                      ✏️ Hồ sơ
+                      className="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-xl text-xs font-bold uppercase tracking-wider backdrop-blur-sm border border-white/20 transition-all flex items-center gap-2">
+                      <Edit3 className="w-4 h-4" /> Hồ sơ
                     </button>
                   </div>
                 </div>
@@ -254,17 +260,17 @@ export default function ProfilePage({ onScanClick }: any) {
             </div>
           </div>
 
-          <div className="flex border-b bg-white sticky top-0 z-20">
+          <div className="flex border-b border-white/10 bg-white/[0.04]">
             {['history', 'orders', 'nfc'].map(tab => (
               <button key={tab} onClick={() => setActiveTab(tab as any)}
-                className={`flex-1 py-4 font-bold text-sm text-center transition-all relative ${activeTab === tab ? 'text-purple-700 bg-purple-50' : 'text-gray-400 hover:text-gray-600'}`}>
-                {tab === 'history' ? '🔮 Nhật ký Tarot' : tab === 'orders' ? '📦 Đơn hàng' : '📱 Thẻ NFC'}
-                {activeTab === tab && <div className="absolute bottom-0 left-0 right-0 h-1 bg-purple-600 rounded-full mx-4" />}
+                className={`flex-1 py-4 font-bold text-sm text-center transition-all flex items-center justify-center gap-2 relative ${activeTab === tab ? 'text-yellow-400 bg-white/[0.06]' : 'text-white/40 hover:text-white/70'}`}>
+                {tab === 'history' ? <><Sparkles className="w-4 h-4" /> Nhật ký Tarot</> : tab === 'orders' ? <><Package className="w-4 h-4" /> Đơn hàng</> : <><Smartphone className="w-4 h-4" /> Thẻ NFC</>}
+                {activeTab === tab && <div className="absolute bottom-0 left-0 right-0 h-1 bg-yellow-400 rounded-full mx-4" />}
               </button>
             ))}
           </div>
 
-          <div className="p-6 bg-white min-h-[500px]">
+          <div className="p-6 bg-white/[0.03] min-h-[500px]">
             {activeTab === 'history' && (
               <div className="space-y-6">
                 <div className="flex justify-between items-center mb-4">
@@ -272,34 +278,34 @@ export default function ProfilePage({ onScanClick }: any) {
                 </div>
 
                 {loadingHistory ? (
-                  <div className="py-12 text-center text-gray-400">Đang tải nhật ký...</div>
+                  <div className="py-12 text-center text-white/40">Đang tải nhật ký...</div>
                 ) : history.length === 0 ? (
-                  <div className="py-12 text-center text-gray-400">Bạn chưa có phiên bốc bài nào.</div>
+                  <div className="py-12 text-center text-white/40">Bạn chưa có phiên bốc bài nào.</div>
                 ) : history.map(h => (
-                  <div key={h.id} className="bg-white border border-gray-100 rounded-3xl overflow-hidden hover:shadow-xl transition-all duration-300">
+                  <div key={h.id} className="bg-white/[0.05] border border-white/10 rounded-3xl overflow-hidden hover:bg-white/[0.08] transition-all duration-300">
                     <div className="p-6">
                       <div className="flex justify-between items-center mb-4">
-                        <p className="text-xs text-gray-400 uppercase font-bold">{new Date(h.createdAt).toLocaleString('vi-VN')}</p>
-                        <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-[10px] font-bold uppercase">{h.readingType}</span>
+                        <p className="text-xs text-white/30 uppercase font-bold">{new Date(h.createdAt).toLocaleString('vi-VN')}</p>
+                        <span className="px-3 py-1 bg-purple-500/20 text-purple-300 border border-purple-400/20 rounded-full text-[10px] font-bold uppercase">{h.readingType}</span>
                       </div>
                       <div className="grid grid-cols-3 sm:grid-cols-5 gap-4 mb-4">
                         {h.details.map((d: any, idx: number) => (
                           <div key={idx} className="space-y-1 text-center">
-                            <img src={d.card.imageUrl} alt={d.card.name} className="aspect-[2/3] object-cover rounded-lg border border-purple-100 shadow-sm" />
-                            <p className="text-[10px] font-bold text-gray-700 truncate">{d.card.name}</p>
+                            <img src={d.card.imageUrl} alt={d.card.name} className="aspect-[2/3] object-cover rounded-lg border border-white/10 shadow-sm" />
+                            <p className="text-[10px] font-bold text-white/70 truncate">{d.card.name}</p>
                           </div>
                         ))}
                       </div>
-                      <div className="bg-yellow-50 rounded-2xl p-4">
-                        <p className="text-xs text-gray-600 italic line-clamp-3">{h.summary}</p>
+                      <div className="bg-yellow-400/5 border border-yellow-400/10 rounded-2xl p-4">
+                        <p className="text-xs text-white/60 italic line-clamp-3">{h.summary}</p>
                       </div>
-                      <button onClick={() => navigate(`/reading/${h.id}`)} className="mt-4 text-purple-600 text-xs font-bold hover:underline">Xem lại lời giải →</button>
+                      <button onClick={() => navigate(`/reading/${h.id}`)} className="mt-4 text-yellow-400/70 text-xs font-bold hover:text-yellow-400">Xem lại lời giải →</button>
                     </div>
                   </div>
                 ))}
                 
-                <button onClick={() => navigate('/reading')} className="w-full py-8 border-2 border-dashed border-purple-200 text-purple-400 rounded-3xl hover:bg-purple-50 hover:border-purple-400 hover:text-purple-600 font-bold transition-all flex flex-col items-center gap-2">
-                  <span className="text-3xl">🔮</span>
+                <button onClick={() => navigate('/reading')} className="w-full py-8 border-2 border-dashed border-yellow-400/20 text-yellow-400/50 rounded-3xl hover:bg-yellow-400/5 hover:border-yellow-400/40 hover:text-yellow-400/80 font-bold transition-all flex flex-col items-center gap-2">
+                  <Sparkles className="w-8 h-8" />
                   <span>Bắt đầu phiên bốc bài mới</span>
                 </button>
               </div>
@@ -350,7 +356,7 @@ export default function ProfilePage({ onScanClick }: any) {
                     <p className="text-white/80 text-sm mb-6 max-w-md">Chạm móc khóa CHIPSTAROT của bạn để nhận lượt bốc bài mỗi ngày.</p>
                     <button onClick={onScanClick} className="bg-white text-orange-600 px-8 py-3 rounded-2xl font-bold hover:scale-105 transition-all shadow-lg"> Chạm để quét ngay</button>
                   </div>
-                  <div className="absolute top-8 right-8 text-6xl opacity-30 animate-pulse">📡</div>
+                  <RadioTower className="absolute top-8 right-8 w-16 h-16 opacity-30 animate-pulse" />
                 </div>
                 <p className="text-center text-gray-400 py-12">Đang tải danh sách thẻ...</p>
               </div>
@@ -364,7 +370,7 @@ export default function ProfilePage({ onScanClick }: any) {
           <div className="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl relative" onClick={e => e.stopPropagation()}>
             <div className="bg-gradient-to-r from-purple-600 to-indigo-600 p-6 text-white flex justify-between items-center">
               <h3 className="text-xl font-bold">Chi tiết đơn hàng</h3>
-              <button onClick={() => setSelectedOrder(null)} className="w-8 h-8 flex items-center justify-center bg-white/20 rounded-full hover:bg-white/40">✕</button>
+              <button onClick={() => setSelectedOrder(null)} className="w-8 h-8 flex items-center justify-center bg-white/20 rounded-full hover:bg-white/40"><X className="w-4 h-4"/></button>
             </div>
             <div className="p-6">
               <div className="space-y-3 mb-6">

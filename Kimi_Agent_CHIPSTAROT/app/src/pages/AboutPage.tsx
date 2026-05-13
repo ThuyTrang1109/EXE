@@ -24,9 +24,9 @@ export default function AboutPage() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-purple-50 to-yellow-100">
+    <div className="relative min-h-screen">
       {/* Hero Section */}
-      <section className="relative py-24 px-4 overflow-hidden bg-gradient-to-br from-purple-900 via-purple-800 to-indigo-900">
+      <section className="relative py-24 px-4 overflow-hidden">
         <div className="absolute inset-0 opacity-20">
           {[...Array(20)].map((_, i) => (
             <div
@@ -60,13 +60,13 @@ export default function AboutPage() {
       </section>
 
       {/* Stats */}
-      <section className="py-12 px-4 -mt-8 relative z-10">
+      <section className="py-12 px-4 relative z-10">
         <div className="max-w-4xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4">
           {STATS.map(s => (
-            <div key={s.label} className="bg-white rounded-2xl shadow-xl p-6 text-center border border-white/40 hover:-translate-y-1 transition-transform">
+            <div key={s.label} className="bg-white/[0.06] backdrop-blur-md border border-white/10 rounded-2xl p-6 text-center hover:-translate-y-1 transition-transform hover:bg-white/[0.09]">
               <div className="text-3xl mb-2">{s.icon}</div>
-              <p className="text-3xl font-black text-purple-700">{s.value}</p>
-              <p className="text-gray-500 text-xs mt-1 font-medium">{s.label}</p>
+              <p className="text-3xl font-black text-yellow-400">{s.value}</p>
+              <p className="text-purple-200/60 text-xs mt-1 font-medium">{s.label}</p>
             </div>
           ))}
         </div>
@@ -122,18 +122,18 @@ export default function AboutPage() {
       </section>
 
       {/* Values */}
-      <section className="py-16 px-4 bg-gradient-to-br from-purple-950 to-indigo-950">
+      <section className="py-16 px-4">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-white mb-3">Giá trị cốt lõi</h2>
-            <p className="text-purple-300">Những nguyên tắc dẫn dắt mọi quyết định của chúng tôi</p>
+            <p className="text-purple-200/60">Những nguyên tắc dẫn dắt mọi quyết định của chúng tôi</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {VALUES.map(v => (
-              <div key={v.title} className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition-all">
+              <div key={v.title} className="bg-white/[0.05] backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:bg-white/[0.09] transition-all">
                 <div className="text-3xl mb-3">{v.icon}</div>
                 <h3 className="text-white font-bold text-lg mb-2">{v.title}</h3>
-                <p className="text-purple-300 text-sm leading-relaxed">{v.desc}</p>
+                <p className="text-purple-200/60 text-sm leading-relaxed">{v.desc}</p>
               </div>
             ))}
           </div>
@@ -144,18 +144,18 @@ export default function AboutPage() {
       <section className="py-16 px-4">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-800 mb-3">Đội ngũ sáng lập</h2>
-            <p className="text-gray-500">Những con người đứng sau CHIPSTAROT</p>
+            <h2 className="text-3xl font-bold text-white mb-3">Đội ngũ sáng lập</h2>
+            <p className="text-purple-200/60">Những con người đứng sau CHIPSTAROT</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {TEAM.map(m => (
-              <div key={m.name} className="bg-white rounded-3xl shadow-xl p-8 text-center hover:-translate-y-2 transition-transform border border-white/40">
+              <div key={m.name} className="bg-white/[0.06] backdrop-blur-md border border-white/10 rounded-3xl p-8 text-center hover:-translate-y-2 transition-transform hover:border-yellow-400/20">
                 <div className="w-20 h-20 bg-gradient-to-br from-yellow-400 to-amber-500 rounded-full flex items-center justify-center text-4xl mx-auto mb-4 shadow-lg">
                   {m.icon}
                 </div>
-                <h3 className="font-bold text-gray-800 text-lg">{m.name}</h3>
-                <p className="text-purple-600 font-medium text-sm mb-3">{m.role}</p>
-                <p className="text-gray-500 text-sm leading-relaxed">{m.desc}</p>
+                <h3 className="font-bold text-white text-lg">{m.name}</h3>
+                <p className="text-yellow-400/80 font-medium text-sm mb-3">{m.role}</p>
+                <p className="text-purple-200/60 text-sm leading-relaxed">{m.desc}</p>
               </div>
             ))}
           </div>

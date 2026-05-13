@@ -100,10 +100,10 @@ export default function CheckoutPage({ cart, total }: any) {
   const selectedDistData = selectedProvData?.districts.find(d => d.name === district);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-purple-50 to-yellow-100 py-12 px-4">
+    <div className="min-h-screen py-12 px-4">
       <div className="max-w-2xl mx-auto">
-        <button onClick={() => navigate('/cart')} className="text-gray-500 hover:text-yellow-600 flex items-center gap-2 mb-6 text-sm">← Quay lại giỏ hàng</button>
-        <h1 className="text-3xl font-bold text-gray-800 mb-8">🔐 Thanh Toán</h1>
+        <button onClick={() => navigate('/cart')} className="text-purple-200 hover:text-yellow-300 flex items-center gap-2 mb-6 text-sm drop-shadow-md">← Quay lại giỏ hàng</button>
+        <h1 className="text-3xl font-bold text-white mb-8 drop-shadow-md">🔐 Thanh Toán</h1>
 
         <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
           <h2 className="text-lg font-bold text-gray-700 mb-4">📦 Đơn hàng của bạn</h2>

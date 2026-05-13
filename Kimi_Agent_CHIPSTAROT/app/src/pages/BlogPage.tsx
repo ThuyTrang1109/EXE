@@ -171,15 +171,15 @@ export default function BlogPage() {
   const rest = filtered.filter(p => p.id !== featured?.id);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-purple-50 to-yellow-100 py-12 px-4">
+    <div className="min-h-screen py-12 px-4">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="text-center mb-10 relative">
-          <div className="inline-flex items-center gap-2 bg-purple-100 text-purple-700 text-sm font-semibold px-4 py-2 rounded-full mb-4">
+          <div className="inline-flex items-center gap-2 bg-yellow-400/20 text-yellow-300 text-sm font-semibold px-4 py-2 rounded-full mb-4">
             ✨ Kiến thức Tarot & Tâm linh
           </div>
-          <h1 className="text-4xl font-black text-gray-800 mb-3">📚 Blog CHIPSTAROT</h1>
-          <p className="text-gray-500 max-w-xl mx-auto">
+          <h1 className="text-4xl font-black text-white mb-3">📚 Blog CHIPSTAROT</h1>
+          <p className="text-purple-200 max-w-xl mx-auto">
             Khám phá kiến thức Tarot, phong thủy và tâm linh từ đội ngũ chuyên gia nhiều năm kinh nghiệm
           </p>
 
@@ -198,20 +198,20 @@ export default function BlogPage() {
             <button
               key={cat}
               onClick={() => setActiveCategory(cat)}
-              className={`px-5 py-2 rounded-full text-sm font-semibold transition-all ${activeCategory === cat
-                  ? 'bg-purple-600 text-white shadow-md shadow-purple-200'
-                  : 'bg-white text-gray-600 hover:bg-purple-50 hover:text-purple-600 border border-gray-200'
-                }`}
+              className={`px-5 py-2 rounded-full text-sm font-semibold transition-all ${
+                activeCategory === cat
+                  ? 'bg-purple-600 text-white shadow-md shadow-purple-900/50'
+                  : 'bg-white/[0.06] backdrop-blur-sm border border-white/10 text-white/70 hover:bg-white/10 hover:text-white'
+              }`}
             >
               {cat}
             </button>
           ))}
         </div>
 
-        {/* Post Detail Modal */}
         {selectedPost && (
           <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-start justify-center p-4 py-8 overflow-y-auto" onClick={() => setSelectedPost(null)}>
-            <div className="bg-white rounded-3xl max-w-2xl w-full shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
+            <div className="bg-[#0d0d2b]/95 backdrop-blur-xl border border-white/10 rounded-3xl max-w-2xl w-full shadow-[0_0_80px_rgba(139,92,246,0.2)] overflow-hidden" onClick={e => e.stopPropagation()}>
               <div className={`h-48 bg-gradient-to-br ${selectedPost.gradient} flex items-center justify-center relative`}>
                 <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_center,white_1px,transparent_1px)] bg-[length:20px_20px]" />
                 <span className="text-7xl drop-shadow-lg">{selectedPost.emoji}</span>
@@ -219,20 +219,20 @@ export default function BlogPage() {
                   className="absolute top-4 right-4 w-9 h-9 bg-black/30 hover:bg-black/50 text-white rounded-full flex items-center justify-center font-bold transition-colors">✕</button>
               </div>
               <div className="p-8">
-                <div className="flex items-center gap-3 text-xs text-gray-400 mb-3">
-                  <span className="px-2 py-0.5 bg-purple-100 text-purple-600 rounded-full font-bold">{selectedPost.category}</span>
+                <div className="flex items-center gap-3 text-xs text-white/40 mb-3">
+                  <span className="px-2 py-0.5 bg-purple-500/20 text-purple-300 border border-purple-400/20 rounded-full font-bold">{selectedPost.category}</span>
                   <span>📅 {selectedPost.date}</span>
                   <span>•</span>
                   <span>✍️ {selectedPost.author}</span>
                   <span>•</span>
                   <span>⏱ {selectedPost.readTime}</span>
                 </div>
-                <h2 className="text-2xl font-black text-gray-800 mb-4">{selectedPost.title}</h2>
-                <div className="text-gray-600 text-sm space-y-1 border-t border-gray-100 pt-4">
+                <h2 className="text-2xl font-black text-white mb-4">{selectedPost.title}</h2>
+                <div className="text-white/70 text-sm space-y-1 border-t border-white/10 pt-4">
                   {renderContent(FULL_CONTENT[selectedPost.id] || selectedPost.summary)}
                 </div>
-                <div className="mt-6 pt-4 border-t border-gray-100 flex justify-between items-center">
-                  <span className="text-xs text-gray-400">📖 CHIPSTAROT Blog</span>
+                <div className="mt-6 pt-4 border-t border-white/10 flex justify-between items-center">
+                  <span className="text-xs text-white/30">📖 CHIPSTAROT Blog</span>
                   <button onClick={() => setSelectedPost(null)}
                     className="px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-bold text-sm transition-colors">Đóng</button>
                 </div>
@@ -241,10 +241,9 @@ export default function BlogPage() {
           </div>
         )}
 
-        {/* Featured Post */}
         {featured && (
           <button onClick={() => setSelectedPost(featured)} className="w-full block mb-10 group text-left">
-            <div className="bg-white rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 border border-white/40">
+            <div className="bg-white/[0.06] backdrop-blur-md border border-white/10 rounded-3xl overflow-hidden hover:bg-white/[0.09] hover:border-white/20 transition-all duration-300 hover:-translate-y-1">
               <div className={`h-56 bg-gradient-to-br ${featured.gradient} flex items-center justify-center relative overflow-hidden`}>
                 <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_center,white_1px,transparent_1px)] bg-[length:20px_20px]" />
                 <span className="text-8xl drop-shadow-lg">{featured.emoji}</span>
@@ -260,16 +259,16 @@ export default function BlogPage() {
                 </div>
               </div>
               <div className="p-8">
-                <div className="flex items-center gap-3 text-xs text-gray-400 mb-3">
+                <div className="flex items-center gap-3 text-xs text-white/40 mb-3">
                   <span>📅 {featured.date}</span>
                   <span>•</span>
                   <span>✍️ {featured.author}</span>
                   <span>•</span>
                   <span>⏱ {featured.readTime}</span>
                 </div>
-                <h2 className="text-2xl font-bold text-gray-800 mb-3 group-hover:text-purple-600 transition-colors">{featured.title}</h2>
-                <p className="text-gray-500 leading-relaxed mb-4">{featured.summary}</p>
-                <span className="inline-flex items-center gap-1 text-purple-600 font-semibold text-sm group-hover:gap-2 transition-all">
+                <h2 className="text-2xl font-bold text-white mb-3 group-hover:text-yellow-300 transition-colors">{featured.title}</h2>
+                <p className="text-purple-200/60 leading-relaxed mb-4">{featured.summary}</p>
+                <span className="inline-flex items-center gap-1 text-yellow-400/70 font-semibold text-sm group-hover:gap-2 group-hover:text-yellow-400 transition-all">
                   Đọc tiếp <span>→</span>
                 </span>
               </div>
@@ -277,10 +276,9 @@ export default function BlogPage() {
           </button>
         )}
 
-        {/* Post Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {rest.map(post => (
-            <button key={post.id} onClick={() => setSelectedPost(post)} className="bg-white rounded-2xl overflow-hidden blog-card-3d group hover:-translate-y-1 transition-all duration-300 border border-white/40 text-left">
+            <button key={post.id} onClick={() => setSelectedPost(post)} className="bg-white/[0.06] backdrop-blur-md border border-white/10 rounded-2xl overflow-hidden group hover:-translate-y-1 hover:bg-white/[0.09] hover:border-white/20 transition-all duration-300 text-left">
               <div className={`h-36 bg-gradient-to-br ${post.gradient} flex items-center justify-center relative overflow-hidden`}>
                 <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_center,white_1px,transparent_1px)] bg-[length:16px_16px]" />
                 <span className="text-5xl drop-shadow-md">{post.emoji}</span>
@@ -291,14 +289,14 @@ export default function BlogPage() {
                 </div>
               </div>
               <div className="p-5">
-                <div className="flex items-center gap-2 text-[10px] text-gray-400 mb-2">
+                <div className="flex items-center gap-2 text-[10px] text-white/30 mb-2">
                   <span>📅 {post.date}</span>
                   <span>•</span>
                   <span>⏱ {post.readTime}</span>
                 </div>
-                <h3 className="text-base font-bold text-gray-800 mb-2 line-clamp-2 group-hover:text-purple-600 transition-colors">{post.title}</h3>
-                <p className="text-gray-500 text-sm line-clamp-2">{post.summary}</p>
-                <div className="mt-4 flex items-center gap-1 text-purple-600 text-sm font-medium group-hover:gap-2 transition-all">
+                <h3 className="text-base font-bold text-white mb-2 line-clamp-2 group-hover:text-yellow-300 transition-colors">{post.title}</h3>
+                <p className="text-purple-200/50 text-sm line-clamp-2">{post.summary}</p>
+                <div className="mt-4 flex items-center gap-1 text-yellow-400/60 text-sm font-medium group-hover:gap-2 group-hover:text-yellow-400 transition-all">
                   Đọc thêm <span>→</span>
                 </div>
               </div>
@@ -308,7 +306,7 @@ export default function BlogPage() {
 
         {/* CTA */}
         <div className="text-center mt-12">
-          <p className="text-gray-500 text-sm mb-4">Hàng tuần có bài mới — theo dõi để không bỏ lỡ!</p>
+          <p className="text-purple-200 text-sm mb-4">Hàng tuần có bài mới — theo dõi để không bỏ lỡ!</p>
           <a href="https://facebook.com/chipstarot" target="_blank" rel="noopener noreferrer" className="btn-3d-yellow">
             📱 Theo dõi CHIPSTAROT
           </a>

@@ -68,8 +68,31 @@
 @layer base {
   * {
     @apply border-border;
+    scrollbar-width: thin;
+    scrollbar-color: #1A103C #050510;
   }
   body {
     @apply bg-background text-foreground;
+  }
+
+  /* Custom Webkit Scrollbar matching the Cosmic Background */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #050510; /* Màu nền chính xác của vũ trụ */
+    border-left: 1px solid rgba(255, 255, 255, 0.02);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #1A103C; /* Màu của tinh vân mờ trong background */
+    border-radius: 10px;
+    border: 2px solid #050510; /* Bo viền tệp vào màu nền */
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #2D1A60; /* Màu tím vũ trụ sáng lên một chút khi hover */
   }
 }

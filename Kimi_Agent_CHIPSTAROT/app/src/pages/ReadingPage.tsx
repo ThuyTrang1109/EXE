@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Heart, Briefcase, BookOpen, Coins, TrendingUp, Activity, UserCircle, Sparkles, Wand2, AlertTriangle, Square, Copy, Stars, RefreshCw, ArrowUp, RefreshCcw, ShoppingBag, MessageCircle, History, Focus } from 'lucide-react';
 import { TAROT_DB, TOPICS, SUB_QUESTIONS, SUGGESTED_QUESTIONS } from '../data/constants';
 import { api } from '../lib/api';
 
@@ -31,6 +32,18 @@ export default function ReadingPage({ user, refreshCredits }: any) {
       setStep(2);
     }
   }, [user, step]);
+
+  const topicIconMap: Record<string, any> = {
+    'love': <Heart className="w-8 h-8 text-pink-400 mx-auto" />,
+    'marriage': <Heart className="w-8 h-8 text-rose-500 mx-auto" />, // Ring replaced by Heart/Rose
+    'career': <Briefcase className="w-8 h-8 text-blue-400 mx-auto" />,
+    'study': <BookOpen className="w-8 h-8 text-green-400 mx-auto" />,
+    'finance': <Coins className="w-8 h-8 text-yellow-400 mx-auto" />,
+    'investment': <TrendingUp className="w-8 h-8 text-orange-400 mx-auto" />,
+    'health': <Activity className="w-8 h-8 text-teal-400 mx-auto" />,
+    'self': <UserCircle className="w-8 h-8 text-purple-400 mx-auto" />,
+    'general': <Sparkles className="w-8 h-8 text-indigo-400 mx-auto" />,
+  };
 
   // ─── Helpers ─────────────────────────────────────────────────────────────
 
@@ -225,7 +238,12 @@ export default function ReadingPage({ user, refreshCredits }: any) {
   const subQ = topic ? SUB_QUESTIONS[topic] : null;
   const suggestedQs = topic ? SUGGESTED_QUESTIONS[topic] : [];
 
-  const POSITIONS = ['✨ Thông điệp', '⬅️ Quá khứ', '🎯 Hiện tại', '🔮 Tương lai'];
+  const POSITIONS = [
+    <div className="flex items-center justify-center gap-1"><MessageCircle className="w-4 h-4"/> Thông điệp</div>, 
+    <div className="flex items-center justify-center gap-1"><History className="w-4 h-4"/> Quá khứ</div>, 
+    <div className="flex items-center justify-center gap-1"><Focus className="w-4 h-4"/> Hiện tại</div>, 
+    <div className="flex items-center justify-center gap-1"><Sparkles className="w-4 h-4"/> Tương lai</div>
+  ];
 
   // Component render Markdown cơ bản & Hiệu ứng gõ phím
   const [displayedText, setDisplayedText] = useState('');
@@ -263,7 +281,7 @@ export default function ReadingPage({ user, refreshCredits }: any) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-purple-800 to-yellow-900 py-12 px-4">
+    <div className="min-h-screen py-12 px-4">
       <div className="max-w-4xl mx-auto">
 
         {/* Progress */}
@@ -315,7 +333,7 @@ export default function ReadingPage({ user, refreshCredits }: any) {
               {isSubmitting ? '⏳ Đang kiểm tra...' : 'Tiếp tục →'}
             </button>
             <p className="text-yellow-400/80 text-xs mt-6 max-w-sm mx-auto flex items-start gap-1 text-left">
-              <span>⚠️</span>
+              <AlertTriangle className="w-4 h-4 flex-shrink-0" />
               <span>Lưu ý: Việc nhập sai thông tin có thể dẫn đến kết quả trải bài không chính xác do năng lượng không được kết nối đúng cách.</span>
             </p>
           </div>
@@ -333,7 +351,7 @@ export default function ReadingPage({ user, refreshCredits }: any) {
                   onClick={() => { setTopic(t.id); setStep(3); }}
                   className={`topic-card-3d p-4 text-center rounded-xl transition-all ${topic === t.id ? 'border-yellow-400 bg-yellow-400/20' : ''}`}
                 >
-                  <div className="text-3xl mb-2">{t.icon}</div>
+                  <div className="mb-2">{topicIconMap[t.id] || <Sparkles className="w-8 h-8 text-yellow-400 mx-auto" />}</div>
                   <p className="text-white font-semibold text-sm">{t.name.replace(/^.{1,3} /, '')}</p>
                   <p className="text-white/60 text-xs mt-1">{t.desc}</p>
                 </button>
@@ -345,7 +363,7 @@ export default function ReadingPage({ user, refreshCredits }: any) {
         {/* Step 3: Sub-question */}
         {step === 3 && subQ && (
           <div className="text-center">
-            <div className="text-3xl mb-4">{currentTopic?.icon}</div>
+            <div className="mb-4">{currentTopic ? topicIconMap[currentTopic.id] : null}</div>
             <h2 className="text-2xl font-bold text-white mb-2">{subQ.question}</h2>
             <p className="text-purple-200 mb-8 text-sm">Câu trả lời giúp AI cá nhân hóa lời giải cho bạn</p>
             <div className="space-y-3 max-w-lg mx-auto">
@@ -370,8 +388,8 @@ export default function ReadingPage({ user, refreshCredits }: any) {
             <p className="text-purple-200 mb-6 text-sm">Hãy hỏi thật cụ thể để nhận thông điệp chính xác nhất</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-4 max-w-2xl mx-auto">
               {suggestedQs.map(q => (
-                <button key={q} onClick={() => setQuestion(q)} className="text-left text-sm bg-white/10 hover:bg-white/20 text-white/80 px-4 py-2 rounded-xl transition-all border border-white/10 hover:border-yellow-400">
-                  💡 {q}
+                <button key={q} onClick={() => setQuestion(q)} className="flex gap-2 text-left text-sm bg-white/10 hover:bg-white/20 text-white/80 px-4 py-3 rounded-xl transition-all border border-white/10 hover:border-yellow-400">
+                  <Wand2 className="w-4 h-4 text-yellow-400 flex-shrink-0 mt-0.5" /> <span>{q}</span>
                 </button>
               ))}
             </div>
@@ -397,11 +415,11 @@ export default function ReadingPage({ user, refreshCredits }: any) {
             </div>
             {/* Hint text */}
             <div className="max-w-2xl mx-auto text-left space-y-1 mt-2">
-              <p className="text-white/40 text-xs">
-                💡 Câu hỏi tốt: Cụ thể, rõ ràng, ít nhất 3 từ. Tránh nhập ký tự ngẫu nhiên hoặc nội dung không có nghĩa.
+              <p className="text-white/40 text-xs flex items-start gap-1">
+                <MessageCircle className="w-3 h-3 flex-shrink-0" /> Câu hỏi tốt: Cụ thể, rõ ràng, ít nhất 3 từ. Tránh nhập ký tự ngẫu nhiên hoặc nội dung không có nghĩa.
               </p>
               <p className="text-yellow-400/80 text-xs flex items-start gap-1">
-                <span>⚠️</span>
+                <AlertTriangle className="w-4 h-4 flex-shrink-0" />
                 <span>Lưu ý: Đặt câu hỏi hời hợt hoặc cố tình nhập sai có thể khiến vũ trụ nhiễu sóng, dẫn đến kết quả luận giải sai lệch.</span>
               </p>
             </div>
@@ -424,8 +442,8 @@ export default function ReadingPage({ user, refreshCredits }: any) {
             <h2 className="text-2xl font-bold text-white mb-8">Chọn cách trải bài</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-xl mx-auto">
               {[
-                { count: 1, title: '1 Lá Bài', desc: 'Thông điệp nhanh & rõ ràng', icon: '🃏' },
-                { count: 3, title: '3 Lá Bài', desc: 'Quá khứ - Hiện tại - Tương lai', icon: '🎴' },
+                { count: 1, title: '1 Lá Bài', desc: 'Thông điệp nhanh & rõ ràng', icon: <Square className="w-10 h-10 mx-auto" /> },
+                { count: 3, title: '3 Lá Bài', desc: 'Quá khứ - Hiện tại - Tương lai', icon: <Copy className="w-10 h-10 mx-auto" /> },
               ].map(opt => (
                 <button
                   key={opt.count}
@@ -440,7 +458,7 @@ export default function ReadingPage({ user, refreshCredits }: any) {
                   }}
                   className="spread-card-3d"
                 >
-                  <div className="text-4xl mb-3">{opt.icon}</div>
+                  <div className="mb-3">{opt.icon}</div>
                   <h3 className="text-white font-bold text-xl mb-2">{opt.title}</h3>
                   <p className="text-white/60 text-sm">{opt.desc}</p>
                 </button>
@@ -521,13 +539,13 @@ export default function ReadingPage({ user, refreshCredits }: any) {
           <div className="animate-reveal-result">
             {!user ? (
               <div className="text-center">
-                <h2 className="text-2xl font-bold text-white mb-4">🔮 Lá bài của {name} đã sẵn sàng!</h2>
+                <h2 className="text-2xl font-bold text-white mb-4 flex items-center justify-center gap-2"><Sparkles className="w-6 h-6 text-yellow-400" /> Lá bài của {name} đã sẵn sàng!</h2>
                 <p className="text-purple-200 mb-6">Đăng nhập để xem ý nghĩa đầy đủ từ vũ trụ</p>
                 <button onClick={() => navigate('/auth')} className="btn-3d-yellow">Đăng nhập để xem →</button>
               </div>
             ) : (
               <div>
-                <h2 className="text-2xl font-bold text-white text-center mb-8">🌟 Thông điệp cho {name}</h2>
+                <h2 className="text-2xl font-bold text-white text-center mb-8 flex items-center justify-center gap-2"><Stars className="w-6 h-6 text-yellow-400" /> Thông điệp cho {name}</h2>
                 <div className={`grid gap-6 ${result.length === 1 ? 'grid-cols-1 max-w-sm mx-auto' : 'grid-cols-1 md:grid-cols-3'}`}>
                   {result.map((card, i) => (
                     <div key={i} className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20 text-center relative group">
@@ -543,7 +561,9 @@ export default function ReadingPage({ user, refreshCredits }: any) {
                         onError={e => (e.currentTarget.src = '/card-back.png')}
                       />
                       <h3 className="text-white font-bold text-lg mb-1">{card.name}</h3>
-                      <p className="text-purple-300 text-xs mb-3">{card.reversed ? '🔄 Ngược' : '⬆️ Xuôi'}</p>
+                      <p className="text-purple-300 text-xs mb-3 flex items-center justify-center gap-1">
+                        {card.reversed ? <><RefreshCw className="w-3 h-3" /> Ngược</> : <><ArrowUp className="w-3 h-3" /> Xuôi</>}
+                      </p>
                       <p className="text-white/80 text-sm">{card.meanings?.[topic as keyof typeof card.meanings] || card.meanings?.general}</p>
                     </div>
                   ))}
@@ -552,7 +572,7 @@ export default function ReadingPage({ user, refreshCredits }: any) {
                 {/* AI Reading Section */}
                 <div className="mt-10 bg-white/10 backdrop-blur-md rounded-2xl p-6 md:p-8 border border-white/20 shadow-xl">
                   <h3 className="text-xl font-bold text-yellow-400 mb-4 flex items-center gap-2">
-                    <span>✨</span> Thông điệp sâu sắc từ Vũ trụ (AI)
+                    <Sparkles className="w-5 h-5 text-yellow-400" /> Thông điệp sâu sắc từ Vũ trụ (AI)
                   </h3>
                   {loadingAI ? (
                     <div className="flex flex-col items-center py-8">
@@ -572,8 +592,8 @@ export default function ReadingPage({ user, refreshCredits }: any) {
                 </div>
 
                 <div className="flex gap-4 justify-center mt-10">
-                  <button onClick={reset} className="btn-3d-yellow">🔄 Trải bài mới</button>
-                  <button onClick={() => navigate('/shop')} className="btn-3d-white">🛍️ Khám phá shop</button>
+                  <button onClick={reset} className="btn-3d-yellow flex items-center gap-2"><RefreshCcw className="w-4 h-4" /> Trải bài mới</button>
+                  <button onClick={() => navigate('/shop')} className="btn-3d-white flex items-center gap-2"><ShoppingBag className="w-4 h-4" /> Khám phá shop</button>
                 </div>
               </div>
             )}

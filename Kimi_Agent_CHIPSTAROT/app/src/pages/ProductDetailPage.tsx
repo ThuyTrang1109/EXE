@@ -16,15 +16,15 @@ export default function ProductDetailPage({ addToCart }: ProductDetailPageProps)
   const [activeTab, setActiveTab] = useState<'desc' | 'nfc' | 'reviews'>('desc');
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-purple-50 to-yellow-100 py-12 px-4">
+    <div className="min-h-screen py-12 px-4">
       <div className="max-w-6xl mx-auto">
         {/* Breadcrumbs */}
-        <nav className="mb-8 flex items-center gap-2 text-sm text-gray-500">
-          <button onClick={() => navigate('/')} className="hover:text-yellow-600 transition-colors">Trang chủ</button>
+        <nav className="mb-8 flex items-center gap-2 text-sm text-purple-200">
+          <button onClick={() => navigate('/')} className="hover:text-yellow-400 transition-colors">Trang chủ</button>
           <span>/</span>
-          <button onClick={() => navigate('/shop')} className="hover:text-yellow-600 transition-colors">Shop</button>
+          <button onClick={() => navigate('/shop')} className="hover:text-yellow-400 transition-colors">Shop</button>
           <span>/</span>
-          <span className="text-gray-800 font-medium">{product.name}</span>
+          <span className="text-white font-medium">{product.name}</span>
         </nav>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">

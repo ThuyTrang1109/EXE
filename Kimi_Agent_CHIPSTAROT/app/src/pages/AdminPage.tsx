@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, BarChart, Bar, Legend, PieChart, Pie, Cell } from 'recharts';
+import { LayoutDashboard, Users, CreditCard, ShoppingBag, Zap, PackageSearch, Tag, PenTool, LineChart, Shield, Settings, Eye, Package, Sparkles, Egg, CircleDollarSign, TrendingUp, Moon, ShieldBan, Box } from 'lucide-react';
 import { getActiveGeminiKey, setAdminGeminiKey, clearAdminGeminiKey } from '../lib/gemini';
 import { CREDIT_PACKAGES } from '../data/constants';
 import { usePermission } from '../hooks/usePermission';
@@ -8,17 +9,17 @@ export default function AdminPage({ setPage }: any) {
   const { can } = usePermission();
   
   const allTabs = [
-    { id: 'dashboard', label: '📊 Tổng quan', perm: 'dashboard.view' },
-    { id: 'users', label: '👥 Quản lý TK', perm: 'users.view' },
-    { id: 'cards', label: '🎴 Quản lý Thẻ', perm: 'cards.view' },
-    { id: 'products', label: '🛍️ Sản phẩm', perm: 'products.view' },
-    { id: 'packages', label: '⚡ Gói Tarot', perm: 'packages.view' },
-    { id: 'orders', label: '📦 Đơn hàng', perm: 'orders.view' },
-    { id: 'nfcs', label: '🏷️ Mã Chip NFC', perm: 'nfc.view' },
-    { id: 'blogs', label: '✍️ Bài viết (Blog)', perm: 'content.view' },
-    { id: 'reports', label: '📈 Báo cáo', perm: 'reports.view' },
-    { id: 'rbac', label: '🛡️ Phân Quyền (RBAC)', perm: 'rbac.manage' },
-    { id: 'settings', label: '⚙️ Cài đặt', perm: 'settings.manage' },
+    { id: 'dashboard', label: 'Tổng quan', icon: <LayoutDashboard className="w-5 h-5" />, perm: 'dashboard.view' },
+    { id: 'users', label: 'Quản lý TK', icon: <Users className="w-5 h-5" />, perm: 'users.view' },
+    { id: 'cards', label: 'Quản lý Thẻ', icon: <CreditCard className="w-5 h-5" />, perm: 'cards.view' },
+    { id: 'products', label: 'Sản phẩm', icon: <ShoppingBag className="w-5 h-5" />, perm: 'products.view' },
+    { id: 'packages', label: 'Gói Tarot', icon: <Zap className="w-5 h-5" />, perm: 'packages.view' },
+    { id: 'orders', label: 'Đơn hàng', icon: <PackageSearch className="w-5 h-5" />, perm: 'orders.view' },
+    { id: 'nfcs', label: 'Mã Chip NFC', icon: <Tag className="w-5 h-5" />, perm: 'nfc.view' },
+    { id: 'blogs', label: 'Bài viết (Blog)', icon: <PenTool className="w-5 h-5" />, perm: 'content.view' },
+    { id: 'reports', label: 'Báo cáo', icon: <LineChart className="w-5 h-5" />, perm: 'reports.view' },
+    { id: 'rbac', label: 'Phân Quyền', icon: <Shield className="w-5 h-5" />, perm: 'rbac.manage' },
+    { id: 'settings', label: 'Cài đặt', icon: <Settings className="w-5 h-5" />, perm: 'settings.manage' },
   ];
 
   const tabs = allTabs.filter(t => can(t.perm));
@@ -138,10 +139,10 @@ export default function AdminPage({ setPage }: any) {
   }, []);
 
   const mockStats = [
-    { label: 'Tổng Đơn Hàng', value: '128', icon: '📦', color: 'from-blue-400 to-blue-500' },
-    { label: 'Doanh Thu', value: '14.2M₫', icon: '💰', color: 'from-green-400 to-green-500' },
-    { label: 'Thành Viên', value: '342', icon: '👤', color: 'from-purple-400 to-purple-500' },
-    { label: 'Phiên Tarot', value: '1,205', icon: '🔮', color: 'from-yellow-400 to-yellow-500' },
+    { label: 'Tổng Đơn Hàng', value: '128', icon: <Package className="w-6 h-6 text-white" />, color: 'from-blue-400 to-blue-500' },
+    { label: 'Doanh Thu', value: '14.2M₫', icon: <CircleDollarSign className="w-6 h-6 text-white" />, color: 'from-green-400 to-green-500' },
+    { label: 'Thành Viên', value: '342', icon: <Users className="w-6 h-6 text-white" />, color: 'from-purple-400 to-purple-500' },
+    { label: 'Phiên Tarot', value: '1,205', icon: <Sparkles className="w-6 h-6 text-white" />, color: 'from-yellow-400 to-yellow-500' },
   ];
 
   const mockOrders = [
@@ -213,9 +214,9 @@ export default function AdminPage({ setPage }: any) {
   ];
 
   const topPackagesData = [
-    { name: 'Gói Phổ Biến (90 ngày)', sales: 312, revenue: '21.5M', icon: '🔮' },
-    { name: 'Gói Khởi Đầu (30 ngày)', sales: 180, revenue: '5.2M', icon: '🌙' },
-    { name: 'Gói Cao Cấp (365 ngày)', sales: 95, revenue: '17.0M', icon: '✨' },
+    { name: 'Gói Phổ Biến (90 ngày)', sales: 312, revenue: '21.5M', icon: <Sparkles className="w-5 h-5 text-purple-400" /> },
+    { name: 'Gói Khởi Đầu (30 ngày)', sales: 180, revenue: '5.2M', icon: <Moon className="w-5 h-5 text-indigo-400" /> },
+    { name: 'Gói Cao Cấp (365 ngày)', sales: 95, revenue: '17.0M', icon: <Sparkles className="w-5 h-5 text-yellow-400" /> },
   ];
 
   const statusBadge: Record<string, string> = {
@@ -229,7 +230,7 @@ export default function AdminPage({ setPage }: any) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-purple-800 to-yellow-900">
+    <div className="min-h-screen">
       <div className="bg-white/10 backdrop-blur-md border-b border-white/10 px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <img src="/chicken-mascot.png" alt="" className="w-8 h-8" />
@@ -243,8 +244,8 @@ export default function AdminPage({ setPage }: any) {
           <nav className="space-y-1 mt-4">
             {tabs.map(t => (
               <button key={t.id} onClick={() => setTab(t.id as any)}
-                className={`w-full text-left px-4 py-3 rounded-xl font-medium transition-all text-sm ${tab === t.id ? 'bg-yellow-500 text-yellow-950 shadow-[0_0_15px_rgba(234,179,8,0.4)]' : 'text-white/70 hover:bg-white/10 hover:text-white'}`}>
-                {t.label}
+                className={`w-full text-left px-4 py-3 rounded-xl font-medium transition-all text-sm flex items-center gap-3 ${tab === t.id ? 'bg-yellow-500 text-yellow-950 shadow-[0_0_15px_rgba(234,179,8,0.4)]' : 'text-white/70 hover:bg-white/10 hover:text-white'}`}>
+                {t.icon} {t.label}
               </button>
             ))}
           </nav>
@@ -253,8 +254,8 @@ export default function AdminPage({ setPage }: any) {
         <div className="md:hidden w-full fixed bottom-0 left-0 bg-purple-900/95 border-t border-white/10 flex z-40 overflow-x-auto">
           {tabs.map(t => (
             <button key={t.id} onClick={() => setTab(t.id as any)}
-              className={`flex-none px-4 py-4 text-xs font-medium whitespace-nowrap ${tab === t.id ? 'text-yellow-400 border-t-2 border-yellow-400' : 'text-white/60'}`}>
-              {t.label}
+              className={`flex-none px-4 py-4 text-xs font-medium whitespace-nowrap flex items-center gap-1.5 ${tab === t.id ? 'text-yellow-400 border-t-2 border-yellow-400' : 'text-white/60'}`}>
+              <div className="scale-75">{t.icon}</div> {t.label}
             </button>
           ))}
         </div>
@@ -262,7 +263,7 @@ export default function AdminPage({ setPage }: any) {
         <main className="flex-1 p-6 pb-24 md:pb-6 overflow-y-auto h-[calc(100vh-64px)]">
           {tab === 'dashboard' && (
             <div className="animate-fade-in">
-              <h1 className="text-2xl font-bold text-white mb-6">📊 Tổng Quan Hệ Thống</h1>
+              <h1 className="text-2xl font-bold text-white mb-6 flex items-center gap-2"><LayoutDashboard className="w-6 h-6 text-yellow-400" /> Tổng Quan Hệ Thống</h1>
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
                 {mockStats.map(s => (
                   <div key={s.label} className="bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/10 hover:bg-white/20 transition-all cursor-default">
@@ -273,7 +274,7 @@ export default function AdminPage({ setPage }: any) {
                 ))}
               </div>
               <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/10">
-                <h2 className="text-white font-bold mb-4">📦 Đơn hàng gần đây</h2>
+                <h2 className="text-white font-bold mb-4 flex items-center gap-2"><Box className="w-5 h-5 text-yellow-400" /> Đơn hàng gần đây</h2>
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead><tr className="text-white/50 border-b border-white/10">
@@ -299,7 +300,7 @@ export default function AdminPage({ setPage }: any) {
           {tab === 'products' && (
             <div className="animate-fade-in">
               <div className="flex items-center justify-between mb-6">
-                <h1 className="text-2xl font-bold text-white">🛍️ Quản Lý Sản Phẩm</h1>
+                <h1 className="text-2xl font-bold text-white flex items-center gap-2"><ShoppingBag className="w-6 h-6 text-yellow-400" /> Quản Lý Sản Phẩm</h1>
                 <button onClick={() => setEditingProduct({})} className="bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-400 hover:to-yellow-500 text-yellow-950 font-bold text-sm px-5 py-2 rounded-xl shadow-lg transition-all transform hover:-translate-y-1">+ Thêm sản phẩm</button>
               </div>
               <div className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/10 overflow-hidden">
@@ -337,7 +338,7 @@ export default function AdminPage({ setPage }: any) {
             <div className="animate-fade-in">
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h1 className="text-2xl font-bold text-white">⚡ Quản Lý Gói Lượt Tarot</h1>
+                  <h1 className="text-2xl font-bold text-white flex items-center gap-2"><Zap className="w-6 h-6 text-yellow-400" /> Quản Lý Gói Lượt Tarot</h1>
                   <p className="text-white/60 text-sm mt-1">Quản lý các gói nạp lượt bốc bài (credits) cho người dùng</p>
                 </div>
                 <button onClick={() => setEditingPackage({})} className="bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-400 hover:to-yellow-500 text-yellow-950 font-bold text-sm px-5 py-2 rounded-xl shadow-lg transition-all transform hover:-translate-y-1">+ Thêm gói mới</button>
@@ -353,7 +354,7 @@ export default function AdminPage({ setPage }: any) {
                     <tr key={pkg.id} className="border-t border-white/10 text-white/80 hover:bg-white/5 transition-colors">
                       <td className="p-4">
                         <div className="flex items-center gap-3">
-                          <div className="text-2xl">{pkg.icon}</div>
+                          <div className="flex items-center justify-center w-10 h-10 bg-white/10 rounded-xl">{pkg.icon}</div>
                           <div>
                             <span className="font-bold text-white block">{pkg.name}</span>
                             <span className="text-xs text-white/50">{pkg.desc}</span>
@@ -381,7 +382,7 @@ export default function AdminPage({ setPage }: any) {
 
           {tab === 'orders' && (
             <div className="animate-fade-in">
-              <h1 className="text-2xl font-bold text-white mb-6">📦 Quản Lý Đơn Hàng</h1>
+              <h1 className="text-2xl font-bold text-white mb-6 flex items-center gap-2"><PackageSearch className="w-6 h-6 text-yellow-400" /> Quản Lý Đơn Hàng</h1>
               <div className="flex gap-2 mb-6 flex-wrap">
                 {['Tất cả', 'Chờ xác nhận', 'Đang xử lý', 'Đang giao', 'Đã giao', 'Đã huỷ'].map(s => (
                   <button key={s} className="px-4 py-2 rounded-full text-sm bg-white/10 text-white/70 hover:bg-yellow-500 hover:text-yellow-950 hover:font-bold transition-all">{s}</button>
@@ -417,15 +418,15 @@ export default function AdminPage({ setPage }: any) {
             <div className="animate-fade-in">
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h1 className="text-2xl font-bold text-white">👥 Quản Lý Tài Khoản</h1>
+                  <h1 className="text-2xl font-bold text-white flex items-center gap-2"><Users className="w-6 h-6 text-yellow-400" /> Quản Lý Tài Khoản</h1>
                   <p className="text-white/60 text-sm mt-1">Quản lý người dùng, lữ khách và phân quyền hệ thống</p>
                 </div>
                 <button onClick={() => setEditingUser({})} className="bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-400 hover:to-yellow-500 text-yellow-950 font-bold text-sm px-5 py-2 rounded-xl shadow-[0_0_15px_rgba(234,179,8,0.3)] transition-all transform hover:-translate-y-1">+ Thêm tài khoản</button>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                {[{label:'Tổng tài khoản',v:'342',c:'from-purple-500/80 to-purple-800/80', i:'👥'},{label:'Admin/Nhân viên',v:'12',c:'from-blue-500/80 to-blue-800/80', i:'🛡️'},{label:'Đang bị khoá',v:'5',c:'from-red-500/80 to-red-800/80', i:'🚫'}].map(s => (
+                {[{label:'Tổng tài khoản',v:'342',c:'from-purple-500/80 to-purple-800/80', i: <Users className="w-20 h-20" />},{label:'Admin/Nhân viên',v:'12',c:'from-blue-500/80 to-blue-800/80', i: <Shield className="w-20 h-20" />},{label:'Đang bị khoá',v:'5',c:'from-red-500/80 to-red-800/80', i: <ShieldBan className="w-20 h-20" />}].map((s, idx) => (
                   <div key={s.label} className={`bg-gradient-to-br ${s.c} backdrop-blur-md rounded-2xl p-5 shadow-lg border border-white/20 relative overflow-hidden group`}>
-                    <div className="absolute -right-4 -top-4 text-6xl opacity-20 group-hover:scale-110 transition-transform">{s.i}</div>
+                    <div className="absolute -right-4 -top-4 opacity-20 group-hover:scale-110 transition-transform">{s.i}</div>
                     <p className="text-4xl font-black text-white relative z-10">{s.v}</p>
                     <p className="text-white/80 font-medium text-sm mt-1 relative z-10">{s.label}</p>
                   </div>
