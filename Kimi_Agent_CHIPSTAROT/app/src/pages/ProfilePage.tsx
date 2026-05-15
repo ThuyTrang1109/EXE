@@ -42,8 +42,8 @@ export default function ProfilePage({ onScanClick }: any) {
         } catch (err) { 
           console.log("Using mock history");
           setHistory([
-            { id: '1', createdAt: new Date().toISOString(), topic: 'Tình duyên', cardCount: 1, aiResponseStory: 'Một khởi đầu mới đầy hy vọng...' },
-            { id: '2', createdAt: new Date(Date.now() - 86400000).toISOString(), topic: 'Sự nghiệp', cardCount: 3, aiResponseStory: 'Cần kiên nhẫn hơn trong công việc...' }
+            { id: '1', createdAt: new Date().toISOString(), readingType: 'Tình duyên', summary: 'Một khởi đầu mới đầy hy vọng...', details: [] },
+            { id: '2', createdAt: new Date(Date.now() - 86400000).toISOString(), readingType: 'Sự nghiệp', summary: 'Cần kiên nhẫn hơn trong công việc...', details: [] }
           ]);
         }
         finally { setLoadingHistory(false); }
@@ -56,8 +56,8 @@ export default function ProfilePage({ onScanClick }: any) {
         } catch (err) { 
           console.log("Using mock orders");
           setOrders([
-            { id: 'ORD001', createdAt: new Date().toISOString(), totalAmount: 199000, status: 'delivered', items: [{ productName: 'Móc khóa NFC' }] },
-            { id: 'ORD002', createdAt: new Date(Date.now() - 172800000).toISOString(), totalAmount: 89000, status: 'processing', items: [{ productName: 'Đá Thạch Anh' }] }
+            { id: 'ORD001', createdAt: new Date().toISOString(), totalAmount: 199000, subtotalAmount: 199000, discountAmount: 0, shippingFee: 0, paymentStatus: 'paid', items: [{ productName: 'Móc khóa NFC', quantity: 1, priceAtPurchase: 199000 }] },
+            { id: 'ORD002', createdAt: new Date(Date.now() - 172800000).toISOString(), totalAmount: 89000, subtotalAmount: 89000, discountAmount: 0, shippingFee: 0, paymentStatus: 'unpaid', items: [{ productName: 'Đá Thạch Anh', quantity: 1, priceAtPurchase: 89000 }] }
           ]);
         }
         finally { setLoadingOrders(false); }
@@ -315,14 +315,16 @@ export default function ProfilePage({ onScanClick }: any) {
                         <p className="text-xs text-white/30 uppercase font-bold">{new Date(h.createdAt).toLocaleString('vi-VN')}</p>
                         <span className="px-3 py-1 bg-purple-500/20 text-purple-300 border border-purple-400/20 rounded-full text-[10px] font-bold uppercase">{h.readingType}</span>
                       </div>
-                      <div className="grid grid-cols-3 sm:grid-cols-5 gap-4 mb-4">
-                        {h.details.map((d: any, idx: number) => (
-                          <div key={idx} className="space-y-1 text-center">
-                            <img src={d.card.imageUrl} alt={d.card.name} className="aspect-[2/3] object-cover rounded-lg border border-white/10 shadow-sm" />
-                            <p className="text-[10px] font-bold text-white/70 truncate">{d.card.name}</p>
-                          </div>
-                        ))}
-                      </div>
+                      {h.details && h.details.length > 0 && (
+                        <div className="grid grid-cols-3 sm:grid-cols-5 gap-4 mb-4">
+                          {h.details.map((d: any, idx: number) => (
+                            <div key={idx} className="space-y-1 text-center">
+                              <img src={d.card?.imageUrl} alt={d.card?.name} className="aspect-[2/3] object-cover rounded-lg border border-white/10 shadow-sm" />
+                              <p className="text-[10px] font-bold text-white/70 truncate">{d.card?.name}</p>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                       <div className="bg-yellow-400/5 border border-yellow-400/10 rounded-2xl p-4">
                         <p className="text-xs text-white/60 italic line-clamp-3">{h.summary}</p>
                       </div>
@@ -411,10 +413,10 @@ export default function ProfilePage({ onScanClick }: any) {
                 ))}
               </div>
               <div className="border-t border-gray-100 pt-4 space-y-2">
-                <div className="flex justify-between text-sm text-gray-500"><span>Tạm tính</span><span>{selectedOrder.subtotalAmount.toLocaleString()}đ</span></div>
-                <div className="flex justify-between text-sm text-green-600"><span>Giảm giá</span><span>-{selectedOrder.discountAmount.toLocaleString()}đ</span></div>
-                <div className="flex justify-between text-sm text-gray-500"><span>Phí vận chuyển</span><span>{selectedOrder.shippingFee.toLocaleString()}đ</span></div>
-                <div className="flex justify-between pt-2 border-t border-gray-50"><span className="font-bold">Tổng cộng</span><span className="text-2xl font-black text-red-500">{selectedOrder.totalAmount.toLocaleString()}đ</span></div>
+                <div className="flex justify-between text-sm text-gray-500"><span>Tạm tính</span><span>{(selectedOrder.subtotalAmount ?? selectedOrder.totalAmount ?? 0).toLocaleString()}đ</span></div>
+                <div className="flex justify-between text-sm text-green-600"><span>Giảm giá</span><span>-{(selectedOrder.discountAmount ?? 0).toLocaleString()}đ</span></div>
+                <div className="flex justify-between text-sm text-gray-500"><span>Phí vận chuyển</span><span>{(selectedOrder.shippingFee ?? 0).toLocaleString()}đ</span></div>
+                <div className="flex justify-between pt-2 border-t border-gray-50"><span className="font-bold">Tổng cộng</span><span className="text-2xl font-black text-red-500">{(selectedOrder.totalAmount ?? 0).toLocaleString()}đ</span></div>
               </div>
               <div className="p-4 bg-gray-50 border-t border-gray-100 flex gap-3">
                 <button className="flex-1 py-3 bg-purple-600 text-white rounded-xl font-bold hover:bg-purple-700 transition-colors">Theo dõi vận chuyển</button>

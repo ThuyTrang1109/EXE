@@ -381,9 +381,9 @@ export default function AdminPage({ setPage }: any) {
   ];
 
   const mockNfcChips = [
-    { id: 'NFC-A10293', product: 'Móc khóa NFC CHIPSTAROT', owner: 'Lan Anh', status: 'activated', scans: 45, date: '12/03/2024' },
-    { id: 'NFC-B99212', product: 'Đá Thạch Anh Tím', owner: 'Minh Tuấn', status: 'unactivated', scans: 0, date: '-' },
-    { id: 'NFC-C77382', product: 'Đá Mắt Hổ', owner: 'Thu Hà', status: 'activated', scans: 12, date: '01/04/2024' },
+    { nfcTagId: 'NFC-A10293', productName: 'Móc khóa NFC CHIPSTAROT', accountEmail: 'lananh@gmail.com', status: 'activated', scanCount: 45, activatedAt: '12/03/2024' },
+    { nfcTagId: 'NFC-B99212', productName: 'Đá Thạch Anh Tím', accountEmail: 'minhtuan@gmail.com', status: 'unactivated', scanCount: 0, activatedAt: '-' },
+    { nfcTagId: 'NFC-C77382', productName: 'Đá Mắt Hổ', accountEmail: 'thuha@gmail.com', status: 'activated', scanCount: 12, activatedAt: '01/04/2024' },
   ];
 
   const mockBlogs = [
