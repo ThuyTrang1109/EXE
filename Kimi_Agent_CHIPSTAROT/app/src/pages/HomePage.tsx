@@ -91,7 +91,7 @@ export default function HomePage({ setPage }: any) {
               <img 
                 src="/hero-main.jpg" 
                 alt="CHIPSTAROT Hero" 
-                className="w-full h-auto object-cover aspect-[21/9] sm:aspect-[21/9] hover:scale-105 transition-transform duration-700 relative z-0"
+                className="w-full h-auto hover:scale-105 transition-transform duration-700 relative z-0"
               />
             </div>
           </div>
